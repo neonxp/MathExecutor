@@ -11,6 +11,4 @@ Simple math expressions calculator
     
 ## Install via Composer
 
-All instructions to install here:
-
-[https://packagist.org/packages/nxp/math-executor]
+All instructions to install here: https://packagist.org/packages/nxp/math-executor
