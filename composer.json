@@ -1,0 +1,14 @@
+{
+    "name": "NXP/MathExecutor",
+    "description": "Simple math expressions calculator",
+    "minimum-stability": "stable",
+    "authors": [
+        {
+            "name": "Alexander 'NeonXP' Kiryukhin",
+            "email": "frei@neonxp.info"
+        }
+    ],
+    "autoload": {
+        "psr-0": {"NXP": "."}
+    }
+}
