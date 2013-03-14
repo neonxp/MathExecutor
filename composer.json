@@ -2,6 +2,9 @@
     "name": "nxp/math-executor",
     "description": "Simple math expressions calculator",
     "minimum-stability": "stable",
+    "keywords": ["math","parser","expression","calculator"],
+    "homepage": "http://github.com/NeonXP/MathExecutor",
+    "license": "GPLv2",
     "authors": [
         {
             "name": "Alexander 'NeonXP' Kiryukhin",
