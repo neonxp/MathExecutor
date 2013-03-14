@@ -1,5 +1,5 @@
 {
-    "name": "NXP/MathExecutor",
+    "name": "nxp/math-executor",
     "description": "Simple math expressions calculator",
     "minimum-stability": "stable",
     "authors": [
