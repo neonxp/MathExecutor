@@ -6,48 +6,69 @@
  */
 namespace NXP;
 
+use NXP\Classes\Func;
+use NXP\Classes\Operand;
+use NXP\Classes\Token;
+use NXP\Classes\TokenParser;
+
 /**
  * Class MathExecutor
  * @package NXP
  */
 class MathExecutor {
-    const LEFT_ASSOCIATED = 'LEFT_ASSOCIATED';
-    const RIGHT_ASSOCIATED = 'RIGHT_ASSOCIATED';
-    const NOT_ASSOCIATED = 'NOT_ASSOCIATED';
 
-    const UNARY  = 'UNARY';
-    const BINARY = 'BINARY';
 
     private $operators = [ ];
+
+    private $functions = [ ];
+
+    private $variables = [ ];
+
+    /**
+     * @var \SplStack
+     */
+    private $stack;
+
+    /**
+     * @var \SplQueue
+     */
+    private $queue;
 
     /**
      * Base math operators
      */
     public function __construct()
     {
-        $this->addOperator('+', 1, function ($op1, $op2) { return $op1 + $op2; });
-        $this->addOperator('-', 1, function ($op1, $op2) { return $op1 - $op2; });
-        $this->addOperator('*', 2, function ($op1, $op2) { return $op1 * $op2; });
-        $this->addOperator('/', 2, function ($op1, $op2) { return $op1 / $op2; });
-        $this->addOperator('^', 3, function ($op1, $op2) { return pow($op1, $op2); });
+        $this->addOperator(new Operand('+', 1, Operand::LEFT_ASSOCIATED, Operand::BINARY, function ($op1, $op2) { return $op1+$op2; }));
+        $this->addOperator(new Operand('-', 1, Operand::LEFT_ASSOCIATED, Operand::BINARY, function ($op1, $op2) { return $op1-$op2; }));
+        $this->addOperator(new Operand('*', 2, Operand::LEFT_ASSOCIATED, Operand::BINARY, function ($op1, $op2) { return $op1*$op2; }));
+        $this->addOperator(new Operand('/', 2, Operand::LEFT_ASSOCIATED, Operand::BINARY, function ($op1, $op2) { return $op1/$op2; }));
+        $this->addOperator(new Operand('^', 3, Operand::LEFT_ASSOCIATED, Operand::BINARY, function ($op1, $op2) { return pow($op1,$op2); }));
+
+        $this->addFunction(new Func('sin',  function ($arg) { return sin($arg); }));
+        $this->addFunction(new Func('cos',  function ($arg) { return cos($arg); }));
+        $this->addFunction(new Func('tn',   function ($arg) { return tan($arg); }));
+        $this->addFunction(new Func('asin', function ($arg) { return asin($arg); }));
+        $this->addFunction(new Func('acos', function ($arg) { return acos($arg); }));
+        $this->addFunction(new Func('atn',  function ($arg) { return atan($arg); }));
     }
 
-    /**
-     * Add custom operator
-     * @param string $name
-     * @param int $priority
-     * @param callable $callback
-     * @param string $association
-     * @param string $type
-     */
-    public function addOperator($name, $priority, callable $callback, $association = self::LEFT_ASSOCIATED, $type = self::BINARY)
+    public function addOperator(Operand $operator)
     {
-        $this->operators[$name] = [
-            'priority'      => $priority,
-            'association'   => $association,
-            'type'          => $type,
-            'callback'      => $callback
-        ];
+        $this->operators[$operator->getSymbol()] = $operator;
+    }
+
+    public function addFunction(Func $function)
+    {
+        $this->functions[$function->getName()] = $function->getCallback();
+    }
+
+    public function setVar($variable, $value)
+    {
+        if (!is_numeric($value)) {
+            throw new \Exception("Variable value must be a number");
+        }
+        $this->variables[$variable] = $value;
     }
 
     /**
@@ -66,132 +87,151 @@ class MathExecutor {
     /**
      * Convert expression from normal expression form to RPN
      * @param $expression
-     * @return array
+     * @return \SplQueue
      * @throws \Exception
      */
     protected function convertToReversePolishNotation($expression)
     {
-        $stack = new \SplStack();
-        $queue = [];
-        $currentNumber = '';
+        $this->stack = new \SplStack();
+        $this->queue = new \SplQueue();
 
-        for ($i = 0; $i < strlen($expression); $i++)
-        {
-            $char = substr($expression, $i, 1);
-            if  (is_numeric($char) || (($char == '.') && (strpos($currentNumber, '.')===false))) {
-                $currentNumber .= $char;
-            } elseif ($currentNumber!='') {
-                $queue = $this->insertNumberToQueue($currentNumber, $queue);
-                $currentNumber = '';
-            }
-            if (array_key_exists($char, $this->operators)) {
-                while ($this->o1HasLowerPriority($char, $stack)) {
-                    $queue[] = $stack->pop();
-                }
-                $stack->push($char);
-            }
-            if ($char == '(') {
-                $stack->push($char);
-            }
-            if ($char == ')') {
-                if ($currentNumber!='') {
-                    $queue = $this->insertNumberToQueue($currentNumber, $queue);
-                    $currentNumber = '';
-                }
-                while (($stackChar = $stack->pop()) != '(') {
-                    $queue[] = $stackChar;
-                }
-                /**
-                 * @TODO parse functions here
-                 */
-            }
+        $tokenParser = new TokenParser();
+        $input = $tokenParser->tokenize($expression);
+
+        foreach ($input as $token) {
+            $this->categorizeToken($token);
         }
 
-        if ($currentNumber!='') {
-            $queue = $this->insertNumberToQueue($currentNumber, $queue);
-        }
-
-        while (!$stack->isEmpty()) {
-            $queue[] = ($char = $stack->pop());
-            if (!array_key_exists($char, $this->operators)) {
-                throw new \Exception('Opening bracket has no closing bracket');
+        while (!$this->stack->isEmpty()) {
+            $token = $this->stack->pop();
+            if ($token->getType() != Token::OPERATOR) {
+                throw new \Exception('Opening bracket without closing bracket');
             }
+            $this->queue->push($token);
         }
 
-        return $queue;
+        return $this->queue;
     }
 
-    /**
-     * Calculate value of expression
-     * @param array $expression
-     * @return int|float
-     * @throws \Exception
-     */
-    protected function calculateReversePolishNotation(array $expression)
+    private function categorizeToken(Token $token)
     {
-        $stack = new \SplStack();
-        foreach ($expression as $element) {
-            if (is_numeric($element)) {
-                $stack->push($element);
-            } elseif (array_key_exists($element, $this->operators))  {
-                $operator = $this->operators[$element];
-                switch ($operator['type']) {
-                    case self::BINARY:
-                        $op2 = $stack->pop();
-                        $op1 = $stack->pop();
-                        $operatorResult = $operator['callback']($op1, $op2);
-                        break;
-                    case self::UNARY:
-                        $op = $stack->pop();
-                        $operatorResult = $operator['callback']($op);
-                        break;
-                    default:
-                        throw new \Exception('Incorrect type');
+        switch ($token->getType()) {
+            case Token::NUMBER :
+                $this->queue->push($token);
+                break;
+
+            case Token::STRING:
+                if (array_key_exists($token->getValue(), $this->variables)) {
+                    $this->queue->push(new Token(Token::NUMBER, $this->variables[$token->getValue()]));
+                } else {
+                    $this->stack->push($token);
                 }
-                $stack->push($operatorResult);
+                break;
+
+            case Token::LEFT_BRACKET:
+                $this->stack->push($token);
+                break;
+
+            case Token::RIGHT_BRACKET:
+                $previousToken = $this->stack->pop();
+                while (!$this->stack->isEmpty() && ($previousToken->getType() != Token::LEFT_BRACKET)) {
+                    $this->queue->push($previousToken);
+                    $previousToken = $this->stack->pop();
+                }
+                if ((!$this->stack->isEmpty()) && ($this->stack->top()->getType() == Token::STRING)) {
+                    $string = $this->stack->pop()->getValue();
+                    if (!array_key_exists($string, $this->functions)) {
+                        throw new \Exception('Unknown function');
+                    }
+                    $this->queue->push(new Token(Token::FUNC, $string));
+                }
+                break;
+
+            case Token::OPERATOR:
+                if (!array_key_exists($token->getValue(), $this->operators)) {
+                    throw new \Exception("Unknown operator '{$token->getValue()}'");
+                }
+
+                $this->proceedOperator($token);
+                $this->stack->push($token);
+                break;
+
+            default:
+                throw new \Exception('Unknown token');
+        }
+    }
+
+    private function proceedOperator($token)
+    {
+        if (!array_key_exists($token->getValue(), $this->operators)) {
+            throw new \Exception('Unknown operator');
+        }
+        /** @var Operand $operator */
+        $operator = $this->operators[$token->getValue()];
+        while (!$this->stack->isEmpty()) {
+            $top = $this->stack->top();
+            if ($top->getType() == Token::OPERATOR) {
+                $priority = $this->operators[$top->getValue()]->getPriority();
+                if ( $operator->getAssociation() == Operand::RIGHT_ASSOCIATED) {
+                    if (($priority > $operator->getPriority())) {
+                        $this->queue->push($this->stack->pop());
+                    } else {
+                        return;
+                    }
+                } else {
+                    if (($priority >= $operator->getPriority())) {
+                        $this->queue->push($this->stack->pop());
+                    } else {
+                        return;
+                    }
+                }
+            } elseif ($top->getType() == Token::STRING) {
+                $this->queue->push($this->stack->pop());
+            } else {
+                return;
             }
         }
-        $result = $stack->pop();
-        if (!$stack->isEmpty()) {
+    }
+
+    protected function calculateReversePolishNotation(\SplQueue $expression)
+    {
+        $this->stack = new \SplStack();
+        /** @val Token $token */
+        foreach ($expression as $token) {
+            switch ($token->getType()) {
+                case Token::NUMBER :
+                    $this->stack->push($token);
+                    break;
+                case Token::OPERATOR:
+                    /** @var Operand $operator */
+                    $operator = $this->operators[$token->getValue()];
+                    if ($operator->getType() == Operand::BINARY) {
+                        $arg2 = $this->stack->pop()->getValue();
+                        $arg1 = $this->stack->pop()->getValue();
+                    } else {
+                        $arg2 = null;
+                        $arg1 = $this->stack->pop()->getValue();
+                    }
+                    $callback = $operator->getCallback();
+
+
+                    $this->stack->push(new Token(Token::NUMBER, ($callback($arg1, $arg2))));
+                    break;
+                case Token::FUNC:
+                    /** @var Func $function */
+                    $callback = $this->functions[$token->getValue()];
+                    $arg = $this->stack->pop()->getValue();
+                    $this->stack->push(new Token(Token::NUMBER, ($callback($arg))));
+                    break;
+                default:
+                    throw new \Exception('Unknown token');
+            }
+        }
+        $result = $this->stack->pop()->getValue();
+        if (!$this->stack->isEmpty()) {
             throw new \Exception('Incorrect expression');
         }
 
         return $result;
     }
-
-    /**
-     * @param $char
-     * @param $stack
-     * @return bool
-     */
-    private function o1HasLowerPriority($char, \SplStack $stack) {
-        if (($stack->isEmpty()) || ($stack->top() == '(')) {
-            return false;
-        }
-        $stackTopAssociation = $this->operators[$stack->top()]['association'];
-        $stackTopPriority = $this->operators[$stack->top()]['priority'];
-        $charPriority = $this->operators[$char]['priority'];
-
-
-        return
-            (($stackTopAssociation != self::LEFT_ASSOCIATED) && ($stackTopPriority > $charPriority)) ||
-            (($stackTopAssociation == self::LEFT_ASSOCIATED) && ($stackTopPriority >= $charPriority));
-    }
-
-    /**
-     * @param string $currentNumber
-     * @param array $queue
-     * @return array
-     */
-    private function insertNumberToQueue($currentNumber, $queue)
-    {
-        if ($currentNumber[0]=='.') {
-            $currentNumber = '0'.$currentNumber;
-        }
-        $currentNumber = trim($currentNumber, '.');
-        $queue[] = $currentNumber;
-
-        return $queue;
-    }
-
 }

@@ -12,6 +12,10 @@ class MathTest extends \PHPUnit_Framework_TestCase {
     public function setup()
     {
         require '../MathExecutor.php';
+        require '../Classes/Func.php';
+        require '../Classes/Operand.php';
+        require '../Classes/Token.php';
+        require '../Classes/TokenParser.php';
     }
     public function testCalculating()
     {

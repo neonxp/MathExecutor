@@ -8,4 +8,5 @@ require "vendor/autoload.php";
 
 $e = new \NXP\MathExecutor();
 
-print $e->execute("1 + 2 * (2 - (4+10))^2");
+$r = $e->execute("1 + 2 * (2 - (4+10))^2");
+var_dump($r);
