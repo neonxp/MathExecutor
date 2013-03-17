@@ -53,16 +53,30 @@ class MathExecutor {
         $this->addFunction(new Func('atn',  function ($arg) { return atan($arg); }));
     }
 
+    /**
+     * Add operator to executor
+     * @param Operand $operator
+     */
     public function addOperator(Operand $operator)
     {
         $this->operators[$operator->getSymbol()] = $operator;
     }
 
+    /**
+     * Add function to executor
+     * @param Func $function
+     */
     public function addFunction(Func $function)
     {
         $this->functions[$function->getName()] = $function->getCallback();
     }
 
+    /**
+     * Add variable to executor
+     * @param $variable
+     * @param $value
+     * @throws \Exception
+     */
     public function setVar($variable, $value)
     {
         if (!is_numeric($value)) {
@@ -90,7 +104,7 @@ class MathExecutor {
      * @return \SplQueue
      * @throws \Exception
      */
-    protected function convertToReversePolishNotation($expression)
+    private function convertToReversePolishNotation($expression)
     {
         $this->stack = new \SplStack();
         $this->queue = new \SplQueue();
@@ -113,6 +127,10 @@ class MathExecutor {
         return $this->queue;
     }
 
+    /**
+     * @param Token $token
+     * @throws \Exception
+     */
     private function categorizeToken(Token $token)
     {
         switch ($token->getType()) {
@@ -161,6 +179,10 @@ class MathExecutor {
         }
     }
 
+    /**
+     * @param $token
+     * @throws \Exception
+     */
     private function proceedOperator($token)
     {
         if (!array_key_exists($token->getValue(), $this->operators)) {
@@ -193,7 +215,12 @@ class MathExecutor {
         }
     }
 
-    protected function calculateReversePolishNotation(\SplQueue $expression)
+    /**
+     * @param \SplQueue $expression
+     * @return mixed
+     * @throws \Exception
+     */
+    private function calculateReversePolishNotation(\SplQueue $expression)
     {
         $this->stack = new \SplStack();
         /** @val Token $token */
