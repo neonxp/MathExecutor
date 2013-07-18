@@ -17,7 +17,7 @@ class TokenParser {
     const SPACE         = 'SPACE';
 
     private $terms = [
-        self::DIGIT         => '[0-9\.]',
+        self::DIGIT         => '[0-9\.\-]',
         self::CHAR          => '[a-z]',
         self::SPECIAL_CHAR  => '[\!\@\#\$\%\^\&\*\/\|\-\+\=\~]',
         self::LEFT_BRACKET  => '\(',
