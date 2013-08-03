@@ -1,14 +1,18 @@
 <?php
+
 /**
- * Author: Alexander "NeonXP" Kiryukhin
- * Date: 17.03.13
- * Time: 4:27
+ * This file is part of the MathExecutor package
+ *
+ * (c) Alexander Kiryukhin
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code
  */
 
 namespace NXP\Classes;
 
-
-class Operand {
+class Operand
+{
     const LEFT_ASSOCIATED = 'LEFT_ASSOCIATED';
     const RIGHT_ASSOCIATED = 'RIGHT_ASSOCIATED';
     const ASSOCIATED = 'ASSOCIATED';
@@ -48,7 +52,7 @@ class Operand {
      * @param $type
      * @param $callback
      */
-    function __construct($symbol, $priority, $association, $type, $callback)
+    public function __construct($symbol, $priority, $association, $type, $callback)
     {
         $this->association = $association;
         $this->symbol = $symbol;
