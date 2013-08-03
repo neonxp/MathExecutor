@@ -12,6 +12,6 @@
         }
     ],
     "autoload": {
-        "psr-0": {"NXP": "."}
+        "psr-0": {"NXP": "src/"}
     }
 }

@@ -1,15 +1,18 @@
 <?php
+
 /**
- * Author: Alexander "NeonXP" Kiryukhin
- * Date: 17.03.13
- * Time: 3:23
+ * This file is part of the MathExecutor package
+ *
+ * (c) Alexander Kiryukhin
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code
  */
 
 namespace NXP\Classes;
 
-
-class Token {
-
+class Token
+{
     const NOTHING       = 'NOTHING';
     const STRING        = 'STRING';
     const NUMBER        = 'NUMBER';
@@ -28,7 +31,7 @@ class Token {
      */
     protected $type;
 
-    function __construct($type, $value)
+    public function __construct($type, $value)
     {
         $this->type = $type;
         $this->value = $value;

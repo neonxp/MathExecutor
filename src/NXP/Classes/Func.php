@@ -1,14 +1,18 @@
 <?php
+
 /**
- * Author: Alexander "NeonXP" Kiryukhin
- * Date: 17.03.13
- * Time: 4:30
+ * This file is part of the MathExecutor package
+ *
+ * (c) Alexander Kiryukhin
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code
  */
 
 namespace NXP\Classes;
 
-
-class Func {
+class Func
+{
     /**
      * @var string
      */
@@ -23,7 +27,7 @@ class Func {
      * @param $name
      * @param $callback
      */
-    function __construct($name, $callback)
+    public function __construct($name, $callback)
     {
         $this->name = $name;
         $this->callback = $callback;
