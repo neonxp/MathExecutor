@@ -1,28 +1,51 @@
 <?php
+
 /**
- * Author: Alexander "NeonXP" Kiryukhin
- * Date: 14.03.13
- * Time: 1:01
+ * This file is part of the MathExecutor package
+ *
+ * (c) Alexander Kiryukhin
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code
  */
+
 namespace NXP;
 
 use NXP\Classes\Func;
 use NXP\Classes\Operand;
 use NXP\Classes\Token;
 use NXP\Classes\TokenParser;
+use NXP\Exception\IncorrectExpressionException;
+use NXP\Exception\UnknownFunctionException;
+use NXP\Exception\UnknownOperatorException;
+use NXP\Exception\UnknownTokenException;
 
 /**
  * Class MathExecutor
  * @package NXP
  */
-class MathExecutor {
+class MathExecutor
+{
+    /**
+     * Available operators
+     *
+     * @var array
+     */
+    private $operators = array();
 
+    /**
+     * Available functions
+     *
+     * @var array
+     */
+    private $functions = array();
 
-    private $operators = [ ];
-
-    private $functions = [ ];
-
-    private $variables = [ ];
+    /**
+     * Available variables
+     *
+     * @var array
+     */
+    private $variables = array();
 
     /**
      * @var \SplStack
@@ -38,6 +61,23 @@ class MathExecutor {
      * Base math operators
      */
     public function __construct()
+    {
+        $this->addDefaults();
+    }
+
+    public function __clone()
+    {
+        $this->variables = array();
+        $this->operators = array();
+        $this->functions = array();
+
+        $this->addDefaults();
+    }
+
+    /**
+     * Set default operands and functions
+     */
+    protected function addDefaults()
     {
         $this->addOperator(new Operand('+', 1, Operand::LEFT_ASSOCIATED, Operand::BINARY, function ($op1, $op2) { return $op1+$op2; }));
         $this->addOperator(new Operand('-', 1, Operand::LEFT_ASSOCIATED, Operand::BINARY, function ($op1, $op2) { return $op1-$op2; }));
@@ -55,38 +95,100 @@ class MathExecutor {
 
     /**
      * Add operator to executor
-     * @param Operand $operator
+     *
+     * @param  Operand      $operator
+     * @return MathExecutor
      */
     public function addOperator(Operand $operator)
     {
         $this->operators[$operator->getSymbol()] = $operator;
+
+        return $this;
     }
 
     /**
      * Add function to executor
-     * @param Func $function
+     *
+     * @param  string       $name
+     * @param  callable     $function
+     * @return MathExecutor
      */
-    public function addFunction(Func $function)
+    public function addFunction($name, callable $function = null)
     {
-        $this->functions[$function->getName()] = $function->getCallback();
+        if ($name instanceof Func) {
+            $this->functions[$name->getName()] = $name->getCallback();
+        } else {
+            $this->functions[$name] = $function;
+        }
+
+        return $this;
     }
 
     /**
      * Add variable to executor
-     * @param $variable
-     * @param $value
+     *
+     * @param  string        $variable
+     * @param  integer|float $value
      * @throws \Exception
+     * @return MathExecutor
      */
     public function setVar($variable, $value)
     {
         if (!is_numeric($value)) {
             throw new \Exception("Variable value must be a number");
         }
+
         $this->variables[$variable] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Add variables to executor
+     *
+     * @param  array        $variables
+     * @param  bool         $clear     Clear previous variables
+     * @return MathExecutor
+     */
+    public function setVars(array $variables, $clear = true)
+    {
+        if ($clear) {
+            $this->removeVars();
+        }
+
+        foreach ($variables as $name => $value) {
+            $this->setVar($name, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove variable from executor
+     *
+     * @param  string       $variable
+     * @return MathExecutor
+     */
+    public function removeVar($variable)
+    {
+        unset ($this->variables[$variable]);
+
+        return $this;
+    }
+
+    /**
+     * Remove all variables
+     */
+    public function removeVars()
+    {
+        $this->variables = array();
+
+        return $this;
     }
 
     /**
      * Execute expression
+     *
      * @param $expression
      * @return int|float
      */
@@ -100,6 +202,7 @@ class MathExecutor {
 
     /**
      * Convert expression from normal expression form to RPN
+     *
      * @param $expression
      * @return \SplQueue
      * @throws \Exception
@@ -118,9 +221,11 @@ class MathExecutor {
 
         while (!$this->stack->isEmpty()) {
             $token = $this->stack->pop();
+
             if ($token->getType() != Token::OPERATOR) {
                 throw new \Exception('Opening bracket without closing bracket');
             }
+
             $this->queue->push($token);
         }
 
@@ -128,7 +233,7 @@ class MathExecutor {
     }
 
     /**
-     * @param Token $token
+     * @param  Token      $token
      * @throws \Exception
      */
     private function categorizeToken(Token $token)
@@ -157,17 +262,23 @@ class MathExecutor {
                     $previousToken = $this->stack->pop();
                 }
                 if ((!$this->stack->isEmpty()) && ($this->stack->top()->getType() == Token::STRING)) {
-                    $string = $this->stack->pop()->getValue();
-                    if (!array_key_exists($string, $this->functions)) {
-                        throw new \Exception('Unknown function');
+                    $funcName = $this->stack->pop()->getValue();
+                    if (!array_key_exists($funcName, $this->functions)) {
+                        throw new UnknownFunctionException(sprintf(
+                            'Unknown function: "%s".',
+                            $funcName
+                        ));
                     }
-                    $this->queue->push(new Token(Token::FUNC, $string));
+                    $this->queue->push(new Token(Token::FUNC, $funcName));
                 }
                 break;
 
             case Token::OPERATOR:
                 if (!array_key_exists($token->getValue(), $this->operators)) {
-                    throw new \Exception("Unknown operator '{$token->getValue()}'");
+                    throw new UnknownOperatorException(sprintf(
+                        'Unknown operator: "%s".',
+                        $token->getValue()
+                    ));
                 }
 
                 $this->proceedOperator($token);
@@ -175,7 +286,10 @@ class MathExecutor {
                 break;
 
             default:
-                throw new \Exception('Unknown token');
+                throw new UnknownTokenException(sprintf(
+                    'Unknown token: "%s".',
+                    $token->getValue()
+                ));
         }
     }
 
@@ -183,17 +297,25 @@ class MathExecutor {
      * @param $token
      * @throws \Exception
      */
-    private function proceedOperator($token)
+    private function proceedOperator(Token $token)
     {
         if (!array_key_exists($token->getValue(), $this->operators)) {
-            throw new \Exception('Unknown operator');
+            throw new UnknownOperatorException(sprintf(
+                'Unknown operator: "%s".',
+                $token->getValue()
+            ));
         }
+
         /** @var Operand $operator */
         $operator = $this->operators[$token->getValue()];
+
         while (!$this->stack->isEmpty()) {
             $top = $this->stack->top();
+
             if ($top->getType() == Token::OPERATOR) {
-                $priority = $this->operators[$top->getValue()]->getPriority();
+                /** @var Operand $operator */
+                $operator = $this->operators[$top->getValue()];
+                $priority = $operator->getPriority();
                 if ( $operator->getAssociation() == Operand::RIGHT_ASSOCIATED) {
                     if (($priority > $operator->getPriority())) {
                         $this->queue->push($this->stack->pop());
@@ -216,19 +338,20 @@ class MathExecutor {
     }
 
     /**
-     * @param \SplQueue $expression
+     * @param  \SplQueue  $expression
      * @return mixed
      * @throws \Exception
      */
     private function calculateReversePolishNotation(\SplQueue $expression)
     {
         $this->stack = new \SplStack();
-        /** @val Token $token */
+        /** @var Token $token */
         foreach ($expression as $token) {
             switch ($token->getType()) {
                 case Token::NUMBER :
                     $this->stack->push($token);
                     break;
+
                 case Token::OPERATOR:
                     /** @var Operand $operator */
                     $operator = $this->operators[$token->getValue()];
@@ -241,22 +364,28 @@ class MathExecutor {
                     }
                     $callback = $operator->getCallback();
 
-
-                    $this->stack->push(new Token(Token::NUMBER, ($callback($arg1, $arg2))));
+                    $this->stack->push(new Token(Token::NUMBER, (call_user_func($callback, $arg1, $arg2))));
                     break;
+
                 case Token::FUNC:
                     /** @var Func $function */
                     $callback = $this->functions[$token->getValue()];
                     $arg = $this->stack->pop()->getValue();
-                    $this->stack->push(new Token(Token::NUMBER, ($callback($arg))));
+                    $this->stack->push(new Token(Token::NUMBER, (call_user_func($callback, $arg))));
                     break;
+
                 default:
-                    throw new \Exception('Unknown token');
+                    throw new UnknownTokenException(sprintf(
+                        'Unknown token: "%s".',
+                        $token->getValue()
+                    ));
             }
         }
+
         $result = $this->stack->pop()->getValue();
+
         if (!$this->stack->isEmpty()) {
-            throw new \Exception('Incorrect expression');
+            throw new IncorrectExpressionException('Incorrect expression.');
         }
 
         return $result;
