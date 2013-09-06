@@ -23,9 +23,21 @@ use NXP\Classes\TokenFactory;
 class MathExecutor
 {
     /**
+     * Available variables
+     *
+     * @var array
+     */
+    private $variables = array();
+
+    /**
      * @var TokenFactory
      */
     private $tokenFactory;
+
+    /**
+     * @var array
+     */
+    private $cache = array();
 
     /**
      * Base math operators
@@ -63,6 +75,72 @@ class MathExecutor
         $this->tokenFactory->addFunction('max', 'max', 2);
         $this->tokenFactory->addFunction('avg', function($arg1, $arg2) { return ($arg1 + $arg2) / 2; }, 2);
 
+        $this->setVars(array(
+            'pi' => 3.14159265359,
+            'e'  => 2.71828182846
+        ));
+    }
+
+    /**
+     * Add variable to executor
+     *
+     * @param  string        $variable
+     * @param  integer|float $value
+     * @throws \Exception
+     * @return MathExecutor
+     */
+    public function setVar($variable, $value)
+    {
+        if (!is_numeric($value)) {
+            throw new \Exception("Variable value must be a number");
+        }
+
+        $this->variables[$variable] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Add variables to executor
+     *
+     * @param  array        $variables
+     * @param  bool         $clear     Clear previous variables
+     * @return MathExecutor
+     */
+    public function setVars(array $variables, $clear = true)
+    {
+        if ($clear) {
+            $this->removeVars();
+        }
+
+        foreach ($variables as $name => $value) {
+            $this->setVar($name, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove variable from executor
+     *
+     * @param  string       $variable
+     * @return MathExecutor
+     */
+    public function removeVar($variable)
+    {
+        unset ($this->variables[$variable]);
+
+        return $this;
+    }
+
+    /**
+     * Remove all variables
+     */
+    public function removeVars()
+    {
+        $this->variables = array();
+
+        return $this;
     }
 
     /**
@@ -97,15 +175,20 @@ class MathExecutor
      * Execute expression
      *
      * @param $expression
-     * @return int|float
+     * @return number
      */
     public function execute($expression)
     {
-        $lexer = new Lexer($this->tokenFactory);
-        $tokensStream = $lexer->stringToTokensStream($expression);
-        $tokens = $lexer->buildReversePolishNotation($tokensStream);
+        if (!array_key_exists($expression, $this->cache)) {
+            $lexer = new Lexer($this->tokenFactory);
+            $tokensStream = $lexer->stringToTokensStream($expression);
+            $tokens = $lexer->buildReversePolishNotation($tokensStream);
+            $this->cache[$expression] = $tokens;
+        } else {
+            $tokens = $this->cache[$expression];
+        }
         $calculator = new Calculator();
-        $result = $calculator->calculate($tokens);
+        $result = $calculator->calculate($tokens, $this->variables);
 
         return $result;
     }

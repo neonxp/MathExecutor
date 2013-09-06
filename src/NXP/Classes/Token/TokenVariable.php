@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of the MathExecutor package
  *
@@ -9,11 +8,18 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Exception;
+namespace NXP\Classes\Token;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class IncorrectBracketsException extends \Exception
+class TokenVariable extends AbstractContainerToken
 {
+    /**
+     * @return string
+     */
+    public static function getRegex()
+    {
+        return '\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
+    }
 }

@@ -14,6 +14,6 @@ namespace NXP\Exception;
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class IncorrectBracketsException extends \Exception
+class UnknownVariableException extends \Exception
 {
 }

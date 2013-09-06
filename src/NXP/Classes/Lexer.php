@@ -16,6 +16,7 @@ use NXP\Classes\Token\TokenFunction;
 use NXP\Classes\Token\TokenLeftBracket;
 use NXP\Classes\Token\TokenNumber;
 use NXP\Classes\Token\TokenRightBracket;
+use NXP\Classes\Token\TokenVariable;
 use NXP\Exception\IncorrectBracketsException;
 use NXP\Exception\IncorrectExpressionException;
 
@@ -65,6 +66,9 @@ class Lexer
 
         foreach ($tokensStream as $token) {
             if ($token instanceof TokenNumber) {
+                $output[] = $token;
+            }
+            if ($token instanceof TokenVariable) {
                 $output[] = $token;
             }
             if ($token instanceof TokenFunction) {

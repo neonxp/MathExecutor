@@ -13,7 +13,9 @@ namespace NXP\Classes;
 use NXP\Classes\Token\InterfaceOperator;
 use NXP\Classes\Token\TokenFunction;
 use NXP\Classes\Token\TokenNumber;
+use NXP\Classes\Token\TokenVariable;
 use NXP\Exception\IncorrectExpressionException;
+use NXP\Exception\UnknownVariableException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -21,16 +23,27 @@ use NXP\Exception\IncorrectExpressionException;
 class Calculator
 {
     /**
-     * @param  array                                       $tokens Tokens in reverse polish notation
-     * @return number
+     * Calculate array of tokens in reverse polish notation
+     * @param  array                                       $tokens    Array of tokens
+     * @param  array                                       $variables Array of variables
+     * @return number                                      Result
      * @throws \NXP\Exception\IncorrectExpressionException
+     * @throws \NXP\Exception\UnknownVariableException
      */
-    public function calculate($tokens)
+    public function calculate($tokens, $variables)
     {
         $stack = array();
         foreach ($tokens as $token) {
             if ($token instanceof TokenNumber) {
                 array_push($stack, $token);
+            }
+            if ($token instanceof TokenVariable) {
+                $variable = $token->getValue();
+                if (!array_key_exists($variable, $variables)) {
+                    throw new UnknownVariableException();
+                }
+                $value = $variables[$variable];
+                array_push($stack, new TokenNumber($value));
             }
             if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {
                 array_push($stack, $token->execute($stack));

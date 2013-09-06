@@ -100,3 +100,20 @@ And adding to executor:
 ```php
 $executor->addOperator('MyNamespace\ModulusToken');
 ```
+
+## Variables:
+
+Default variables:
+
+$pi = 3.14159265359
+$e = 2.71828182846
+
+You can add own variable to executor:
+
+```php
+$executor->setVars(array(
+    'var1' => 0.15,
+    'var2' => 0.22
+));
+
+$executor->execute("$var1 + $var2");

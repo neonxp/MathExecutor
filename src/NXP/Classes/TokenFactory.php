@@ -16,6 +16,7 @@ use NXP\Classes\Token\TokenFunction;
 use NXP\Classes\Token\TokenLeftBracket;
 use NXP\Classes\Token\TokenNumber;
 use NXP\Classes\Token\TokenRightBracket;
+use NXP\Classes\Token\TokenVariable;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownOperatorException;
 use NXP\Exception\UnknownTokenException;
@@ -40,6 +41,7 @@ class TokenFactory
     protected $functions = array();
 
     /**
+     * Add function
      * @param $name
      * @param $function
      * @param $places
@@ -49,6 +51,11 @@ class TokenFactory
         $this->functions[$name] = array($places, $function);
     }
 
+    /**
+     * Add operator
+     * @param  string                                  $operatorClass
+     * @throws \NXP\Exception\UnknownOperatorException
+     */
     public function addOperator($operatorClass)
     {
         $class = new \ReflectionClass($operatorClass);
@@ -62,6 +69,16 @@ class TokenFactory
     }
 
     /**
+     * Add variable
+     * @param string $name
+     * @param mixed  $value
+     */
+    public function addVariable($name, $value)
+    {
+
+    }
+
+    /**
      * @return string
      */
     public function getTokenParserRegex()
@@ -72,10 +89,11 @@ class TokenFactory
         }
 
         return sprintf(
-            '/(%s)|([%s])|(%s)|([%s%s%s])/i',
+            '/(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
             TokenNumber::getRegex(),
             $operatorsRegex,
             TokenFunction::getRegex(),
+            TokenVariable::getRegex(),
             TokenLeftBracket::getRegex(),
             TokenRightBracket::getRegex(),
             TokenComma::getRegex()
@@ -112,6 +130,11 @@ class TokenFactory
             }
         }
 
+        $regex = sprintf('/%s/i', TokenVariable::getRegex());
+        if (preg_match($regex, $token)) {
+            return new TokenVariable(substr($token,1));
+        }
+
         $regex = sprintf('/%s/i', TokenFunction::getRegex());
         if (preg_match($regex, $token)) {
             if (isset($this->functions[$token])) {
@@ -120,6 +143,7 @@ class TokenFactory
                 throw new UnknownFunctionException();
             }
         }
+
         throw new UnknownTokenException();
     }
 }
