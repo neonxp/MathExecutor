@@ -81,9 +81,9 @@ class MathExecutor
     /**
      * Add function to executor
      *
-     * @param string   $name     Name of function
-     * @param callable $function Function
-     * @param int      $places   Count of arguments
+     * @param  string       $name     Name of function
+     * @param  callable     $function Function
+     * @param  int          $places   Count of arguments
      * @return MathExecutor
      */
     public function addFunction($name, callable $function = null, $places = 1)
