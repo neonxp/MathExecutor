@@ -2,6 +2,8 @@
 
 Simple math expressions calculator
 
+[![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor)
+
 ## Install via Composer
 
 All instructions to install here: https://packagist.org/packages/nxp/math-executor
