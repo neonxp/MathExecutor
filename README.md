@@ -1,8 +1,8 @@
-# NXP MathExecutor
-
-Simple math expressions calculator
+# MathExecutor
 
 [![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor)
+
+Simple math expressions calculator
 
 ## Install via Composer
 
