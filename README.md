@@ -107,8 +107,10 @@ $executor->addOperator('MyNamespace\ModulusToken');
 
 Default variables:
 
+```
 $pi = 3.14159265359
 $e = 2.71828182846
+```
 
 You can add own variable to executor:
 
