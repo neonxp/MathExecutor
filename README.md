@@ -6,7 +6,15 @@ Simple math expressions calculator
 
 ## Install via Composer
 
-All instructions to install here: https://packagist.org/packages/nxp/math-executor
+Stable branch
+```
+composer require "nxp/math-executor" "v0.1"
+```
+
+Dev branch
+```
+composer require "nxp/math-executor" "dev-master"
+```
 
 ## Sample usage:
 
