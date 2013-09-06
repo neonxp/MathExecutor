@@ -45,7 +45,18 @@ class MathTest extends \PHPUnit_Framework_TestCase
             array('0.1 / 0.2'),
             array('1 / 2'),
 
-            array('1 + 0.6 - (3 * 2 / 50)')
+            array('2 * 2 + 3 * 3'),
+
+            array('1 + 0.6 - 3 * 2 / 50'),
+
+            array('(5 + 3) * -1'),
+
+            array('2+2*2'),
+            array('(2+2)*2'),
+            array('(2+2)*-2'),
+            array('(2+-2)*2'),
+
+            array('sin(10) * cos(50) / min(10, 20/2)')
         );
     }
 }

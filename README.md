@@ -13,7 +13,7 @@ require "vendor/autoload.php";
 
 $calculator = new \NXP\MathExecutor();
 
-print $calculator->execute("1 + 2 * (2 - (4+10))^2");
+print $calculator->execute("1 + 2 * (2 - (4+10))^2 + sin(10)");
 ```
 
 ## Functions:
@@ -23,28 +23,80 @@ Default functions:
 * cos
 * tn
 * asin
-* asoc
+* acos
 * atn
+* min
+* max
+* avg
 
 Add custom function to executor:
 ```php
 $executor->addFunction('abs', function($arg) {
     return abs($arg);
-});
+}, 1);
 ```
 
 ## Operators:
 
 Default operators: `+ - * / ^`
 
-## Variables:
+Add custom operator to executor:
 
-You can add own variable to executor:
+MyNamespace/ModulusToken.php:
 
 ```php
-$executor->setVars(array(
-    'var1' => 0.15,
-    'var2' => 0.22
-));
+<?php
+namespace MyNamespace;
 
-$executor->execute("var1 + var2");
+use NXP\Classes\Token\AbstractOperator;
+
+class ModulusToken extends AbstractOperator
+{
+    /**
+     * Regex of this operator
+     * @return string
+     */
+    public static function getRegex()
+    {
+        return '\%';
+    }
+
+    /**
+     * Priority of this operator
+     * @return int
+     */
+    public function getPriority()
+    {
+        return 3;
+    }
+
+    /**
+     * Associaion of this operator (self::LEFT_ASSOC or self::RIGHT_ASSOC)
+     * @return string
+     */
+    public function getAssociation()
+    {
+        return self::LEFT_ASSOC;
+    }
+
+    /**
+     * Execution of this operator
+     * @param InterfaceToken[] $stack Stack of tokens
+     * @return TokenNumber            Result of execution
+     */
+    public function execute(&$stack)
+    {
+        $op2 = array_pop($stack);
+        $op1 = array_pop($stack);
+        $result = $op1->getValue() % $op2->getValue();
+
+        return new TokenNumber($result);
+    }
+}
+```
+
+And adding to executor:
+
+```php
+$executor->addOperator('MyNamespace\ModulusToken');
+```
