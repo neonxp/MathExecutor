@@ -164,7 +164,7 @@ class MathExecutor
      * @param  int          $places   Count of arguments
      * @return MathExecutor
      */
-    public function addFunction($name, callable $function = null, $places = 1)
+    public function addFunction($name, $function = null, $places = 1)
     {
         $this->tokenFactory->addFunction($name, $function, $places);
 
