@@ -8,12 +8,12 @@ Simple math expressions calculator
 
 Stable branch
 ```
-composer require "nxp/math-executor" "v0.1"
+composer require "nxp/math-executor" "dev-master"
 ```
 
 Dev branch
 ```
-composer require "nxp/math-executor" "dev-master"
+composer require "nxp/math-executor" "dev-dev"
 ```
 
 ## Sample usage:
