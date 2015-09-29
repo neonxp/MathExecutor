@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/NeonXP/MathExecutor.png?label=ready&title=Ready)](https://waffle.io/NeonXP/MathExecutor)
 # MathExecutor
 
 [![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor)
