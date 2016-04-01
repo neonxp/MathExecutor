@@ -27,6 +27,12 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($calculator->execute($expression), $phpResult);
     }
 
+    public function testZeroDevision()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals($calculator->execute('1 / 0'), 0);
+    }
+
     /**
      * Expressions data provider
      */
