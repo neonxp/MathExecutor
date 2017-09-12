@@ -33,6 +33,12 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($calculator->execute('1 / 0'), 0);
     }
 
+    public function testExponentiation()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals($calculator->execute('10 ^ 2'), 100);
+    }
+
     /**
      * Expressions data provider
      */
