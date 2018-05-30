@@ -109,6 +109,9 @@ class MathExecutor
         $this->tokenFactory->addFunction('elt', function ($arg1, $arg2, $arg3, $arg4) {
             return $arg4 <= $arg3 ? $arg2 : $arg1;
         }, 4);
+        $this->tokenFactory->addFunction('eq', function ($arg1, $arg2, $arg3, $arg4) {
+            return $arg4 == $arg3 ? $arg2 : $arg1;
+        }, 4);
         $this->addComplexFunc();
     }
 
@@ -278,7 +281,7 @@ class MathExecutor
      * @param  int          $places   Count of arguments
      * @return MathExecutor
      */
-    public function addFunction($name, $function = null, $places = 1)
+    public function addFunction($name, callable $function = null, $places = 1)
     {
         $this->tokenFactory->addFunction($name, $function, $places);
 

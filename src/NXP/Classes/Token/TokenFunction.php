@@ -35,6 +35,9 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
             array_push($args, array_pop($stack)->getValue());
         }
         $result = call_user_func_array($function, $args);
+        if(is_nan($result)) { //增加把不合法计算表达式的值置0
+            $result = 0.0;
+        }
 
         return new TokenNumber($result);
     }

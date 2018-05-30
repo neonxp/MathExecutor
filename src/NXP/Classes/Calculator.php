@@ -44,7 +44,11 @@ class Calculator
                 if(array_key_exists($variable, $variables)) {
                     $value = $variables[$variable];
                 } elseif (array_key_exists($variable, $midresults)) { //增加对中间结果的递归计算
-                    $value = $oExecutor->execute($midresults[$variable]['formula']);
+                    if(isset($midresults[$variable]['value'])) { //增加对中间结果的使用
+                        $value = $midresults[$variable]['value'];
+                    } else {
+                        $value = $oExecutor->execute($midresults[$variable]['formula']);
+                    }
                 } else {
                     throw new UnknownVariableException();
                 }
