@@ -128,6 +128,17 @@ class MathExecutor
                 return $arg1;
             }
         }, 6);
+        $this->tokenFactory->addFunction('lteach3', function ($arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $arg7, $arg8) {
+            if($arg8 < $arg7) {
+                return $arg6;
+            } elseif($arg8 < $arg5) {
+                return $arg4;
+            } elseif($arg8 < $arg3) {
+                return $arg2;
+            } else {
+                return $arg1;
+            }
+        }, 8);
         $this->tokenFactory->addFunction('elteach', function ($arg1, $arg2, $arg3, $arg4, $arg5, $arg6) {
             if($arg6 <= $arg5) {
                 return $arg4;
