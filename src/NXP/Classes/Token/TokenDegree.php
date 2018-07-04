@@ -41,13 +41,13 @@ class TokenDegree extends AbstractOperator
 
     /**
      * @param InterfaceToken[] $stack
-     * @return $this
+     * @return TokenNumber
      */
     public function execute(&$stack)
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
-        $result = $op1->getValue() ^ $op2->getValue();
+        $result = $op1->getValue() ** $op2->getValue();
 
         return new TokenNumber($result);
     }

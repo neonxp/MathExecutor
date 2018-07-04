@@ -26,11 +26,13 @@ class Calculator
      * Calculate array of tokens in reverse polish notation
      * @param  array                                       $tokens    Array of tokens
      * @param  array                                       $variables Array of variables
+     * @param  array                                       $midresults Array of middle results
+     * @param  \NXP\MathExecutor                           $oExecutor object of NXP\MathExecutor
      * @return number                                      Result
      * @throws \NXP\Exception\IncorrectExpressionException
      * @throws \NXP\Exception\UnknownVariableException
      */
-    public function calculate($tokens, $variables)
+    public function calculate($tokens, $variables, $midresults, $oExecutor)
     {
         $stack = array();
         foreach ($tokens as $token) {
@@ -39,10 +41,25 @@ class Calculator
             }
             if ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
+                if(array_key_exists($variable, $variables)) {
+                    $value = $variables[$variable];
+                } elseif (array_key_exists($variable, $midresults)) { //增加对中间结果的递归计算
+                    if(isset($midresults[$variable]['value'])) { //增加对中间结果的使用
+                        $value = $midresults[$variable]['value'];
+                    } else {
+                        $value = $oExecutor->execute($midresults[$variable]['formula']);
+                    }
+                } else {
+                    throw new UnknownVariableException();
+                }
+
+                /*
                 if (!array_key_exists($variable, $variables)) {
                     throw new UnknownVariableException();
                 }
                 $value = $variables[$variable];
+                */
+
                 array_push($stack, new TokenNumber($value));
             }
             if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {

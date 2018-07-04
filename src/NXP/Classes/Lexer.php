@@ -79,12 +79,27 @@ class Lexer
                 array_push($stack, $token);
             }
             if ($token instanceof TokenComma) {
+                while($current = array_pop($stack)) {
+                    if (!$current instanceof TokenLeftBracket) {
+                        $output[] = $current;
+                    } else {
+                        array_push($stack, $current);
+                        break;
+                    }
+
+                    if (empty($stack)) {
+                        throw new IncorrectExpressionException();
+                    }
+                }
+
+                /*
                 while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
                     $output[] = $current;
                     if (empty($stack)) {
                         throw new IncorrectExpressionException();
                     }
                 }
+                */
             }
             if ($token instanceof TokenRightBracket) {
                 while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
@@ -99,13 +114,13 @@ class Lexer
                 while (
                     count($stack) > 0 &&
                     ($stack[count($stack)-1] instanceof InterfaceOperator) &&
-                    (
+                    ((
                         $token->getAssociation() == AbstractOperator::LEFT_ASSOC &&
                         $token->getPriority() <= $stack[count($stack)-1]->getPriority()
                     ) || (
                         $token->getAssociation() == AbstractOperator::RIGHT_ASSOC &&
                         $token->getPriority() < $stack[count($stack)-1]->getPriority()
-                    )
+                    ))
                 ) {
                     $output[] = array_pop($stack);
                 }
