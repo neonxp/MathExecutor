@@ -79,12 +79,28 @@ class Lexer
                 array_push($stack, $token);
             }
             if ($token instanceof TokenComma) {
+                //fix a bug caused by more than two commas in the formula
+                while($current = array_pop($stack)) {
+                    if (!$current instanceof TokenLeftBracket) {
+                        $output[] = $current;
+                    } else {
+                        array_push($stack, $current);
+                        break;
+                    }
+
+                    if (empty($stack)) {
+                        throw new IncorrectExpressionException();
+                    }
+                }
+
+                /*
                 while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
                     $output[] = $current;
                     if (empty($stack)) {
                         throw new IncorrectExpressionException();
                     }
                 }
+                */
             }
             if ($token instanceof TokenRightBracket) {
                 while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
