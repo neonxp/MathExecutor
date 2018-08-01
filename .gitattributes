@@ -1,0 +1,3 @@
+# Declare default linux line endings
+*.php text eol=lf
+*.gitignore text eol=lf
