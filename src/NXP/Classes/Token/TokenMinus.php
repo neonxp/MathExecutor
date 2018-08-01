@@ -10,6 +10,8 @@
 
 namespace NXP\Classes\Token;
 
+use NXP\Exception\IncorrectExpressionException;
+
 /**
 * @author Alexander Kiryukhin <alexander@symdev.org>
 */
@@ -47,8 +49,11 @@ class TokenMinus extends AbstractOperator
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
+        if(is_null($op1) || is_null($op2)){
+            throw new IncorrectExpressionException("Multiply requires 2 operators");
+        }
         $result = $op1->getValue() - $op2->getValue();
-
+        
         return new TokenNumber($result);
     }
 }
