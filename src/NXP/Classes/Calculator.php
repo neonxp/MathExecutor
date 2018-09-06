@@ -40,7 +40,7 @@ class Calculator
             if ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
                 if (!array_key_exists($variable, $variables)) {
-                    throw new UnknownVariableException();
+                    throw new UnknownVariableException($variable);
                 }
                 $value = $variables[$variable];
                 array_push($stack, new TokenNumber($value));

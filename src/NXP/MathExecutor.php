@@ -91,6 +91,10 @@ class MathExecutor
      */
     public function setVar($variable, $value)
     {
+        if (!is_numeric($value)) {
+            throw new \Exception("Variable ({$variable}) value must be a number ({$value}) type ({gettype($value)})");
+        }
+
         $this->variables[$variable] = $value;
 
         return $this;

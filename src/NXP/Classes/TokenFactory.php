@@ -73,7 +73,7 @@ class TokenFactory
         $class = new \ReflectionClass($operatorClass);
 
         if (!in_array('NXP\Classes\Token\InterfaceToken', $class->getInterfaceNames())) {
-            throw new UnknownOperatorException;
+            throw new UnknownOperatorException($operatorClass);
         }
 
         $this->operators[] = $operatorClass;
@@ -162,10 +162,10 @@ class TokenFactory
             if (isset($this->functions[$token])) {
                 return new TokenFunction($this->functions[$token]);
             } else {
-                throw new UnknownFunctionException();
+                throw new UnknownFunctionException($token);
             }
         }
 
-        throw new UnknownTokenException();
+        throw new UnknownTokenException($token);
     }
 }
