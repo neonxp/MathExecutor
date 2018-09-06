@@ -99,13 +99,13 @@ class Lexer
                 while (
                     count($stack) > 0 &&
                     ($stack[count($stack)-1] instanceof InterfaceOperator) &&
-                    (
+                    ((
                         $token->getAssociation() == AbstractOperator::LEFT_ASSOC &&
                         $token->getPriority() <= $stack[count($stack)-1]->getPriority()
                     ) || (
                         $token->getAssociation() == AbstractOperator::RIGHT_ASSOC &&
                         $token->getPriority() < $stack[count($stack)-1]->getPriority()
-                    )
+                    ))
                 ) {
                     $output[] = array_pop($stack);
                 }
