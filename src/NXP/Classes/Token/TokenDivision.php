@@ -47,7 +47,7 @@ class TokenDivision extends AbstractOperator
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
-        $result = $op1->getValue() / $op2->getValue();
+        $result = $op2->getValue() != 0 ? $op1->getValue() / $op2->getValue() : 0;
 
         return new TokenNumber($result);
     }

@@ -51,6 +51,18 @@ class TokenFactory
         $this->functions[$name] = array($places, $function);
     }
 
+
+    /**
+     * get functions
+     *
+     * @return array containing callback and places indexed by
+     *         function name
+     */
+    public function getFunctions()
+    {
+        return $this->functions;
+    }
+
     /**
      * Add operator
      * @param  string                                  $operatorClass
@@ -66,6 +78,16 @@ class TokenFactory
 
         $this->operators[] = $operatorClass;
         $this->operators = array_unique($this->operators);
+    }
+
+    /**
+     * Get registered operators
+     *
+     * @return array of operator class names
+     */
+    public function getOperators()
+    {
+        return $this->operators;
     }
 
     /**
