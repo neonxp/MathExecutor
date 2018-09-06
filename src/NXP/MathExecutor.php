@@ -153,6 +153,16 @@ class MathExecutor
     }
 
     /**
+     * Get all registered operators to executor
+     *
+     * @return array of operator class names
+     */
+    public function getOperators()
+    {
+        return $this->tokenFactory->getOperators();
+    }
+
+    /**
      * Add function to executor
      *
      * @param  string       $name     Name of function
@@ -160,11 +170,22 @@ class MathExecutor
      * @param  int          $places   Count of arguments
      * @return MathExecutor
      */
-    public function addFunction($name, callable $function = null, $places = 1)
+    public function addFunction($name, $function = null, $places = 1)
     {
         $this->tokenFactory->addFunction($name, $function, $places);
 
         return $this;
+    }
+
+    /**
+     * Get all registered functions
+     *
+     * @return array containing callback and places indexed by
+     *         function name
+     */
+    public function getFunctions()
+    {
+        return $this->tokenFactory->getFunctions();
     }
 
     /**
