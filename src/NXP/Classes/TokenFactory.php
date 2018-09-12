@@ -52,19 +52,6 @@ class TokenFactory
         $this->functions[$name] = [$places, $function];
     }
 
-
-    /**
-     * get functions
-     *
-     * @return array containing callback and places indexed by
-     *         function name
-     */
-    public function getFunctions()
-    {
-        return $this->functions;
-    }
-
-
     /**
      * get functions
      *
