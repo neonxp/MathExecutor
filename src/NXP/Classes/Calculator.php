@@ -13,6 +13,7 @@ namespace NXP\Classes;
 use NXP\Classes\Token\InterfaceOperator;
 use NXP\Classes\Token\TokenFunction;
 use NXP\Classes\Token\TokenNumber;
+use NXP\Classes\Token\TokenString;
 use NXP\Classes\Token\TokenVariable;
 use NXP\Exception\IncorrectExpressionException;
 use NXP\Exception\UnknownVariableException;
@@ -32,15 +33,18 @@ class Calculator
      */
     public function calculate($tokens, $variables)
     {
-        $stack = array();
+        $stack = [];
         foreach ($tokens as $token) {
             if ($token instanceof TokenNumber) {
+                array_push($stack, $token);
+            }
+            if ($token instanceof TokenString) {
                 array_push($stack, $token);
             }
             if ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
                 if (!array_key_exists($variable, $variables)) {
-                    throw new UnknownVariableException();
+                    throw new UnknownVariableException($variable);
                 }
                 $value = $variables[$variable];
                 array_push($stack, new TokenNumber($value));

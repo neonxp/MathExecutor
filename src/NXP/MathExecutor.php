@@ -15,6 +15,7 @@ use NXP\Classes\Calculator;
 use NXP\Classes\Lexer;
 use NXP\Classes\Token;
 use NXP\Classes\TokenFactory;
+use NXP\Exception\UnknownVariableException;
 
 /**
  * Class MathExecutor
@@ -27,7 +28,7 @@ class MathExecutor
      *
      * @var array
      */
-    private $variables = array();
+    private $variables = [];
 
     /**
      * @var TokenFactory
@@ -37,7 +38,7 @@ class MathExecutor
     /**
      * @var array
      */
-    private $cache = array();
+    private $cache = [];
 
     /**
      * Base math operators
@@ -75,10 +76,36 @@ class MathExecutor
         $this->tokenFactory->addFunction('max', 'max', 2);
         $this->tokenFactory->addFunction('avg', function($arg1, $arg2) { return ($arg1 + $arg2) / 2; }, 2);
 
-        $this->setVars(array(
+        $this->setVars([
             'pi' => 3.14159265359,
             'e'  => 2.71828182846
-        ));
+        ]);
+    }
+
+    /**
+     * Get all vars
+     *
+     * @return array
+     */
+    public function getVars()
+    {
+        return $this->variables;
+    }
+
+    /**
+     * Get a specific var
+     *
+     * @param  string        $variable
+     * @return integer|float
+     * @throws UnknownVariableException
+     */
+    public function getVar($variable)
+    {
+        if (! isset($this->variables[$variable])) {
+            throw new UnknownVariableException("Variable ({$variable}) not set");
+        }
+
+        return $this->variables[$variable];
     }
 
     /**
@@ -86,11 +113,14 @@ class MathExecutor
      *
      * @param  string        $variable
      * @param  integer|float $value
-     * @throws \Exception
      * @return MathExecutor
      */
     public function setVar($variable, $value)
     {
+        if (!is_numeric($value)) {
+            throw new \Exception("Variable ({$variable}) value must be a number ({$value}) type ({gettype($value)})");
+        }
+
         $this->variables[$variable] = $value;
 
         return $this;
@@ -134,7 +164,7 @@ class MathExecutor
      */
     public function removeVars()
     {
-        $this->variables = array();
+        $this->variables = [];
 
         return $this;
     }
@@ -153,6 +183,16 @@ class MathExecutor
     }
 
     /**
+     * Get all registered operators to executor
+     *
+     * @return array of operator class names
+     */
+    public function getOperators()
+    {
+        return $this->tokenFactory->getOperators();
+    }
+
+    /**
      * Add function to executor
      *
      * @param  string       $name     Name of function
@@ -160,11 +200,22 @@ class MathExecutor
      * @param  int          $places   Count of arguments
      * @return MathExecutor
      */
-    public function addFunction($name, callable $function = null, $places = 1)
+    public function addFunction($name, $function = null, $places = 1)
     {
         $this->tokenFactory->addFunction($name, $function, $places);
 
         return $this;
+    }
+
+    /**
+     * Get all registered functions
+     *
+     * @return array containing callback and places indexed by
+     *         function name
+     */
+    public function getFunctions()
+    {
+        return $this->tokenFactory->getFunctions();
     }
 
     /**
