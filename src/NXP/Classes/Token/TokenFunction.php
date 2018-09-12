@@ -29,7 +29,7 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
      */
     public function execute(&$stack)
     {
-        $args = array();
+        $args = [];
         list($places, $function) = $this->value;
         for ($i = 0; $i < $places; $i++) {
             array_push($args, array_pop($stack)->getValue());

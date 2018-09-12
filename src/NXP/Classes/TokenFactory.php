@@ -17,6 +17,7 @@ use NXP\Classes\Token\TokenLeftBracket;
 use NXP\Classes\Token\TokenNumber;
 use NXP\Classes\Token\TokenRightBracket;
 use NXP\Classes\Token\TokenVariable;
+use NXP\Classes\Token\TokenString;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownOperatorException;
 use NXP\Exception\UnknownTokenException;
@@ -31,24 +32,36 @@ class TokenFactory
      *
      * @var array
      */
-    protected $operators = array();
+    protected $operators = [];
 
     /**
      * Available functions
      *
      * @var array
      */
-    protected $functions = array();
+    protected $functions = [];
 
     /**
      * Add function
-     * @param $name
-     * @param $function
-     * @param $places
+     * @param string   $name
+     * @param callable $function
+     * @param int      $places
      */
-    public function addFunction($name, $function, $places = 1)
+    public function addFunction($name, callable $function, $places = 1)
     {
-        $this->functions[$name] = array($places, $function);
+        $this->functions[$name] = [$places, $function];
+    }
+
+
+    /**
+     * get functions
+     *
+     * @return array containing callback and places indexed by
+     *         function name
+     */
+    public function getFunctions()
+    {
+        return $this->functions;
     }
 
     /**
@@ -61,7 +74,7 @@ class TokenFactory
         $class = new \ReflectionClass($operatorClass);
 
         if (!in_array('NXP\Classes\Token\InterfaceToken', $class->getInterfaceNames())) {
-            throw new UnknownOperatorException;
+            throw new UnknownOperatorException($operatorClass);
         }
 
         $this->operators[] = $operatorClass;
@@ -69,13 +82,13 @@ class TokenFactory
     }
 
     /**
-     * Add variable
-     * @param string $name
-     * @param mixed  $value
+     * Get registered operators
+     *
+     * @return array of operator class names
      */
-    public function addVariable($name, $value)
+    public function getOperators()
     {
-
+        return $this->operators;
     }
 
     /**
@@ -89,8 +102,9 @@ class TokenFactory
         }
 
         return sprintf(
-            '/(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
+            '/(%s)|(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
             TokenNumber::getRegex(),
+            TokenString::getRegex(),
             $operatorsRegex,
             TokenFunction::getRegex(),
             TokenVariable::getRegex(),
@@ -119,6 +133,10 @@ class TokenFactory
             return new TokenRightBracket();
         }
 
+        if ($token[0] == '"') {
+            return new TokenString(str_replace('"', '', $token));
+        }
+
         if ($token == ',') {
             return new TokenComma();
         }
@@ -140,10 +158,10 @@ class TokenFactory
             if (isset($this->functions[$token])) {
                 return new TokenFunction($this->functions[$token]);
             } else {
-                throw new UnknownFunctionException();
+                throw new UnknownFunctionException($token);
             }
         }
 
-        throw new UnknownTokenException();
+        throw new UnknownTokenException($token);
     }
 }
