@@ -14,6 +14,6 @@ namespace NXP\Exception;
 /**
  * @author Vitaliy Zhuk <zhuk2205@gmail.com>
  */
-class UnknownFunctionException extends \Exception
+class UnknownFunctionException extends MathExecutorException
 {
 }

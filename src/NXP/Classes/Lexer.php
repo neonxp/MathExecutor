@@ -17,6 +17,7 @@ use NXP\Classes\Token\TokenLeftBracket;
 use NXP\Classes\Token\TokenNumber;
 use NXP\Classes\Token\TokenRightBracket;
 use NXP\Classes\Token\TokenVariable;
+use NXP\Classes\Token\TokenString;
 use NXP\Exception\IncorrectBracketsException;
 use NXP\Exception\IncorrectExpressionException;
 
@@ -42,7 +43,7 @@ class Lexer
      */
     public function stringToTokensStream($input)
     {
-        $matches = array();
+        $matches = [];
         preg_match_all($this->tokenFactory->getTokenParserRegex(), $input, $matches);
         $tokenFactory = $this->tokenFactory;
         $tokensStream = array_map(
@@ -62,10 +63,13 @@ class Lexer
      */
     public function buildReversePolishNotation($tokensStream)
     {
-        $output = array();
-        $stack = array();
+        $output = [];
+        $stack = [];
 
         foreach ($tokensStream as $token) {
+            if ($token instanceof TokenString) {
+                $output[] = $token;
+            }
             if ($token instanceof TokenNumber) {
                 $output[] = $token;
             }

@@ -17,6 +17,7 @@ use NXP\Classes\Token\TokenLeftBracket;
 use NXP\Classes\Token\TokenNumber;
 use NXP\Classes\Token\TokenRightBracket;
 use NXP\Classes\Token\TokenVariable;
+use NXP\Classes\Token\TokenString;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownOperatorException;
 use NXP\Exception\UnknownTokenException;
@@ -31,26 +32,25 @@ class TokenFactory
      *
      * @var array
      */
-    protected $operators = array();
+    protected $operators = [];
 
     /**
      * Available functions
      *
      * @var array
      */
-    protected $functions = array();
+    protected $functions = [];
 
     /**
      * Add function
-     * @param $name
-     * @param $function
-     * @param $places
+     * @param string   $name
+     * @param callable $function
+     * @param int      $places
      */
-    public function addFunction($name, $function, $places = 1)
+    public function addFunction($name, callable $function, $places = 1)
     {
-        $this->functions[$name] = array($places, $function);
+        $this->functions[$name] = [$places, $function];
     }
-
 
     /**
      * get functions
@@ -91,16 +91,6 @@ class TokenFactory
     }
 
     /**
-     * Add variable
-     * @param string $name
-     * @param mixed  $value
-     */
-    public function addVariable($name, $value)
-    {
-
-    }
-
-    /**
      * @return string
      */
     public function getTokenParserRegex()
@@ -111,8 +101,9 @@ class TokenFactory
         }
 
         return sprintf(
-            '/(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
+            '/(%s)|(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
             TokenNumber::getRegex(),
+            TokenString::getRegex(),
             $operatorsRegex,
             TokenFunction::getRegex(),
             TokenVariable::getRegex(),
@@ -139,6 +130,10 @@ class TokenFactory
 
         if ($token == ')') {
             return new TokenRightBracket();
+        }
+
+        if ($token[0] == '"') {
+            return new TokenString(str_replace('"', '', $token));
         }
 
         if ($token == ',') {

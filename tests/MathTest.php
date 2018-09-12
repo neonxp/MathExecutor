@@ -27,7 +27,7 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($calculator->execute($expression), $phpResult);
     }
 
-    public function testZeroDevision()
+    public function testZeroDivision()
     {
         $calculator = new MathExecutor();
         $this->assertEquals($calculator->execute('1 / 0'), 0);
@@ -44,35 +44,35 @@ class MathTest extends \PHPUnit_Framework_TestCase
      */
     public function providerExpressions()
     {
-        return array(
-            array('0.1 + 0.2'),
-            array('1 + 2'),
+        return [
+            ['0.1 + 0.2'],
+            ['1 + 2'],
 
-            array('0.1 - 0.2'),
-            array('1 - 2'),
+            ['0.1 - 0.2'],
+            ['1 - 2'],
 
-            array('0.1 * 2'),
-            array('1 * 2'),
+            ['0.1 * 2'],
+            ['1 * 2'],
 
-            array('0.1 / 0.2'),
-            array('1 / 2'),
+            ['0.1 / 0.2'],
+            ['1 / 2'],
 
-            array('2 * 2 + 3 * 3'),
+            ['2 * 2 + 3 * 3'],
 
-            array('1 + 0.6 - 3 * 2 / 50'),
+            ['1 + 0.6 - 3 * 2 / 50'],
 
-            array('(5 + 3) * -1'),
+            ['(5 + 3) * -1'],
 
-            array('2+2*2'),
-            array('(2+2)*2'),
-            array('(2+2)*-2'),
-            array('(2+-2)*2'),
+            ['2+2*2'],
+            ['(2+2)*2'],
+            ['(2+2)*-2'],
+            ['(2+-2)*2'],
 
-            array('sin(10) * cos(50) / min(10, 20/2)'),
+            ['sin(10) * cos(50) / min(10, 20/2)'],
 
-            array('100500 * 3.5E5'),
-            array('100500 * 3.5E-5')
-        );
+            ['100500 * 3.5E5'],
+            ['100500 * 3.5E-5'],
+        ];
     }
 
     public function testFunction()
