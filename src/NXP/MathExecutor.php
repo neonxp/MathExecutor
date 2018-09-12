@@ -117,6 +117,10 @@ class MathExecutor
      */
     public function setVar($variable, $value)
     {
+        if (!is_numeric($value)) {
+            throw new \Exception("Variable ({$variable}) value must be a number ({$value}) type ({gettype($value)})");
+        }
+
         $this->variables[$variable] = $value;
 
         return $this;
@@ -196,7 +200,7 @@ class MathExecutor
      * @param  int          $places   Count of arguments
      * @return MathExecutor
      */
-    public function addFunction($name, callable $function = null, $places = 1)
+    public function addFunction($name, $function = null, $places = 1)
     {
         $this->tokenFactory->addFunction($name, $function, $places);
 

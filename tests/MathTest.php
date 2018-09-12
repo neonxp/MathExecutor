@@ -74,4 +74,14 @@ class MathTest extends \PHPUnit_Framework_TestCase
             ['100500 * 3.5E-5'],
         ];
     }
+
+    public function testFunction()
+    {
+        $calculator = new MathExecutor();
+
+        $calculator->addFunction('round', function ($arg) { return round($arg); }, 1);
+        /** @var float $phpResult */
+        eval('$phpResult = round(100/30);');
+        $this->assertEquals($calculator->execute('round(100/30)'), $phpResult);
+    }
 }
