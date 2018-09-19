@@ -51,9 +51,9 @@ class TokenDivision extends AbstractOperator
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
         if(is_null($op1) || is_null($op2)){
-            throw new IncorrectExpressionException("Multiply requires 2 operators");
+            throw new IncorrectExpressionException("Devision requires 2 operators");
         }
-        if($op2->getValue() != 0){
+        if($op2->getValue() == 0){
           throw new DivisionByZeroException("Division by zero");
         }
         $result = $op1->getValue() / $op2->getValue();
