@@ -12,6 +12,7 @@
 namespace NXP\Tests;
 
 use \NXP\MathExecutor;
+use NXP\Exception\DivisionByZeroException;
 
 class MathTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +31,8 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function testZeroDevision()
     {
         $calculator = new MathExecutor();
-        $this->assertEquals($calculator->execute('1 / 0'), 0);
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('1 / 0');
     }
 
     public function testExponentiation()
