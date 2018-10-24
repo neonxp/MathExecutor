@@ -10,6 +10,9 @@
 
 namespace NXP\Classes\Token;
 
+use NXP\Exception\IncorrectExpressionException;
+use NXP\Exception\DivisionByZeroException;
+
 /**
 * @author Alexander Kiryukhin <alexander@symdev.org>
 */
@@ -41,12 +44,25 @@ class TokenDivision extends AbstractOperator
 
     /**
      * @param InterfaceToken[] $stack
+     *
      * @return $this
+     *
+     * @throws \NXP\Exception\IncorrectExpressionException
+     * @throws \NXP\Exception\DivisionByZeroException
      */
     public function execute(&$stack)
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
+
+        if ($op1 === null || $op2 === null) {
+            throw new IncorrectExpressionException("Division requires two operators");
+        }
+
+        if ($op2->getValue() == 0){
+            throw new DivisionByZeroException();
+        }
+
         $result = $op2->getValue() != 0 ? $op1->getValue() / $op2->getValue() : 0;
 
         return new TokenNumber($result);

@@ -54,7 +54,7 @@ class Calculator
             }
         }
         $result = array_pop($stack);
-        if (!empty($stack)) {
+        if ($result === null || ! empty($stack)) {
             throw new IncorrectExpressionException();
         }
 
