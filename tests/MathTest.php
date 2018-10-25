@@ -52,8 +52,11 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function testZeroDivision()
     {
         $calculator = new MathExecutor();
-        $this->expectException(DivisionByZeroException::class);
-        $calculator->execute('1 / 0');
+        $this->assertEquals($calculator->execute('1 / 0'), 0);
+
+        // future version with allow for optional exceptions on divide by zero
+        // $this->expectException(DivisionByZeroException::class);
+        // $calculator->execute('1 / 0');
     }
 
     public function testExponentiation()
@@ -86,15 +89,25 @@ class MathTest extends \PHPUnit_Framework_TestCase
 
             ['(5 + 3) * -1'],
 
-            ['2+2*2'],
+            ['2- 2*2'],
+            ['2-(2*2)'],
+            ['(2- 2)*2'],
+            ['2 + 2*2'],
+            ['2+ 2*2'],
             ['(2+2)*2'],
-            ['(2+2)*-2'],
+            ['(2 + 2)*-2'],
             ['(2+-2)*2'],
 
             ['sin(10) * cos(50) / min(10, 20/2)'],
 
             ['100500 * 3.5E5'],
             ['100500 * 3.5E-5'],
+
+            ['-1 + -2'],
+            ['-1+-2'],
+            ['-1- -2'],
+            ['-1/-2'],
+            ['-1*-2'],
         ];
     }
 

@@ -59,10 +59,6 @@ class TokenDivision extends AbstractOperator
             throw new IncorrectExpressionException("Division requires two operators");
         }
 
-        if ($op2->getValue() == 0){
-            throw new DivisionByZeroException();
-        }
-
         $result = $op2->getValue() != 0 ? $op1->getValue() / $op2->getValue() : 0;
 
         return new TokenNumber($result);
