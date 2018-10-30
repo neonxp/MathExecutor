@@ -1,34 +1,37 @@
-[![Stories in Ready](https://badge.waffle.io/NeonXP/MathExecutor.png?label=ready&title=Ready)](https://waffle.io/NeonXP/MathExecutor)
-# MathExecutor
+# MathExecutor [![Stories in Ready](https://badge.waffle.io/NeonXP/MathExecutor.png?label=ready&title=Ready)](https://waffle.io/NeonXP/MathExecutor) [![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor)
 
-[![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor)
+A simple math expressions calculator
 
-Simple math expressions calculator
+## Features:
+* Built in support for +, -, *, / and power (^) operators
+* Support for user defined operators
+* Support for user defined functions
+* Unlimited varable length
+* String support, as function parameters or as evaluated by PHP
+* Exceptions on divide by zero, or treat as zero
+* Unary Minus
 
-## Install via Composer
-
+## Install via Composer:
 Stable branch
 ```
 composer require "nxp/math-executor" "dev-master"
 ```
 
-Dev branch
+Dev branch (currently unsupported)
 ```
 composer require "nxp/math-executor" "dev-dev"
 ```
 
 ## Sample usage:
-
 ```php
 require "vendor/autoload.php";
 
-$calculator = new \NXP\MathExecutor();
+$executor = new \NXP\MathExecutor();
 
-print $calculator->execute("1 + 2 * (2 - (4+10))^2 + sin(10)");
+echo $executor->execute("1 + 2 * (2 - (4+10))^2 + sin(10)");
 ```
 
 ## Functions:
-
 Default functions:
 * sin
 * cos
@@ -48,12 +51,9 @@ $executor->addFunction('abs', function($arg) {
 ```
 
 ## Operators:
-
 Default operators: `+ - * / ^`
 
 Add custom operator to executor:
-
-MyNamespace/ModulusToken.php:
 
 ```php
 <?php
@@ -113,7 +113,6 @@ $executor->addOperator('MyNamespace\ModulusToken');
 ```
 
 ## Variables:
-
 Default variables:
 
 ```
@@ -124,9 +123,31 @@ $e = 2.71828182846
 You can add own variable to executor:
 
 ```php
-$executor->setVars(array(
+$executor->setVars([
     'var1' => 0.15,
     'var2' => 0.22
-));
+]);
 
-$executor->execute("$var1 + $var2");
+echo $executor->execute("$var1 + $var2");
+```
+## Division By Zero Support:
+By default, the result of division by zero is zero and no error is generated.  You have the option to thow a \NXP\Exception\DivisionByZeroException by by calling setDivisionByZeroException.
+
+```php
+$executor->setDivisionByZeroException();
+try {
+    echo $executor->execute('1/0');
+} catch (\NXP\Exception\DivisionByZeroException $e) {
+    echo $e->getMessage();
+}
+```
+
+## Unary Minus Operator:
+Negative numbers are supported via the unary minus operator, but need to have a space before the minus sign. `-1+ -3` is legal, while '`-1+-3` will produce an error due to the way the parser works. Positive numbers are not explicitly supported as unsigned numbers are assumed positive.
+
+## String Support:
+Expressions can contain double or single quoted strings that are evaluated the same way as PHP. You can also pass strings to functions.
+
+```php
+echo $executor->execute("1 + '2.5' * '.5' + myFunction('category')");
+```

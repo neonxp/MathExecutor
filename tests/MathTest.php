@@ -35,36 +35,6 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($calculator->execute($expression), $phpResult);
     }
 
-    public function testUnknownFunctionException()
-    {
-        $calculator = new MathExecutor();
-        $this->expectException(UnknownFunctionException::class);
-        $calculator->execute('1 * fred("wilma") + 3');
-    }
-
-    public function testIncorrectExpressionException()
-    {
-        $calculator = new MathExecutor();
-        $this->expectException(IncorrectExpressionException::class);
-        $calculator->execute('1 * + ');
-    }
-
-    public function testZeroDivision()
-    {
-        $calculator = new MathExecutor();
-        $this->assertEquals($calculator->execute('1 / 0'), 0);
-
-        // future version with allow for optional exceptions on divide by zero
-        // $this->expectException(DivisionByZeroException::class);
-        // $calculator->execute('1 / 0');
-    }
-
-    public function testExponentiation()
-    {
-        $calculator = new MathExecutor();
-        $this->assertEquals($calculator->execute('10 ^ 2'), 100);
-    }
-
     /**
      * Expressions data provider
      */
@@ -94,6 +64,7 @@ class MathTest extends \PHPUnit_Framework_TestCase
             ['(2- 2)*2'],
             ['2 + 2*2'],
             ['2+ 2*2'],
+            ['2+2*2'],
             ['(2+2)*2'],
             ['(2 + 2)*-2'],
             ['(2+-2)*2'],
@@ -103,12 +74,50 @@ class MathTest extends \PHPUnit_Framework_TestCase
             ['100500 * 3.5E5'],
             ['100500 * 3.5E-5'],
 
+            ['1 + "2" / 3'],
+            ["1.5 + '2.5' / 4"],
+            ['1.5 + "2.5" * ".5"'],
+
             ['-1 + -2'],
             ['-1+-2'],
             ['-1- -2'],
             ['-1/-2'],
             ['-1*-2'],
         ];
+    }
+
+    public function testUnknownFunctionException()
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(UnknownFunctionException::class);
+        $calculator->execute('1 * fred("wilma") + 3');
+    }
+
+    public function testIncorrectExpressionException()
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(IncorrectExpressionException::class);
+        $calculator->execute('1 * + ');
+    }
+
+    public function testZeroDivision()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals($calculator->execute('10 / 0'), 0);
+    }
+
+    public function testZeroDivisionException()
+    {
+        $calculator = new MathExecutor();
+        $calculator->setDivisionByZeroException();
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('10 / 0');
+    }
+
+    public function testExponentiation()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals($calculator->execute('10 ^ 2'), 100);
     }
 
     public function testFunction()
