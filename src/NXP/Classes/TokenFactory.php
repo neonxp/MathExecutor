@@ -35,6 +35,13 @@ class TokenFactory
     protected $operators = [];
 
     /**
+     * Divide by zero reporting
+     *
+     * @var bool
+     */
+    protected $divideByZeroReporting = false;
+
+    /**
      * Available functions
      *
      * @var array
@@ -91,6 +98,29 @@ class TokenFactory
     }
 
     /**
+     * Set division by zero exception reporting
+     *
+     * @param bool $exception default true
+     *
+     * @return TokenFactory
+     */
+    public function setDivisionByZeroException($exception = true)
+    {
+        $this->divideByZeroReporting = $exception;
+        return $this;
+    }
+
+    /**
+     * Get division by zero exception status
+     *
+     * @return bool
+     */
+    public function getDivisionByZeroException()
+    {
+        return $this->divideByZeroReporting;
+    }
+
+    /**
      * @return string
      */
     public function getTokenParserRegex()
@@ -143,7 +173,8 @@ class TokenFactory
         foreach ($this->operators as $operator) {
             $regex = sprintf('/%s/i', $operator::getRegex());
             if (preg_match($regex, $token)) {
-                return new $operator;
+                $op = new $operator;
+                return $op->setDivisionByZeroException($this->getDivisionByZeroException());
             }
         }
 

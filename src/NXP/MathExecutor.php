@@ -219,6 +219,29 @@ class MathExecutor
     }
 
     /**
+     * Set division by zero exception reporting
+     *
+     * @param bool $exception default true
+     *
+     * @return MathExecutor
+     */
+    public function setDivisionByZeroException($exception = true)
+    {
+        $this->tokenFactory->setDivisionByZeroException($exception);
+        return $this;
+    }
+
+    /**
+     * Get division by zero exception status
+     *
+     * @return bool
+     */
+    public function getDivisionByZeroException()
+    {
+        return $this->tokenFactory->getDivisionByZeroException();
+    }
+
+    /**
      * Execute expression
      *
      * @param $expression

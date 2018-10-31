@@ -17,4 +17,34 @@ abstract class AbstractOperator implements InterfaceToken, InterfaceOperator
 {
     const RIGHT_ASSOC   = 'RIGHT';
     const LEFT_ASSOC    = 'LEFT';
+
+    /**
+     * Divide by zero reporting
+     *
+     * @var bool
+     */
+    private $divideByZeroReporting = false;
+
+    /**
+     * Set division by zero exception reporting
+     *
+     * @param bool $exception default true
+     *
+     * @return $this
+     */
+    public function setDivisionByZeroException($exception = true)
+    {
+        $this->divideByZeroReporting = $exception;
+        return $this;
+    }
+
+    /**
+     * Get division by zero exception status
+     *
+     * @return bool
+     */
+    public function getDivisionByZeroException()
+    {
+        return $this->divideByZeroReporting;
+    }
 }
