@@ -9,6 +9,7 @@
  */
 
 namespace NXP\Classes;
+
 use NXP\Classes\Token\AbstractOperator;
 use NXP\Classes\Token\InterfaceOperator;
 use NXP\Classes\Token\TokenComma;
@@ -70,51 +71,53 @@ class Lexer
             if ($token instanceof TokenString) {
                 $output[] = $token;
             }
-            if ($token instanceof TokenNumber) {
+            elseif ($token instanceof TokenNumber) {
                 $output[] = $token;
             }
-            if ($token instanceof TokenVariable) {
+            elseif ($token instanceof TokenVariable) {
                 $output[] = $token;
             }
-            if ($token instanceof TokenFunction) {
+            elseif ($token instanceof TokenFunction) {
                 array_push($stack, $token);
             }
-            if ($token instanceof TokenLeftBracket) {
-                array_push($stack, $token);
-            }
-            if ($token instanceof TokenComma) {
-                while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
-                    $output[] = $current;
-                    if (empty($stack)) {
-                        throw new IncorrectExpressionException();
-                    }
+            elseif ($token instanceof AbstractOperator) {
+                // While we have something on the stack
+                while (($count = count($stack)) > 0
+                  && (
+                     // If it is a function
+                     ($stack[$count-1] instanceof TokenFunction)
+
+                     ||
+                     // Or the operator at the top of the operator stack
+                     //  has (left associative and equal precedence)
+                     //   or has greater precedence
+                     (($stack[$count-1] instanceof InterfaceOperator) &&
+                       (
+												 ($stack[$count-1]->getAssociation() == AbstractOperator::LEFT_ASSOC &&
+                           $token->getPriority() == $stack[$count-1]->getPriority())
+												 ||
+												 ($stack[$count-1]->getPriority() > $token->getPriority())
+                       )
+                      )
+										)
+
+								  // And not a left bracket
+                  && ( ! ($stack[$count-1] instanceof TokenLeftBracket)) ) {
+                    $output[] = array_pop($stack);
                 }
+
+                array_push($stack, $token);
             }
-            if ($token instanceof TokenRightBracket) {
-                while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
+            elseif ($token instanceof TokenLeftBracket) {
+                array_push($stack, $token);
+            }
+            elseif ($token instanceof TokenRightBracket) {
+                while (($current = array_pop($stack)) && ( ! ($current instanceof TokenLeftBracket))) {
                     $output[] = $current;
                 }
                 if (!empty($stack) && ($stack[count($stack)-1] instanceof TokenFunction)) {
                     $output[] = array_pop($stack);
                 }
-            }
-
-            if ($token instanceof AbstractOperator) {
-                while (
-                    count($stack) > 0 &&
-                    ($stack[count($stack)-1] instanceof InterfaceOperator) &&
-                    ((
-                        $token->getAssociation() == AbstractOperator::LEFT_ASSOC &&
-                        $token->getPriority() <= $stack[count($stack)-1]->getPriority()
-                    ) || (
-                        $token->getAssociation() == AbstractOperator::RIGHT_ASSOC &&
-                        $token->getPriority() < $stack[count($stack)-1]->getPriority()
-                    ))
-                ) {
-                    $output[] = array_pop($stack);
-                }
-
-                array_push($stack, $token);
             }
         }
         while (!empty($stack)) {

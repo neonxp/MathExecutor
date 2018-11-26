@@ -3,18 +3,19 @@
 A simple math expressions calculator
 
 ## Features:
-* Built in support for +, -, *, / and power (^) operators
+* Built in support for +, -, *, / and power (^) operators plus ()
 * Support for user defined operators
 * Support for user defined functions
-* Unlimited varable length
+* Unlimited varable name lengths
 * String support, as function parameters or as evaluated by PHP
 * Exceptions on divide by zero, or treat as zero
 * Unary Minus
+* Pi ($pi) and Euler's number ($e) support to 11 decimal places
 
 ## Install via Composer:
 Stable branch
 ```
-composer require "nxp/math-executor" "dev-master"
+composer require "nxp/math-executor"
 ```
 
 Dev branch (currently unsupported)
