@@ -6,10 +6,10 @@ A simple math expressions calculator
 * Built in support for +, -, *, / and power (^) operators plus ()
 * Support for user defined operators
 * Support for user defined functions
-* Unlimited varable name lengths
-* String support, as function parameters or as evaluated by PHP
+* Unlimited variable name lengths
+* String support, as function parameters or as evaluated as a number by PHP
 * Exceptions on divide by zero, or treat as zero
-* Unary Minus
+* Unary Minus (e.g. -3)
 * Pi ($pi) and Euler's number ($e) support to 11 decimal places
 
 ## Install via Composer:
@@ -121,7 +121,7 @@ $pi = 3.14159265359
 $e = 2.71828182846
 ```
 
-You can add own variable to executor:
+You can add your own variables to executor:
 
 ```php
 $executor->setVars([
@@ -132,7 +132,7 @@ $executor->setVars([
 echo $executor->execute("$var1 + $var2");
 ```
 ## Division By Zero Support:
-By default, the result of division by zero is zero and no error is generated.  You have the option to thow a \NXP\Exception\DivisionByZeroException by by calling setDivisionByZeroException.
+By default, the result of division by zero is zero and no error is generated.  You have the option to thow a \NXP\Exception\DivisionByZeroException by calling setDivisionByZeroException.
 
 ```php
 $executor->setDivisionByZeroException();
@@ -147,7 +147,7 @@ try {
 Negative numbers are supported via the unary minus operator, but need to have a space before the minus sign. `-1+ -3` is legal, while '`-1+-3` will produce an error due to the way the parser works. Positive numbers are not explicitly supported as unsigned numbers are assumed positive.
 
 ## String Support:
-Expressions can contain double or single quoted strings that are evaluated the same way as PHP. You can also pass strings to functions.
+Expressions can contain double or single quoted strings that are evaluated the same way as PHP evalutes strings as numbers. You can also pass strings to functions.
 
 ```php
 echo $executor->execute("1 + '2.5' * '.5' + myFunction('category')");
