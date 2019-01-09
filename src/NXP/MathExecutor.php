@@ -24,16 +24,16 @@ use NXP\Exception\UnknownVariableException;
 class MathExecutor
 {
     /**
+     * @var TokenFactory
+     */
+    protected $tokenFactory;
+    
+    /**
      * Available variables
      *
      * @var array
      */
     private $variables = [];
-
-    /**
-     * @var TokenFactory
-     */
-    private $tokenFactory;
 
     /**
      * @var array
