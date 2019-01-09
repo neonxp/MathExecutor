@@ -50,12 +50,17 @@ class TokenFactory
 
     /**
      * Add function
-     * @param string   $name
+     * @param string $name
      * @param callable $function
-     * @param int      $places
+     * @param int $places
+     * @throws \ReflectionException
      */
-    public function addFunction($name, callable $function, $places = 1)
+    public function addFunction($name, callable $function, $places = null)
     {
+        if ($places === null) {
+            $reflector = new \ReflectionFunction($function);
+            $places = $reflector->getNumberOfParameters();
+        }
         $this->functions[$name] = [$places, $function];
     }
 
