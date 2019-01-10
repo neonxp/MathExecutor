@@ -88,8 +88,7 @@ class TokenFactory
             throw new UnknownOperatorException($operatorClass);
         }
 
-        $this->operators[] = $operatorClass;
-        $this->operators = array_unique($this->operators);
+        $this->operators[$operatorClass::getRegex()] = $operatorClass;
     }
 
     /**

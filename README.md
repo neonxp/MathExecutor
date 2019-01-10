@@ -11,6 +11,7 @@ A simple math expressions calculator
 * Exceptions on divide by zero, or treat as zero
 * Unary Minus (e.g. -3)
 * Pi ($pi) and Euler's number ($e) support to 11 decimal places
+* Easily extendable
 
 ## Install via Composer:
 Stable branch
@@ -152,3 +153,14 @@ Expressions can contain double or single quoted strings that are evaluated the s
 ```php
 echo $executor->execute("1 + '2.5' * '.5' + myFunction('category')");
 ```
+
+## Extending MathExecutor
+You can add operators, functions and variables with the public methods in MathExecutor, but if you need to do more serious modifications to base behaviours, the easiest way to extend MathExecutor is to redefine the following methods in your derived class:
+* defaultOperators
+* defaultFunctions
+* defaultVars
+
+This will allow you to remove functions and operators if needed, or implement different types more simply.
+
+Also note that you can replace an existing default operator by adding a new operator with the same regular expression string.  For example if you just need to redefine TokenPlus, you can just add a new operator with the same regex string, in this case '\+'.
+
