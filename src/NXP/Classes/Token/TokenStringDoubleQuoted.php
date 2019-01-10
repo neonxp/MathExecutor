@@ -13,7 +13,7 @@ namespace NXP\Classes\Token;
 /**
  * @author Bruce Wells <brucekwells@gmail.com>
  */
-class TokenString extends AbstractContainerToken
+class TokenStringDoubleQuoted extends AbstractContainerToken
 {
     /**
      * @return string

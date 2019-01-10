@@ -17,13 +17,14 @@ use NXP\Classes\Token\TokenFunction;
 use NXP\Classes\Token\TokenLeftBracket;
 use NXP\Classes\Token\TokenNumber;
 use NXP\Classes\Token\TokenRightBracket;
+use NXP\Classes\Token\TokenStringSingleQuoted;
 use NXP\Classes\Token\TokenVariable;
-use NXP\Classes\Token\TokenString;
+use NXP\Classes\Token\TokenStringDoubleQuoted;
 use NXP\Exception\IncorrectBracketsException;
 use NXP\Exception\IncorrectExpressionException;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * @author Alexander Kiryukhin <a.kiryukhin@mail.ru>
  */
 class Lexer
 {
@@ -38,9 +39,8 @@ class Lexer
     }
 
     /**
-     * @param  string                                      $input Source string of equation
-     * @return array                                       Tokens stream
-     * @throws \NXP\Exception\IncorrectExpressionException
+     * @param  string $input Source string of equation
+     * @return array Tokens stream
      */
     public function stringToTokensStream($input)
     {
@@ -58,9 +58,9 @@ class Lexer
     }
 
     /**
-     * @param  array                                       $tokensStream Tokens stream
-     * @return array                                       Array of tokens in revers polish notation
-     * @throws \NXP\Exception\IncorrectExpressionException
+     * @param  array $tokensStream Tokens stream
+     * @return array Array of tokens in revers polish notation
+     * @throws IncorrectBracketsException
      */
     public function buildReversePolishNotation($tokensStream)
     {
@@ -68,54 +68,50 @@ class Lexer
         $stack = [];
 
         foreach ($tokensStream as $token) {
-            if ($token instanceof TokenString) {
+            if ($token instanceof TokenStringDoubleQuoted) {
                 $output[] = $token;
-            }
-            elseif ($token instanceof TokenNumber) {
+            } elseif ($token instanceof TokenStringSingleQuoted) {
                 $output[] = $token;
-            }
-            elseif ($token instanceof TokenVariable) {
+            } elseif ($token instanceof TokenNumber) {
                 $output[] = $token;
-            }
-            elseif ($token instanceof TokenFunction) {
+            } elseif ($token instanceof TokenVariable) {
+                $output[] = $token;
+            } elseif ($token instanceof TokenFunction) {
                 array_push($stack, $token);
-            }
-            elseif ($token instanceof AbstractOperator) {
+            } elseif ($token instanceof AbstractOperator) {
                 // While we have something on the stack
                 while (($count = count($stack)) > 0
-                  && (
-                     // If it is a function
-                     ($stack[$count-1] instanceof TokenFunction)
+                    && (
+                        // If it is a function
+                        ($stack[$count - 1] instanceof TokenFunction)
 
-                     ||
-                     // Or the operator at the top of the operator stack
-                     //  has (left associative and equal precedence)
-                     //   or has greater precedence
-                     (($stack[$count-1] instanceof InterfaceOperator) &&
-                       (
-												 ($stack[$count-1]->getAssociation() == AbstractOperator::LEFT_ASSOC &&
-                           $token->getPriority() == $stack[$count-1]->getPriority())
-												 ||
-												 ($stack[$count-1]->getPriority() > $token->getPriority())
-                       )
-                      )
-										)
+                        ||
+                        // Or the operator at the top of the operator stack
+                        //  has (left associative and equal precedence)
+                        //   or has greater precedence
+                        (($stack[$count - 1] instanceof InterfaceOperator) &&
+                            (
+                                ($stack[$count - 1]->getAssociation() == AbstractOperator::LEFT_ASSOC &&
+                                    $token->getPriority() == $stack[$count - 1]->getPriority())
+                                ||
+                                ($stack[$count - 1]->getPriority() > $token->getPriority())
+                            )
+                        )
+                    )
 
-								  // And not a left bracket
-                  && ( ! ($stack[$count-1] instanceof TokenLeftBracket)) ) {
+                    // And not a left bracket
+                    && (!($stack[$count - 1] instanceof TokenLeftBracket))) {
                     $output[] = array_pop($stack);
                 }
 
                 array_push($stack, $token);
-            }
-            elseif ($token instanceof TokenLeftBracket) {
+            } elseif ($token instanceof TokenLeftBracket) {
                 array_push($stack, $token);
-            }
-            elseif ($token instanceof TokenRightBracket) {
-                while (($current = array_pop($stack)) && ( ! ($current instanceof TokenLeftBracket))) {
+            } elseif ($token instanceof TokenRightBracket) {
+                while (($current = array_pop($stack)) && (!($current instanceof TokenLeftBracket))) {
                     $output[] = $current;
                 }
-                if (!empty($stack) && ($stack[count($stack)-1] instanceof TokenFunction)) {
+                if (!empty($stack) && ($stack[count($stack) - 1] instanceof TokenFunction)) {
                     $output[] = array_pop($stack);
                 }
             }

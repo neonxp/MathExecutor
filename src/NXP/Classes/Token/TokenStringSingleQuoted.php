@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of the MathExecutor package
  *
@@ -9,11 +8,19 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Exception;
+namespace NXP\Classes\Token;
 
 /**
+ * @author Bruce Wells <brucekwells@gmail.com>
  * @author Alexander Kiryukhin <a.kiryukhin@mail.ru>
  */
-class UnknownVariableException extends MathExecutorException
+class TokenStringSingleQuoted extends AbstractContainerToken
 {
+    /**
+     * @return string
+     */
+    public static function getRegex()
+    {
+        return "'([^']|'')*'";
+    }
 }
