@@ -154,7 +154,7 @@ class MathTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals($arg, $testString);
             return 0;
         }, 1);
-        $calculator->execute('test("some, long. arg; with: different-separators!")'); // single quotes
-        $calculator->execute("test('some, long. arg; with: different-separators!')"); // double quotes
+        $calculator->execute('test("' . $testString . '")'); // single quotes
+        $calculator->execute("test('" . $testString . "')"); // double quotes
     }
 }
