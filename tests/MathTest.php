@@ -32,7 +32,7 @@ class MathTest extends \PHPUnit_Framework_TestCase
 
         /** @var float $phpResult */
         eval('$phpResult = ' . $expression . ';');
-        $this->assertEquals($calculator->execute($expression), $phpResult);
+        $this->assertEquals($calculator->execute($expression), $phpResult, "Expression was: ${expression}");
     }
 
     /**
@@ -138,9 +138,23 @@ class MathTest extends \PHPUnit_Framework_TestCase
     {
         $calculator = new MathExecutor();
 
-        $calculator->addFunction('round', function ($arg) { return round($arg); }, 1);
+        $calculator->addFunction('round', function ($arg) {
+            return round($arg);
+        }, 1);
         /** @var float $phpResult */
         eval('$phpResult = round(100/30);');
         $this->assertEquals($calculator->execute('round(100/30)'), $phpResult);
+    }
+
+    public function testQuotes()
+    {
+        $calculator = new MathExecutor();
+        $testString = "some, long. arg; with: different-separators!";
+        $calculator->addFunction('test', function ($arg) use ($testString) {
+            $this->assertEquals($arg, $testString);
+            return 0;
+        }, 1);
+        $calculator->execute('test("' . $testString . '")'); // single quotes
+        $calculator->execute("test('" . $testString . "')"); // double quotes
     }
 }

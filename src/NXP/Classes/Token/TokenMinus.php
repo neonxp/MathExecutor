@@ -13,7 +13,7 @@ namespace NXP\Classes\Token;
 use NXP\Exception\IncorrectExpressionException;
 
 /**
-* @author Alexander Kiryukhin <alexander@symdev.org>
+* @author Alexander Kiryukhin <a.kiryukhin@mail.ru>
 */
 class TokenMinus extends AbstractOperator
 {

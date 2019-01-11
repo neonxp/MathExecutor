@@ -13,7 +13,6 @@ namespace NXP;
 
 use NXP\Classes\Calculator;
 use NXP\Classes\Lexer;
-use NXP\Classes\Token;
 use NXP\Classes\TokenFactory;
 use NXP\Exception\UnknownVariableException;
 
@@ -66,13 +65,13 @@ class MathExecutor
     /**
      * Get a specific var
      *
-     * @param  string        $variable
+     * @param  string $variable
      * @return integer|float
      * @throws UnknownVariableException
      */
     public function getVar($variable)
     {
-        if (! isset($this->variables[$variable])) {
+        if (!isset($this->variables[$variable])) {
             throw new UnknownVariableException("Variable ({$variable}) not set");
         }
 
@@ -82,9 +81,10 @@ class MathExecutor
     /**
      * Add variable to executor
      *
-     * @param  string        $variable
+     * @param  string $variable
      * @param  integer|float $value
      * @return MathExecutor
+     * @throws \Exception
      */
     public function setVar($variable, $value)
     {
@@ -100,9 +100,10 @@ class MathExecutor
     /**
      * Add variables to executor
      *
-     * @param  array        $variables
-     * @param  bool         $clear     Clear previous variables
+     * @param  array $variables
+     * @param  bool $clear Clear previous variables
      * @return MathExecutor
+     * @throws \Exception
      */
     public function setVars(array $variables, $clear = true)
     {
@@ -120,7 +121,7 @@ class MathExecutor
     /**
      * Remove variable from executor
      *
-     * @param  string       $variable
+     * @param  string $variable
      * @return MathExecutor
      */
     public function removeVar($variable)
@@ -143,8 +144,9 @@ class MathExecutor
     /**
      * Add operator to executor
      *
-     * @param  string       $operatorClass Class of operator token
+     * @param  string $operatorClass Class of operator token
      * @return MathExecutor
+     * @throws Exception\UnknownOperatorException
      */
     public function addOperator($operatorClass)
     {
@@ -166,10 +168,11 @@ class MathExecutor
     /**
      * Add function to executor
      *
-     * @param  string       $name     Name of function
-     * @param  callable     $function Function
-     * @param  int          $places   Count of arguments
+     * @param  string $name Name of function
+     * @param  callable $function Function
+     * @param  int $places Count of arguments
      * @return MathExecutor
+     * @throws \ReflectionException
      */
     public function addFunction($name, $function = null, $places = 1)
     {

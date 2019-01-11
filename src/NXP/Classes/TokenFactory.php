@@ -16,14 +16,15 @@ use NXP\Classes\Token\TokenFunction;
 use NXP\Classes\Token\TokenLeftBracket;
 use NXP\Classes\Token\TokenNumber;
 use NXP\Classes\Token\TokenRightBracket;
+use NXP\Classes\Token\TokenStringSingleQuoted;
 use NXP\Classes\Token\TokenVariable;
-use NXP\Classes\Token\TokenString;
+use NXP\Classes\Token\TokenStringDoubleQuoted;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownOperatorException;
 use NXP\Exception\UnknownTokenException;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * @author Alexander Kiryukhin <a.kiryukhin@mail.ru>
  */
 class TokenFactory
 {
@@ -77,8 +78,9 @@ class TokenFactory
 
     /**
      * Add operator
-     * @param  string                                  $operatorClass
-     * @throws \NXP\Exception\UnknownOperatorException
+     * @param  string $operatorClass
+     * @throws UnknownOperatorException
+     * @throws \ReflectionException
      */
     public function addOperator($operatorClass)
     {
@@ -135,9 +137,10 @@ class TokenFactory
         }
 
         return sprintf(
-            '/(%s)|(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
+            '/(%s)|(%s)|(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
             TokenNumber::getRegex(),
-            TokenString::getRegex(),
+            TokenStringDoubleQuoted::getRegex(),
+            TokenStringSingleQuoted::getRegex(),
             $operatorsRegex,
             TokenFunction::getRegex(),
             TokenVariable::getRegex(),
@@ -148,9 +151,10 @@ class TokenFactory
     }
 
     /**
-     * @param  string                $token
+     * @param  string $token
      * @return InterfaceToken
      * @throws UnknownTokenException
+     * @throws UnknownFunctionException
      */
     public function createToken($token)
     {
@@ -167,7 +171,11 @@ class TokenFactory
         }
 
         if ($token[0] == '"') {
-            return new TokenString(str_replace('"', '', $token));
+            return new TokenStringDoubleQuoted(str_replace('"', '', $token));
+        }
+
+        if ($token[0] == "'") {
+            return new TokenStringSingleQuoted(str_replace("'", '', $token));
         }
 
         if ($token == ',') {
@@ -184,7 +192,7 @@ class TokenFactory
 
         $regex = sprintf('/%s/i', TokenVariable::getRegex());
         if (preg_match($regex, $token)) {
-            return new TokenVariable(substr($token,1));
+            return new TokenVariable(substr($token, 1));
         }
 
         $regex = sprintf('/%s/i', TokenFunction::getRegex());

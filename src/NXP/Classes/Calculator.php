@@ -13,13 +13,14 @@ namespace NXP\Classes;
 use NXP\Classes\Token\InterfaceOperator;
 use NXP\Classes\Token\TokenFunction;
 use NXP\Classes\Token\TokenNumber;
-use NXP\Classes\Token\TokenString;
+use NXP\Classes\Token\TokenStringSingleQuoted;
+use NXP\Classes\Token\TokenStringDoubleQuoted;
 use NXP\Classes\Token\TokenVariable;
 use NXP\Exception\IncorrectExpressionException;
 use NXP\Exception\UnknownVariableException;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * @author Alexander Kiryukhin <a.kiryukhin@mail.ru>
  */
 class Calculator
 {
@@ -38,7 +39,10 @@ class Calculator
             if ($token instanceof TokenNumber) {
                 array_push($stack, $token);
             }
-            if ($token instanceof TokenString) {
+            if ($token instanceof TokenStringDoubleQuoted) {
+                array_push($stack, $token);
+            }
+            if ($token instanceof TokenStringSingleQuoted) {
                 array_push($stack, $token);
             }
             if ($token instanceof TokenVariable) {
