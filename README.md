@@ -14,14 +14,8 @@ A simple math expressions calculator
 * Easily extendable
 
 ## Install via Composer:
-Stable branch
 ```
 composer require "nxp/math-executor"
-```
-
-Dev branch (currently unsupported)
-```
-composer require "nxp/math-executor" "dev-dev"
 ```
 
 ## Sample usage:
