@@ -174,7 +174,7 @@ class MathExecutor
      * @return MathExecutor
      * @throws \ReflectionException
      */
-    public function addFunction($name, $function = null, $places = 1)
+    public function addFunction($name, $function = null, $places = null)
     {
         $this->tokenFactory->addFunction($name, $function, $places);
 

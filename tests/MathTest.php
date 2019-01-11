@@ -146,6 +146,14 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($calculator->execute('round(100/30)'), $phpResult);
     }
 
+    public function testFunctionsWithQuotes()
+    {
+        $calculator = new MathExecutor();
+        $calculator->addFunction('concat', function($first, $second){return $first.$second;});
+        $this->assertEquals('testing', $calculator->execute('concat("test", "ing")'));
+        $this->assertEquals('testing', $calculator->execute("concat('test', 'ing')"));
+    }
+
     public function testQuotes()
     {
         $calculator = new MathExecutor();

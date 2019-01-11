@@ -41,10 +41,10 @@ Default functions:
 
 Add custom function to executor:
 ```php
-$executor->addFunction('abs', function($arg) {
-    return abs($arg);
-}, 1);
+$executor->addFunction('abs', function($arg) {return abs($arg);});
 ```
+
+Default parameters are not currently supported.
 
 ## Operators:
 Default operators: `+ - * / ^`
@@ -113,7 +113,7 @@ Default variables:
 
 ```
 $pi = 3.14159265359
-$e = 2.71828182846
+$e  = 2.71828182846
 ```
 
 You can add your own variables to executor:
