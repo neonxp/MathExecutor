@@ -14,7 +14,7 @@ use NXP\Exception\IncorrectExpressionException;
 use NXP\Exception\DivisionByZeroException;
 
 /**
-* @author Alexander Kiryukhin <alexander@symdev.org>
+* @author Alexander Kiryukhin <a.kiryukhin@mail.ru>
 */
 class TokenDivision extends AbstractOperator
 {

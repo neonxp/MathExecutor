@@ -11,7 +11,7 @@
 namespace NXP\Classes\Token;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * @author Alexander Kiryukhin <a.kiryukhin@mail.ru>
  */
 class TokenNumber extends AbstractContainerToken
 {

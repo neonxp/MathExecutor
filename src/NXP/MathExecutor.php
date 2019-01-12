@@ -13,7 +13,6 @@ namespace NXP;
 
 use NXP\Classes\Calculator;
 use NXP\Classes\Lexer;
-use NXP\Classes\Token;
 use NXP\Classes\TokenFactory;
 use NXP\Exception\UnknownVariableException;
 
@@ -54,35 +53,6 @@ class MathExecutor
     }
 
     /**
-     * Set default operands and functions
-     */
-    protected function addDefaults()
-    {
-        $this->tokenFactory = new TokenFactory();
-
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenPlus');
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenMinus');
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenMultiply');
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenDivision');
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenDegree');
-
-        $this->tokenFactory->addFunction('sin', 'sin');
-        $this->tokenFactory->addFunction('cos', 'cos');
-        $this->tokenFactory->addFunction('tn', 'tan');
-        $this->tokenFactory->addFunction('asin', 'asin');
-        $this->tokenFactory->addFunction('acos', 'acos');
-        $this->tokenFactory->addFunction('atn', 'atan');
-        $this->tokenFactory->addFunction('min', 'min', 2);
-        $this->tokenFactory->addFunction('max', 'max', 2);
-        $this->tokenFactory->addFunction('avg', function($arg1, $arg2) { return ($arg1 + $arg2) / 2; }, 2);
-
-        $this->setVars([
-            'pi' => 3.14159265359,
-            'e'  => 2.71828182846
-        ]);
-    }
-
-    /**
      * Get all vars
      *
      * @return array
@@ -95,13 +65,13 @@ class MathExecutor
     /**
      * Get a specific var
      *
-     * @param  string        $variable
+     * @param  string $variable
      * @return integer|float
      * @throws UnknownVariableException
      */
     public function getVar($variable)
     {
-        if (! isset($this->variables[$variable])) {
+        if (!isset($this->variables[$variable])) {
             throw new UnknownVariableException("Variable ({$variable}) not set");
         }
 
@@ -111,9 +81,10 @@ class MathExecutor
     /**
      * Add variable to executor
      *
-     * @param  string        $variable
+     * @param  string $variable
      * @param  integer|float $value
      * @return MathExecutor
+     * @throws \Exception
      */
     public function setVar($variable, $value)
     {
@@ -129,9 +100,10 @@ class MathExecutor
     /**
      * Add variables to executor
      *
-     * @param  array        $variables
-     * @param  bool         $clear     Clear previous variables
+     * @param  array $variables
+     * @param  bool $clear Clear previous variables
      * @return MathExecutor
+     * @throws \Exception
      */
     public function setVars(array $variables, $clear = true)
     {
@@ -149,7 +121,7 @@ class MathExecutor
     /**
      * Remove variable from executor
      *
-     * @param  string       $variable
+     * @param  string $variable
      * @return MathExecutor
      */
     public function removeVar($variable)
@@ -172,8 +144,9 @@ class MathExecutor
     /**
      * Add operator to executor
      *
-     * @param  string       $operatorClass Class of operator token
+     * @param  string $operatorClass Class of operator token
      * @return MathExecutor
+     * @throws Exception\UnknownOperatorException
      */
     public function addOperator($operatorClass)
     {
@@ -195,10 +168,11 @@ class MathExecutor
     /**
      * Add function to executor
      *
-     * @param  string       $name     Name of function
-     * @param  callable     $function Function
-     * @param  int          $places   Count of arguments
+     * @param  string $name Name of function
+     * @param  callable $function Function
+     * @param  int $places Count of arguments
      * @return MathExecutor
+     * @throws \ReflectionException
      */
     public function addFunction($name, $function = null, $places = 1)
     {
@@ -261,5 +235,75 @@ class MathExecutor
         $result = $calculator->calculate($tokens, $this->variables);
 
         return $result;
+    }
+
+    /**
+     * Set default operands and functions
+     */
+    protected function addDefaults()
+    {
+        $this->tokenFactory = new TokenFactory();
+
+        foreach ($this->defaultOperators() as $operatorClass) {
+            $this->tokenFactory->addOperator($operatorClass);
+        }
+
+        foreach ($this->defaultFunctions() as $name => $callable) {
+            $this->tokenFactory->addFunction($name, $callable);
+        }
+
+        $this->setVars($this->defaultVars());
+    }
+
+    protected function defaultOperators()
+    {
+        return [
+            'NXP\Classes\Token\TokenPlus',
+            'NXP\Classes\Token\TokenMinus',
+            'NXP\Classes\Token\TokenMultiply',
+            'NXP\Classes\Token\TokenDivision',
+            'NXP\Classes\Token\TokenDegree',
+        ];
+    }
+
+    protected function defaultFunctions()
+    {
+        return [
+            'sin' => function ($arg) {
+                return sin($arg);
+            },
+            'cos' => function ($arg) {
+                return cos($arg);
+            },
+            'tn' => function ($arg) {
+                return tan($arg);
+            },
+            'asin' => function ($arg) {
+                return asin($arg);
+            },
+            'acos' => function ($arg) {
+                return acos($arg);
+            },
+            'atn' => function ($arg) {
+                return atan($arg);
+            },
+            'min' => function ($arg1, $arg2) {
+                return min($arg1, $arg2);
+            },
+            'max' => function ($arg1, $arg2) {
+                return max($arg1, $arg2);
+            },
+            'avg' => function ($arg1, $arg2) {
+                return ($arg1 + $arg2) / 2;
+            },
+        ];
+    }
+
+    protected function defaultVars()
+    {
+        return [
+            'pi' => 3.14159265359,
+            'e'  => 2.71828182846
+        ];
     }
 }
