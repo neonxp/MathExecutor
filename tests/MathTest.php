@@ -32,7 +32,7 @@ class MathTest extends \PHPUnit_Framework_TestCase
 
         /** @var float $phpResult */
         eval('$phpResult = ' . $expression . ';');
-        $this->assertEquals($calculator->execute($expression), $phpResult, "Expression was: ${expression}");
+        $this->assertEquals($phpResult, $calculator->execute($expression), "Expression was: ${expression}");
     }
 
     /**
@@ -117,7 +117,7 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function testZeroDivision()
     {
         $calculator = new MathExecutor();
-        $this->assertEquals($calculator->execute('10 / 0'), 0);
+        $this->assertEquals(0, $calculator->execute('10 / 0'));
     }
 
     public function testZeroDivisionException()
@@ -131,19 +131,25 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function testExponentiation()
     {
         $calculator = new MathExecutor();
-        $this->assertEquals($calculator->execute('10 ^ 2'), 100);
+        $this->assertEquals(100, $calculator->execute('10 ^ 2'));
     }
+
+    public function testFunctionParameterOrder()
+		{
+				$calculator = new MathExecutor();
+
+				$calculator->addFunction('concat', function ($arg1, $arg2) {return $arg1.$arg2;});
+				$this->assertEquals('testing', $calculator->execute('concat("test","ing")'));
+				$this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
+		}
 
     public function testFunction()
     {
         $calculator = new MathExecutor();
-
-        $calculator->addFunction('round', function ($arg) {
-            return round($arg);
-        }, 1);
+        $calculator->addFunction('round', function ($arg) {return round($arg);});
         /** @var float $phpResult */
         eval('$phpResult = round(100/30);');
-        $this->assertEquals($calculator->execute('round(100/30)'), $phpResult);
+        $this->assertEquals($phpResult, $calculator->execute('round(100/30)'));
     }
 
     public function testQuotes()
@@ -151,9 +157,9 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $calculator = new MathExecutor();
         $testString = "some, long. arg; with: different-separators!";
         $calculator->addFunction('test', function ($arg) use ($testString) {
-            $this->assertEquals($arg, $testString);
-            return 0;
-        }, 1);
+            $this->assertEquals($testString, $arg);
+            return 0;}
+        );
         $calculator->execute('test("' . $testString . '")'); // single quotes
         $calculator->execute("test('" . $testString . "')"); // double quotes
     }
