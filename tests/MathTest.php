@@ -146,7 +146,6 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function testFunction()
     {
         $calculator = new MathExecutor();
-
         $calculator->addFunction('round', function ($arg) {return round($arg);});
         /** @var float $phpResult */
         eval('$phpResult = round(100/30);');
@@ -159,8 +158,8 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $testString = "some, long. arg; with: different-separators!";
         $calculator->addFunction('test', function ($arg) use ($testString) {
             $this->assertEquals($testString, $arg);
-            return 0;
-        }, 1);
+            return 0;}
+        );
         $calculator->execute('test("' . $testString . '")'); // single quotes
         $calculator->execute("test('" . $testString . "')"); // double quotes
     }
