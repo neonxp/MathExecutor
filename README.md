@@ -1,6 +1,6 @@
 # MathExecutor [![Stories in Ready](https://badge.waffle.io/NeonXP/MathExecutor.png?label=ready&title=Ready)](https://waffle.io/NeonXP/MathExecutor) [![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor)
 
-A simple math expressions calculator
+# A simple and extensible math expressions calculator
 
 ## Features:
 * Built in support for +, -, *, / and power (^) operators plus ()
@@ -11,7 +11,7 @@ A simple math expressions calculator
 * Exceptions on divide by zero, or treat as zero
 * Unary Minus (e.g. -3)
 * Pi ($pi) and Euler's number ($e) support to 11 decimal places
-* Easily extendable
+* Easily extensible
 
 ## Install via Composer:
 ```
@@ -41,10 +41,9 @@ Default functions:
 
 Add custom function to executor:
 ```php
-$executor->addFunction('abs', function($arg) {
-    return abs($arg);
-}, 1);
+$executor->addFunction('abs', function($arg) {return abs($arg);});
 ```
+Function default parameters are not supported at this time.
 
 ## Operators:
 Default operators: `+ - * / ^`

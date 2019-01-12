@@ -38,22 +38,18 @@ class Calculator
         foreach ($tokens as $token) {
             if ($token instanceof TokenNumber) {
                 array_push($stack, $token);
-            }
-            if ($token instanceof TokenStringDoubleQuoted) {
+            } else if ($token instanceof TokenStringDoubleQuoted) {
                 array_push($stack, $token);
-            }
-            if ($token instanceof TokenStringSingleQuoted) {
+            } else if ($token instanceof TokenStringSingleQuoted) {
                 array_push($stack, $token);
-            }
-            if ($token instanceof TokenVariable) {
+            } else if ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
                 if (!array_key_exists($variable, $variables)) {
                     throw new UnknownVariableException($variable);
                 }
                 $value = $variables[$variable];
                 array_push($stack, new TokenNumber($value));
-            }
-            if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {
+            } else if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {
                 array_push($stack, $token->execute($stack));
             }
         }
