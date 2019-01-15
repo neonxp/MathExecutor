@@ -138,7 +138,11 @@ class MathTest extends \PHPUnit_Framework_TestCase
 		{
 				$calculator = new MathExecutor();
 
-				$calculator->addFunction('concat', function ($arg1, $arg2) {return $arg1.$arg2;});
+				$calculator->addFunction('concat', function ($arg1, $arg2)
+						{
+						return $arg1.$arg2;
+						}
+				);
 				$this->assertEquals('testing', $calculator->execute('concat("test","ing")'));
 				$this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
 		}
@@ -147,19 +151,19 @@ class MathTest extends \PHPUnit_Framework_TestCase
     {
         $calculator = new MathExecutor();
         $calculator->addFunction('round', function ($arg) {return round($arg);});
-        /** @var float $phpResult */
-        eval('$phpResult = round(100/30);');
-        $this->assertEquals($phpResult, $calculator->execute('round(100/30)'));
+        $this->assertEquals(round(100/30), $calculator->execute('round(100/30)'));
     }
 
     public function testQuotes()
     {
         $calculator = new MathExecutor();
         $testString = "some, long. arg; with: different-separators!";
-        $calculator->addFunction('test', function ($arg) use ($testString) {
-            $this->assertEquals($testString, $arg);
-            return 0;}
-        );
+        $calculator->addFunction('test', function ($arg) use ($testString)
+						{
+						$this->assertEquals($testString, $arg);
+            return 0;
+						}
+				);
         $calculator->execute('test("' . $testString . '")'); // single quotes
         $calculator->execute("test('" . $testString . "')"); // double quotes
     }
