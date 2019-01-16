@@ -38,7 +38,7 @@ class TokenComma extends AbstractOperator
      */
     public function getAssociation()
     {
-        return self::RIGHT_RIGHT;
+        return self::LEFT_ASSOC;
     }
 
     /**
