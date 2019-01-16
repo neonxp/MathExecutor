@@ -147,6 +147,15 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
     }
 
+    public function testFunctionParameterOrder()
+		{
+				$calculator = new MathExecutor();
+
+				$calculator->addFunction('concat', function ($arg1, $arg2) {return $arg1.$arg2;});
+				$this->assertEquals('testing', $calculator->execute('concat("test","ing")'));
+				$this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
+		}
+
     public function testFunction()
     {
         $calculator = new MathExecutor();
