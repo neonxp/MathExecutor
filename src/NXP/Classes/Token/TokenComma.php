@@ -13,7 +13,7 @@ namespace NXP\Classes\Token;
 /**
  * @author Alexander Kiryukhin <a.kiryukhin@mail.ru>
  */
-class TokenComma implements InterfaceToken
+class TokenComma extends AbstractOperator
 {
     /**
      * @return string
@@ -22,4 +22,32 @@ class TokenComma implements InterfaceToken
     {
         return '\,';
     }
+
+    /**
+     * Comma operator is lowest priority
+     *
+     * @return int
+     */
+    public function getPriority()
+    {
+        return 0;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAssociation()
+    {
+        return self::RIGHT_RIGHT;
+    }
+
+    /**
+     * @param  array       $stack
+     * @return TokenNumber
+     */
+    public function execute(&$stack)
+    {
+        // Comma operators don't do anything, stack has already executed
+    }
+
 }
