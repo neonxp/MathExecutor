@@ -135,30 +135,46 @@ class MathTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testFunctionParameterOrder()
-		{
-				$calculator = new MathExecutor();
+    {
+        $calculator = new MathExecutor();
 
-				$calculator->addFunction('concat', function ($arg1, $arg2) {return $arg1.$arg2;});
-				$this->assertEquals('testing', $calculator->execute('concat("test","ing")'));
-				$this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
-		}
+        $calculator->addFunction('concat', function ($arg1, $arg2) {return $arg1.$arg2;});
+        $this->assertEquals('testing', $calculator->execute('concat("test","ing")'));
+        $this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
+    }
 
     public function testFunction()
     {
         $calculator = new MathExecutor();
         $calculator->addFunction('round', function ($arg) {return round($arg);});
-        /** @var float $phpResult */
-        eval('$phpResult = round(100/30);');
-        $this->assertEquals($phpResult, $calculator->execute('round(100/30)'));
+        $this->assertEquals(round(100/30), $calculator->execute('round(100/30)'));
+    }
+
+    public function testEvaluateFunctionParameters()
+    {
+        $calculator = new MathExecutor();
+        $calculator->addFunction('round', function ($value, $decimals)
+          {
+            return round($value, $decimals);
+          }
+        );
+        $expression = 'round(100 * 1.111111, 2)';
+        eval('$phpResult = ' . $expression . ';');
+        $this->assertEquals($phpResult, $calculator->execute($expression));
+        $expression = 'round((100*0.04)+(((100*1.02)+0.5)*1.28),2)';
+        eval('$phpResult = ' . $expression . ';');
+        $this->assertEquals($phpResult, $calculator->execute($expression));
     }
 
     public function testQuotes()
     {
         $calculator = new MathExecutor();
         $testString = "some, long. arg; with: different-separators!";
-        $calculator->addFunction('test', function ($arg) use ($testString) {
+        $calculator->addFunction('test', function ($arg) use ($testString)
+            {
             $this->assertEquals($testString, $arg);
-            return 0;}
+            return 0;
+            }
         );
         $calculator->execute('test("' . $testString . '")'); // single quotes
         $calculator->execute("test('" . $testString . "')"); // double quotes

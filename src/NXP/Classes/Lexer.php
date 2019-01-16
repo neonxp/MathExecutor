@@ -77,7 +77,7 @@ class Lexer
             } elseif ($token instanceof TokenVariable) {
                 $output[] = $token;
             } elseif ($token instanceof TokenFunction) {
-                array_push($stack, $token);
+                $stack[] = $token;
             } elseif ($token instanceof AbstractOperator) {
                 // While we have something on the stack
                 while (($count = count($stack)) > 0
@@ -104,9 +104,12 @@ class Lexer
                     $output[] = array_pop($stack);
                 }
 
-                array_push($stack, $token);
+                // Comma operators do nothing really, don't put them on the stack
+                if (! ($token instanceof TokenComma)) {
+                  $stack[] = $token;
+                }
             } elseif ($token instanceof TokenLeftBracket) {
-                array_push($stack, $token);
+                $stack[] = $token;
             } elseif ($token instanceof TokenRightBracket) {
                 while (($current = array_pop($stack)) && (!($current instanceof TokenLeftBracket))) {
                     $output[] = $current;
