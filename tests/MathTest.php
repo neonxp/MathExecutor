@@ -41,6 +41,15 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function providerExpressions()
     {
         return [
+            ['-5'],
+            ['-5+10'],
+            ['4-5'],
+            ['4 -5'],
+            ['(4*2)-5'],
+            ['(4*2) - 5'],
+            ['4*-5'],
+            ['4 * -5'],
+
             ['0.1 + 0.2'],
             ['1 + 2'],
 
@@ -80,7 +89,6 @@ class MathTest extends \PHPUnit_Framework_TestCase
             ['1 + 2 * 3 / (3 * min(1, 5) * 2 + 1)'],
             ['1 + 2 * 3 / (3 / min(1, 5) / 2 + 1)'],
 
-
             ['sin(10) * cos(50) / min(10, 20/2)'],
             ['sin(10) * cos(50) / min(10, (20/2))'],
             ['sin(10) * cos(50) / min(10, (max(10,20)/2))'],
@@ -97,6 +105,11 @@ class MathTest extends \PHPUnit_Framework_TestCase
             ['-1- -2'],
             ['-1/-2'],
             ['-1*-2'],
+
+            ['(1+2+3+4-5)*7/100'],
+            ['(1+2+3+4- 5)*7/100'],
+            ['( 1 + 2 + 3 + 4 - 5 ) * 7 / 100'],
+
         ];
     }
 
@@ -164,6 +177,14 @@ class MathTest extends \PHPUnit_Framework_TestCase
         $expression = 'round((100*0.04)+(((100*1.02)+0.5)*1.28),2)';
         eval('$phpResult = ' . $expression . ';');
         $this->assertEquals($phpResult, $calculator->execute($expression));
+    }
+
+    public function testFunctionsWithQuotes()
+    {
+        $calculator = new MathExecutor();
+        $calculator->addFunction('concat', function($first, $second){return $first.$second;});
+        $this->assertEquals('testing', $calculator->execute('concat("test", "ing")'));
+        $this->assertEquals('testing', $calculator->execute("concat('test', 'ing')"));
     }
 
     public function testQuotes()
