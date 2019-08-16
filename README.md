@@ -140,7 +140,7 @@ try {
 ```
 
 ## Unary Minus Operator:
-Negative numbers are supported via the unary minus operator, but need to have a space before the minus sign. `-1+ -3` is legal, while `-1+-3` will produce an error due to the way the parser works. Positive numbers are not explicitly supported as unsigned numbers are assumed positive.
+Negative numbers are supported via the unary minus operator. Positive numbers are not explicitly supported as unsigned numbers are assumed positive.
 
 ## String Support:
 Expressions can contain double or single quoted strings that are evaluated the same way as PHP evalutes strings as numbers. You can also pass strings to functions.

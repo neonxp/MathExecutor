@@ -21,7 +21,7 @@ use NXP\Exception\UnknownOperatorException;
 use NXP\Exception\UnknownTokenException;
 use NXP\Exception\UnknownVariableException;
 
-class MathTest extends \PHPUnit_Framework_TestCase
+class MathTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider providerExpressions
@@ -41,6 +41,13 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function providerExpressions()
     {
         return [
+            ['-5'],
+            ['-5+10'],
+            ['4-5'],
+            ['4 -5'],
+            ['4*-5'],
+            ['4 * -5'],
+
             ['0.1 + 0.2'],
             ['1 + 2'],
 
@@ -80,7 +87,6 @@ class MathTest extends \PHPUnit_Framework_TestCase
             ['1 + 2 * 3 / (3 * min(1, 5) * 2 + 1)'],
             ['1 + 2 * 3 / (3 / min(1, 5) / 2 + 1)'],
 
-
             ['sin(10) * cos(50) / min(10, 20/2)'],
             ['sin(10) * cos(50) / min(10, (20/2))'],
             ['sin(10) * cos(50) / min(10, (max(10,20)/2))'],
@@ -97,6 +103,11 @@ class MathTest extends \PHPUnit_Framework_TestCase
             ['-1- -2'],
             ['-1/-2'],
             ['-1*-2'],
+
+            ['(1+2+3+4-5)*7/100'],
+            ['(1+2+3+4- 5)*7/100'],
+            ['( 1 + 2 + 3 + 4 - 5 ) * 7 / 100'],
+
         ];
     }
 
