@@ -158,3 +158,7 @@ You can add operators, functions and variables with the public methods in MathEx
 This will allow you to remove functions and operators if needed, or implement different types more simply.
 
 Also note that you can replace an existing default operator by adding a new operator with the same regular expression string.  For example if you just need to redefine TokenPlus, you can just add a new operator with the same regex string, in this case '\\+'.
+
+## Future Enhancements
+
+This package needs PHP 7.0 or higher due to PHPUNIT 5 not supporting PHP 7. The code is still 5.6 compatible, but at some point this package will be upgraded to a currently supported version of PHP.
