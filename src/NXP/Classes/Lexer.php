@@ -15,11 +15,12 @@ use NXP\Classes\Token\InterfaceOperator;
 use NXP\Classes\Token\TokenComma;
 use NXP\Classes\Token\TokenFunction;
 use NXP\Classes\Token\TokenLeftBracket;
+use NXP\Classes\Token\TokenMinus;
 use NXP\Classes\Token\TokenNumber;
 use NXP\Classes\Token\TokenRightBracket;
+use NXP\Classes\Token\TokenStringDoubleQuoted;
 use NXP\Classes\Token\TokenStringSingleQuoted;
 use NXP\Classes\Token\TokenVariable;
-use NXP\Classes\Token\TokenStringDoubleQuoted;
 use NXP\Exception\IncorrectBracketsException;
 use NXP\Exception\IncorrectExpressionException;
 
@@ -66,6 +67,7 @@ class Lexer
     {
         $output = [];
         $stack = [];
+        $lastToken = null;
 
         foreach ($tokensStream as $token) {
             if ($token instanceof TokenStringDoubleQuoted) {
@@ -73,7 +75,20 @@ class Lexer
             } elseif ($token instanceof TokenStringSingleQuoted) {
                 $output[] = $token;
             } elseif ($token instanceof TokenNumber) {
-                $output[] = $token;
+                // if the number starts with a minus sign, it could be a negative number, or it could be an operator grabbed by the greedy regex
+                // if previous token is an operator, then it negative, otherwise remove the minus sign and put a negative operator on the stack
+                if ($lastToken !== null) {
+                    $value = (int)$token->getValue();
+                    if ($value < 0 && ! ($lastToken instanceof AbstractOperator)) {
+                        $token = new TokenNumber(abs($value));
+                        $output[] = $token;
+                        $output[] = new TokenMinus('-');
+                    } else {
+                        $output[] = $token;
+                    }
+                } else {
+                    $output[] = $token;
+                }
             } elseif ($token instanceof TokenVariable) {
                 $output[] = $token;
             } elseif ($token instanceof TokenFunction) {
@@ -118,6 +133,7 @@ class Lexer
                     $output[] = array_pop($stack);
                 }
             }
+            $lastToken = $token;
         }
         while (!empty($stack)) {
             $token = array_pop($stack);
