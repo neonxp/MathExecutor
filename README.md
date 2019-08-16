@@ -161,4 +161,4 @@ Also note that you can replace an existing default operator by adding a new oper
 
 ## Future Enhancements
 
-This package needs PHP 7.0 or higher due to PHPUNIT 5 not supporting PHP 7. The code is still 5.6 compatible, but at some point this package will be upgraded to a currently supported version of PHP.
+At some point this package will be upgraded to a currently supported version of PHP.
