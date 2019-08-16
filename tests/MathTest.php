@@ -45,6 +45,8 @@ class MathTest extends \PHPUnit\Framework\TestCase
             ['-5+10'],
             ['4-5'],
             ['4 -5'],
+            ['(4*2)-5'],
+            ['(4*2) - 5'],
             ['4*-5'],
             ['4 * -5'],
 
