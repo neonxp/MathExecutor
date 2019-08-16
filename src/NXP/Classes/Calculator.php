@@ -36,25 +36,17 @@ class Calculator
     {
         $stack = [];
         foreach ($tokens as $token) {
-            if ($token instanceof TokenNumber) {
-                array_push($stack, $token);
-            }
-            if ($token instanceof TokenStringDoubleQuoted) {
-                array_push($stack, $token);
-            }
-            if ($token instanceof TokenStringSingleQuoted) {
-                array_push($stack, $token);
-            }
-            if ($token instanceof TokenVariable) {
+            if ($token instanceof TokenNumber || $token instanceof TokenStringDoubleQuoted || $token instanceof TokenStringSingleQuoted) {
+                $stack[] = $token;
+            } else if ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
                 if (!array_key_exists($variable, $variables)) {
                     throw new UnknownVariableException($variable);
                 }
                 $value = $variables[$variable];
-                array_push($stack, new TokenNumber($value));
-            }
-            if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {
-                array_push($stack, $token->execute($stack));
+                $stack[] = new TokenNumber($value);
+            } else if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {
+                $stack[] = $token->execute($stack);
             }
         }
         $result = array_pop($stack);

@@ -32,7 +32,7 @@ class MathTest extends \PHPUnit_Framework_TestCase
 
         /** @var float $phpResult */
         eval('$phpResult = ' . $expression . ';');
-        $this->assertEquals($calculator->execute($expression), $phpResult, "Expression was: ${expression}");
+        $this->assertEquals($phpResult, $calculator->execute($expression), "Expression was: ${expression}");
     }
 
     /**
@@ -117,7 +117,7 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function testZeroDivision()
     {
         $calculator = new MathExecutor();
-        $this->assertEquals($calculator->execute('10 / 0'), 0);
+        $this->assertEquals(0, $calculator->execute('10 / 0'));
     }
 
     public function testZeroDivisionException()
@@ -131,19 +131,39 @@ class MathTest extends \PHPUnit_Framework_TestCase
     public function testExponentiation()
     {
         $calculator = new MathExecutor();
-        $this->assertEquals($calculator->execute('10 ^ 2'), 100);
+        $this->assertEquals(100, $calculator->execute('10 ^ 2'));
+    }
+
+    public function testFunctionParameterOrder()
+    {
+        $calculator = new MathExecutor();
+
+        $calculator->addFunction('concat', function ($arg1, $arg2) {return $arg1.$arg2;});
+        $this->assertEquals('testing', $calculator->execute('concat("test","ing")'));
+        $this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
     }
 
     public function testFunction()
     {
         $calculator = new MathExecutor();
+        $calculator->addFunction('round', function ($arg) {return round($arg);});
+        $this->assertEquals(round(100/30), $calculator->execute('round(100/30)'));
+    }
 
-        $calculator->addFunction('round', function ($arg) {
-            return round($arg);
-        }, 1);
-        /** @var float $phpResult */
-        eval('$phpResult = round(100/30);');
-        $this->assertEquals($calculator->execute('round(100/30)'), $phpResult);
+    public function testEvaluateFunctionParameters()
+    {
+        $calculator = new MathExecutor();
+        $calculator->addFunction('round', function ($value, $decimals)
+          {
+            return round($value, $decimals);
+          }
+        );
+        $expression = 'round(100 * 1.111111, 2)';
+        eval('$phpResult = ' . $expression . ';');
+        $this->assertEquals($phpResult, $calculator->execute($expression));
+        $expression = 'round((100*0.04)+(((100*1.02)+0.5)*1.28),2)';
+        eval('$phpResult = ' . $expression . ';');
+        $this->assertEquals($phpResult, $calculator->execute($expression));
     }
 
     public function testFunctionsWithQuotes()
@@ -158,10 +178,12 @@ class MathTest extends \PHPUnit_Framework_TestCase
     {
         $calculator = new MathExecutor();
         $testString = "some, long. arg; with: different-separators!";
-        $calculator->addFunction('test', function ($arg) use ($testString) {
-            $this->assertEquals($arg, $testString);
+        $calculator->addFunction('test', function ($arg) use ($testString)
+            {
+            $this->assertEquals($testString, $arg);
             return 0;
-        }, 1);
+            }
+        );
         $calculator->execute('test("' . $testString . '")'); // single quotes
         $calculator->execute("test('" . $testString . "')"); // double quotes
     }
