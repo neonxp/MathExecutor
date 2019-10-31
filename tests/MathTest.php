@@ -21,7 +21,7 @@ use NXP\Exception\UnknownOperatorException;
 use NXP\Exception\UnknownTokenException;
 use NXP\Exception\UnknownVariableException;
 
-class MathTest extends \PHPUnit_Framework_TestCase
+class MathTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @dataProvider providerExpressions
