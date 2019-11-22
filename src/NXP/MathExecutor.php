@@ -263,6 +263,14 @@ class MathExecutor
             'NXP\Classes\Token\TokenMultiply',
             'NXP\Classes\Token\TokenDivision',
             'NXP\Classes\Token\TokenDegree',
+            'NXP\Classes\Token\TokenAnd',
+            'NXP\Classes\Token\TokenOr',
+            'NXP\Classes\Token\TokenEqual',
+            'NXP\Classes\Token\TokenUnequal',
+            'NXP\Classes\Token\TokenGreaterThanOrEqual',
+            'NXP\Classes\Token\TokenGreaterThan',
+            'NXP\Classes\Token\TokenLessThanOrEqual',
+            'NXP\Classes\Token\TokenLessThan',
         ];
     }
 
