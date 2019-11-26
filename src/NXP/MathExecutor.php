@@ -304,6 +304,18 @@ class MathExecutor
             'avg' => function ($arg1, $arg2) {
                 return ($arg1 + $arg2) / 2;
             },
+            'if' => function ($expr, $trueval, $falseval) {
+                if ($expr === true || $expr === false) {
+                    $exres = $expr;
+                } else {
+                    $exres = $this->execute($expr);
+                }
+                if ($exres) {
+                    return $this->execute($trueval);
+                } else {
+                    return $this->execute($falseval);
+                }
+            }
         ];
     }
 

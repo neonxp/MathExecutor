@@ -201,6 +201,25 @@ class MathTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(round(100/30), $calculator->execute('round(100/30)'));
     }
 
+    public function testFunctionIf()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(30, $calculator->execute(
+            'if(100 > 99, 30, 0)'));
+        $this->assertEquals(0, $calculator->execute(
+            'if(100 < 99, 30, 0)'));
+        $this->assertEquals(30, $calculator->execute(
+            'if(98 < 99 && sin(1) < 1, 30, 0)'));
+        $this->assertEquals(40, $calculator->execute(
+            'if(98 < 99 && sin(1) < 1, max(30, 40), 0)'));
+        $this->assertEquals(40, $calculator->execute(
+            'if(98 < 99 && sin(1) < 1, if(10 > 5, max(30, 40), 1), 0)'));
+        $this->assertEquals(20, $calculator->execute(
+            'if(98 < 99 && sin(1) > 1, if(10 > 5, max(30, 40), 1), if(4 <= 4, 20, 21))'));
+        //$this->assertEquals(cos(2), $calculator->execute(
+            //'if(98 < 99 && sin(1) >= 1, max(30, 40), cos(2))'));
+    }
+
     public function testEvaluateFunctionParameters()
     {
         $calculator = new MathExecutor();
