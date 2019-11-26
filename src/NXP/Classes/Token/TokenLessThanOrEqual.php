@@ -19,7 +19,7 @@ class TokenLessThanOrEqual extends AbstractOperator
      */
     public function getPriority()
     {
-        return 3;
+        return 150;
     }
 
     /**

@@ -30,7 +30,7 @@ class TokenMultiply extends AbstractOperator
      */
     public function getPriority()
     {
-        return 2;
+        return 180;
     }
 
     /**

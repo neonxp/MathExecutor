@@ -19,7 +19,7 @@ class TokenOr extends AbstractOperator
      */
     public function getPriority()
     {
-        return 2;
+        return 90;
     }
 
     /**

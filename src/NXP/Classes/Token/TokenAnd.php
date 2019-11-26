@@ -11,7 +11,7 @@ class TokenAnd extends AbstractOperator
      */
     public static function getRegex()
     {
-        return '&[&]';
+        return '&&';
     }
 
     /**
@@ -19,7 +19,7 @@ class TokenAnd extends AbstractOperator
      */
     public function getPriority()
     {
-        return 1;
+        return 100;
     }
 
     /**
