@@ -43,7 +43,7 @@ class TokenOr extends AbstractOperator
         $op1 = array_pop($stack);
 
         if ($op1 === null || $op2 === null) {
-            throw new IncorrectExpressionException("Or requires two operators");
+            throw new IncorrectExpressionException("|| requires two operators");
         }
 
         $result = $op1->getValue() || $op2->getValue();
