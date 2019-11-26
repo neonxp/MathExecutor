@@ -50,6 +50,8 @@ class MathTest extends \PHPUnit\Framework\TestCase
             ['4*-5'],
             ['4 * -5'],
 
+            [cos(2)],
+
             ['0.1 + 0.2'],
             ['1 + 2'],
 
@@ -63,6 +65,10 @@ class MathTest extends \PHPUnit\Framework\TestCase
             ['1 / 2'],
 
             ['2 * 2 + 3 * 3'],
+            ['2 * 2 / 3 * 3'],
+            ['2 / 2 / 3 / 3'],
+            ['2 / 2 * 3 / 3'],
+            ['2 / 2 * 3 * 3'],
 
             ['1 + 0.6 - 3 * 2 / 50'],
 
@@ -89,6 +95,8 @@ class MathTest extends \PHPUnit\Framework\TestCase
             ['1 + 2 * 3 / (3 * min(1, 5) * 2 + 1)'],
             ['1 + 2 * 3 / (3 / min(1, 5) / 2 + 1)'],
 
+            ['(1 + 2) * 3 / (3 / min(1, 5) / 2 + 1)'],
+
             ['sin(10) * cos(50) / min(10, 20/2)'],
             ['sin(10) * cos(50) / min(10, (20/2))'],
             ['sin(10) * cos(50) / min(10, (max(10,20)/2))'],
@@ -110,6 +118,38 @@ class MathTest extends \PHPUnit\Framework\TestCase
             ['(1+2+3+4- 5)*7/100'],
             ['( 1 + 2 + 3 + 4 - 5 ) * 7 / 100'],
 
+            ['1 && 0'],
+            ['1 && 0 && 1'],
+            ['1 || 0'],
+            ['1 && 0 || 1'],
+
+            ['5 == 3'],
+            ['5 == 5'],
+            ['5 != 3'],
+            ['5 != 5'],
+            ['5 > 3'],
+            ['3 > 5'],
+            ['3 >= 5'],
+            ['3 >= 3'],
+            ['3 < 5'],
+            ['5 < 3'],
+            ['3 <= 5'],
+            ['5 <= 5'],
+            ['10 < 9 || 4 > (2+1)'],
+            ['10 < 9 || 4 > (2+1) && 5 == 5 || 4 != 6 || 3 >= 4 || 3 <= 7'],
+
+            ['1 + 5 == 3 + 1'],
+            ['1 + 5 == 5 + 1'],
+            ['1 + 5 != 3 + 1'],
+            ['1 + 5 != 5 + 1'],
+            ['1 + 5 > 3 + 1'],
+            ['1 + 3 > 5 + 1'],
+            ['1 + 3 >= 5 + 1'],
+            ['1 + 3 >= 3 + 1'],
+            ['1 + 3 < 5 + 1'],
+            ['1 + 5 < 3 + 1'],
+            ['1 + 3 <= 5 + 1'],
+            ['1 + 5 <= 5 + 1'],
         ];
     }
 
@@ -161,6 +201,27 @@ class MathTest extends \PHPUnit\Framework\TestCase
         $calculator = new MathExecutor();
         $calculator->addFunction('round', function ($arg) {return round($arg);});
         $this->assertEquals(round(100/30), $calculator->execute('round(100/30)'));
+    }
+
+    public function testFunctionIf()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(30, $calculator->execute(
+            'if(100 > 99, 30, 0)'));
+        $this->assertEquals(0, $calculator->execute(
+            'if(100 < 99, 30, 0)'));
+        $this->assertEquals(30, $calculator->execute(
+            'if(98 < 99 && sin(1) < 1, 30, 0)'));
+        $this->assertEquals(40, $calculator->execute(
+            'if(98 < 99 && sin(1) < 1, max(30, 40), 0)'));
+        $this->assertEquals(40, $calculator->execute(
+            'if(98 < 99 && sin(1) < 1, if(10 > 5, max(30, 40), 1), 0)'));
+        $this->assertEquals(20, $calculator->execute(
+            'if(98 < 99 && sin(1) > 1, if(10 > 5, max(30, 40), 1), if(4 <= 4, 20, 21))'));
+        $this->assertEquals(cos(2), $calculator->execute(
+            'if(98 < 99 && sin(1) >= 1, max(30, 40), cos(2))'));
+        $this->assertEquals(cos(2), $calculator->execute(
+            'if(cos(2), cos(2), 0)'));
     }
 
     public function testEvaluateFunctionParameters()

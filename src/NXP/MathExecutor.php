@@ -223,13 +223,14 @@ class MathExecutor
      */
     public function execute($expression)
     {
-        if (!array_key_exists($expression, $this->cache)) {
+        $cachekey = (string)$expression;
+        if (!array_key_exists($cachekey, $this->cache)) {
             $lexer = new Lexer($this->tokenFactory);
             $tokensStream = $lexer->stringToTokensStream($expression);
             $tokens = $lexer->buildReversePolishNotation($tokensStream);
-            $this->cache[$expression] = $tokens;
+            $this->cache[$cachekey] = $tokens;
         } else {
-            $tokens = $this->cache[$expression];
+            $tokens = $this->cache[$cachekey];
         }
         $calculator = new Calculator();
         $result = $calculator->calculate($tokens, $this->variables);
@@ -263,6 +264,14 @@ class MathExecutor
             'NXP\Classes\Token\TokenMultiply',
             'NXP\Classes\Token\TokenDivision',
             'NXP\Classes\Token\TokenDegree',
+            'NXP\Classes\Token\TokenAnd',
+            'NXP\Classes\Token\TokenOr',
+            'NXP\Classes\Token\TokenEqual',
+            'NXP\Classes\Token\TokenUnequal',
+            'NXP\Classes\Token\TokenGreaterThanOrEqual',
+            'NXP\Classes\Token\TokenGreaterThan',
+            'NXP\Classes\Token\TokenLessThanOrEqual',
+            'NXP\Classes\Token\TokenLessThan',
         ];
     }
 
@@ -296,6 +305,18 @@ class MathExecutor
             'avg' => function ($arg1, $arg2) {
                 return ($arg1 + $arg2) / 2;
             },
+            'if' => function ($expr, $trueval, $falseval) {
+                if ($expr === true || $expr === false) {
+                    $exres = $expr;
+                } else {
+                    $exres = $this->execute($expr);
+                }
+                if ($exres) {
+                    return $this->execute($trueval);
+                } else {
+                    return $this->execute($falseval);
+                }
+            }
         ];
     }
 

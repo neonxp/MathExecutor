@@ -133,21 +133,21 @@ class TokenFactory
     {
         $operatorsRegex = '';
         foreach ($this->operators as $operator) {
-            $operatorsRegex .= $operator::getRegex();
+            $operatorsRegex .= '|(' . $operator::getRegex() . ')';
         }
-
-        return sprintf(
-            '/(%s)|(%s)|(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
+        $s = sprintf(
+            '/(%s)|(%s)|(%s)|(%s)|(%s)|([%s%s%s])',
             TokenNumber::getRegex(),
             TokenStringDoubleQuoted::getRegex(),
             TokenStringSingleQuoted::getRegex(),
-            $operatorsRegex,
             TokenFunction::getRegex(),
             TokenVariable::getRegex(),
             TokenLeftBracket::getRegex(),
             TokenRightBracket::getRegex(),
             TokenComma::getRegex()
         );
+        $s .= $operatorsRegex . '/i';
+        return $s;
     }
 
     /**
