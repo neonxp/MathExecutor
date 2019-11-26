@@ -50,6 +50,8 @@ class MathTest extends \PHPUnit\Framework\TestCase
             ['4*-5'],
             ['4 * -5'],
 
+            [cos(2)],
+
             ['0.1 + 0.2'],
             ['1 + 2'],
 
@@ -216,8 +218,10 @@ class MathTest extends \PHPUnit\Framework\TestCase
             'if(98 < 99 && sin(1) < 1, if(10 > 5, max(30, 40), 1), 0)'));
         $this->assertEquals(20, $calculator->execute(
             'if(98 < 99 && sin(1) > 1, if(10 > 5, max(30, 40), 1), if(4 <= 4, 20, 21))'));
-        //$this->assertEquals(cos(2), $calculator->execute(
-            //'if(98 < 99 && sin(1) >= 1, max(30, 40), cos(2))'));
+        $this->assertEquals(cos(2), $calculator->execute(
+            'if(98 < 99 && sin(1) >= 1, max(30, 40), cos(2))'));
+        $this->assertEquals(cos(2), $calculator->execute(
+            'if(cos(2), cos(2), 0)'));
     }
 
     public function testEvaluateFunctionParameters()

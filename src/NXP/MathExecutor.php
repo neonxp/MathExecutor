@@ -223,13 +223,14 @@ class MathExecutor
      */
     public function execute($expression)
     {
-        if (!array_key_exists($expression, $this->cache)) {
+        $cachekey = (string)$expression;
+        if (!array_key_exists($cachekey, $this->cache)) {
             $lexer = new Lexer($this->tokenFactory);
             $tokensStream = $lexer->stringToTokensStream($expression);
             $tokens = $lexer->buildReversePolishNotation($tokensStream);
-            $this->cache[$expression] = $tokens;
+            $this->cache[$cachekey] = $tokens;
         } else {
-            $tokens = $this->cache[$expression];
+            $tokens = $this->cache[$cachekey];
         }
         $calculator = new Calculator();
         $result = $calculator->calculate($tokens, $this->variables);
