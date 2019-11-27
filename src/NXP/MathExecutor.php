@@ -267,7 +267,7 @@ class MathExecutor
             'NXP\Classes\Token\TokenAnd',
             'NXP\Classes\Token\TokenOr',
             'NXP\Classes\Token\TokenEqual',
-            'NXP\Classes\Token\TokenUnequal',
+            'NXP\Classes\Token\TokenNotEqual',
             'NXP\Classes\Token\TokenGreaterThanOrEqual',
             'NXP\Classes\Token\TokenGreaterThan',
             'NXP\Classes\Token\TokenLessThanOrEqual',
@@ -278,32 +278,74 @@ class MathExecutor
     protected function defaultFunctions()
     {
         return [
-            'sin' => function ($arg) {
-                return sin($arg);
-            },
-            'cos' => function ($arg) {
-                return cos($arg);
-            },
-            'tn' => function ($arg) {
-                return tan($arg);
-            },
-            'asin' => function ($arg) {
-                return asin($arg);
+            'abs' => function ($arg) {
+                return abs($arg);
             },
             'acos' => function ($arg) {
                 return acos($arg);
             },
+            'acosh' => function ($arg) {
+                return acosh($arg);
+            },
+            'asin' => function ($arg) {
+                return asin($arg);
+            },
+            'atan' => function ($arg) {
+                return atan($arg);
+            },
+            'atan2' => function ($arg1, $arg2) {
+                return atan2($arg1, $arg2);
+            },
+            'atanh' => function ($arg) {
+                return atanh($arg);
+            },
             'atn' => function ($arg) {
                 return atan($arg);
             },
-            'min' => function ($arg1, $arg2) {
-                return min($arg1, $arg2);
-            },
-            'max' => function ($arg1, $arg2) {
-                return max($arg1, $arg2);
-            },
             'avg' => function ($arg1, $arg2) {
                 return ($arg1 + $arg2) / 2;
+            },
+            'bindec' => function ($arg) {
+                return bindec($arg);
+            },
+            'ceil' => function ($arg) {
+                return ceil($arg);
+            },
+            'cos' => function ($arg) {
+                return cos($arg);
+            },
+            'cosh' => function ($arg) {
+                return cosh($arg);
+            },
+            'decbin' => function ($arg) {
+                return decbin($arg);
+            },
+            'dechex' => function ($arg) {
+                return dechex($arg);
+            },
+            'decoct' => function ($arg) {
+                return decoct($arg);
+            },
+            'deg2rad' => function ($arg) {
+                return deg2rad($arg);
+            },
+            'exp' => function ($arg) {
+                return exp($arg);
+            },
+            'expm1' => function ($arg) {
+                return expm1($arg);
+            },
+            'floor' => function ($arg) {
+                return floor($arg);
+            },
+            'fmod' => function ($arg1, $arg2) {
+                return fmod($arg1, $arg2);
+            },
+            'hexdec' => function ($arg) {
+                return hexdec($arg);
+            },
+            'hypot' => function ($arg1, $arg2) {
+                return hypot($arg1, $arg2);
             },
             'if' => function ($expr, $trueval, $falseval) {
                 if ($expr === true || $expr === false) {
@@ -316,6 +358,57 @@ class MathExecutor
                 } else {
                     return $this->execute($falseval);
                 }
+            },
+            'intdiv' => function ($arg1, $arg2) {
+                return intdiv($arg1, $arg2);
+            },
+            'log' => function ($arg) {
+                return log($arg);
+            },
+			'log10' => function ($arg) {
+                return log10($arg);
+            },
+            'log1p' => function ($arg) {
+                return log1p($arg);
+            },
+            'max' => function ($arg1, $arg2) {
+                return max($arg1, $arg2);
+            },
+            'min' => function ($arg1, $arg2) {
+                return min($arg1, $arg2);
+            },
+            'octdec' => function ($arg) {
+                return octdec($arg);
+            },
+            'pi' => function () {
+                return pi();
+            },
+            'pow' => function ($arg1, $arg2) {
+                return pow($arg1, $arg2);
+            },
+            'rad2deg' => function ($arg) {
+                return rad2deg($arg);
+            },
+            'round' => function ($arg) {
+                return round($arg);
+            },
+            'sin' => function ($arg) {
+                return sin($arg);
+            },
+            'sinh' => function ($arg) {
+                return sinh($arg);
+            },
+            'sqrt' => function ($arg) {
+                return sqrt($arg);
+            },
+			'tan' => function ($arg) {
+                return tan($arg);
+            },
+            'tanh' => function ($arg) {
+                return tanh($arg);
+            },
+            'tn' => function ($arg) {
+                return tan($arg);
             }
         ];
     }

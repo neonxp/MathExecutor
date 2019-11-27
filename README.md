@@ -4,6 +4,9 @@
 
 ## Features:
 * Built in support for +, -, *, / and power (^) operators plus ()
+* Logical operators (==, !=, <, <, >=, <=, &&, ||)
+* Built in support for most PHP math functions
+* Conditional If logic
 * Support for user defined operators
 * Support for user defined functions
 * Unlimited variable name lengths
@@ -20,24 +23,54 @@ composer require "nxp/math-executor"
 
 ## Sample usage:
 ```php
-require "vendor/autoload.php";
+require 'vendor/autoload.php';
 
 $executor = new \NXP\MathExecutor();
 
-echo $executor->execute("1 + 2 * (2 - (4+10))^2 + sin(10)");
+echo $executor->execute('1 + 2 * (2 - (4+10))^2 + sin(10)');
 ```
 
 ## Functions:
 Default functions:
-* sin
-* cos
-* tn
-* asin
+* abs
 * acos
-* atn
-* min
-* max
+* acosh
+* asin
+* atan (atn)
+* atan2
+* atanh
 * avg
+* bindec
+* ceil
+* cos
+* cosh
+* decbin
+* dechex
+* decoct
+* deg2rad
+* exp
+* expm1
+* floor
+* fmod
+* hexdec
+* hypot
+* if
+* intdiv
+* log
+* log10
+* log1p
+* max
+* min
+* octdec
+* pi
+* pow
+* rad2deg
+* round
+* sin
+* sinh
+* sqrt
+* tan (tn)
+* tanh
 
 Add custom function to executor:
 ```php
@@ -75,7 +108,7 @@ class ModulusToken extends AbstractOperator
      */
     public function getPriority()
     {
-        return 3;
+        return 180;
     }
 
     /**
@@ -109,6 +142,18 @@ And adding to executor:
 $executor->addOperator('MyNamespace\ModulusToken');
 ```
 
+## Logical operators:
+Logical operators (==, !=, <, <, >=, <=, &&, ||) are supported, but logically they can only return true (1) or false (0).  In order to leverage them, use the built in **if** function:
+
+```
+if($a > $b, $a - $b, $b - $a)
+```
+
+You can think of the **if** function as prototyped like:
+
+```
+function if($condition, $returnIfTrue, $returnIfFalse)
+```
 ## Variables:
 Default variables:
 
@@ -161,4 +206,4 @@ Also note that you can replace an existing default operator by adding a new oper
 
 ## Future Enhancements
 
-At some point this package will be upgraded to a currently supported version of PHP.
+This package will continue to track currently supported versions of PHP.  We recommend you keep PHP up-to-date. Currently the code will run under 5.6, but don't expect 5.6 support going forward.

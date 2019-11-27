@@ -4,7 +4,7 @@ namespace NXP\Classes\Token;
 
 use NXP\Exception\IncorrectExpressionException;
 
-class TokenUnequal extends AbstractOperator
+class TokenNotEqual extends AbstractOperator
 {
     /**
      * @return string
