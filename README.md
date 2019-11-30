@@ -78,8 +78,6 @@ $executor->addFunction('abs', function($arg) {return abs($arg);});
 ```
 Function default parameters are not supported at this time.
 
-Default parameters are not currently supported.
-
 ## Operators:
 Default operators: `+ - * / ^`
 
