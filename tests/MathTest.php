@@ -301,6 +301,7 @@ class MathTest extends \PHPUnit\Framework\TestCase
     public function testBeginWithBracketAndMinus()
     {
         $calculator = new MathExecutor();
+        $this->assertEquals(-4, $calculator->execute('(-4)'));
         $this->assertEquals(1, $calculator->execute('(-4 + 5)'));
     }
 }
