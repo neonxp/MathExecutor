@@ -18,7 +18,7 @@
 
 ## Install via Composer:
 ```
-composer require "nxp/math-executor"
+composer require nxp/math-executor
 ```
 
 ## Sample usage:

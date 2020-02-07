@@ -37,6 +37,10 @@ class MathTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Expressions data provider
+	 *
+	 * Most tests can go in here.  The idea is that each expression will be evaluated by MathExecutor and by PHP with eval.
+	 * The results should be the same.  If they are not, then the test fails.  No need to add extra test unless you are doing
+	 * something more complete and not a simple mathmatical expression.
      */
     public function providerExpressions()
     {
@@ -186,6 +190,12 @@ class MathTest extends \PHPUnit\Framework\TestCase
             ['1 + 5 < 3 + 1'],
             ['1 + 3 <= 5 + 1'],
             ['1 + 5 <= 5 + 1'],
+
+            ['(-4)'],
+            ['(-4 + 5)'],
+
+            ['1 - 0'],
+            ['1-0'],
         ];
     }
 
@@ -296,19 +306,5 @@ class MathTest extends \PHPUnit\Framework\TestCase
         );
         $calculator->execute('test("' . $testString . '")'); // single quotes
         $calculator->execute("test('" . $testString . "')"); // double quotes
-    }
-
-    public function testBeginWithBracketAndMinus()
-    {
-        $calculator = new MathExecutor();
-        $this->assertEquals(-4, $calculator->execute('(-4)'));
-        $this->assertEquals(1, $calculator->execute('(-4 + 5)'));
-    }
-
-    public function testMinusZero()
-    {
-        $calculator = new MathExecutor();
-        $this->assertEquals(1, $calculator->execute('1 - 0'));
-        $this->assertEquals(1, $calculator->execute('1-0'));
     }
 }
