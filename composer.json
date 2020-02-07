@@ -2,7 +2,7 @@
     "name": "nxp/math-executor",
     "description": "Simple math expressions calculator",
     "minimum-stability": "stable",
-    "keywords": ["math","parser","expression","calculator"],
+    "keywords": ["math","parser","expression","calculator","formula","mathmatics"],
     "homepage": "http://github.com/NeonXP/MathExecutor",
     "license": "MIT",
     "authors": [
@@ -19,8 +19,5 @@
     },
     "autoload": {
         "psr-0": {"NXP": "src/"}
-    },
-    "config": {
-        "bin-dir": "bin"
     }
 }
