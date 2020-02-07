@@ -297,4 +297,18 @@ class MathTest extends \PHPUnit\Framework\TestCase
         $calculator->execute('test("' . $testString . '")'); // single quotes
         $calculator->execute("test('" . $testString . "')"); // double quotes
     }
+
+    public function testBeginWithBracketAndMinus()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(-4, $calculator->execute('(-4)'));
+        $this->assertEquals(1, $calculator->execute('(-4 + 5)'));
+    }
+
+    public function testMinusZero()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(1, $calculator->execute('1 - 0'));
+        $this->assertEquals(1, $calculator->execute('1-0'));
+    }
 }

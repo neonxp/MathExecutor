@@ -53,8 +53,12 @@ class TokenMinus extends AbstractOperator
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
 
-        if ($op1 === null || $op2 === null) {
-            throw new IncorrectExpressionException("Subtraction requires two operators");
+        if ($op2 === null) {
+            throw new IncorrectExpressionException("Subtraction requires right operator");
+        }
+
+        if (!$op1) {
+            $op1 = new TokenNumber(0);
         }
 
         $result = $op1->getValue() - $op2->getValue();

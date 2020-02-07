@@ -78,8 +78,8 @@ class Lexer
                 // if the number starts with a minus sign, it could be a negative number, or it could be an operator grabbed by the greedy regex
                 // if previous token is an operator, then it negative, otherwise remove the minus sign and put a negative operator on the stack
                 if ($lastToken !== null) {
-                    $value = (int)$token->getValue();
-                    if ($value < 0 && ! ($lastToken instanceof AbstractOperator)) {
+                    $value = $token->getValue();
+                    if (($value < 0 || $this->isNegativeZero($value)) && ! ($lastToken instanceof AbstractOperator)) {
                         $token = new TokenNumber(abs($value));
                         $output[] = $token;
                         $output[] = new TokenMinus('-');
@@ -144,5 +144,17 @@ class Lexer
         }
 
         return $output;
+    }
+
+    /**
+     * Check if the value is a negative zero
+     *
+     * @param int|float $x The value to check
+     * @return boolean True if negative zero, false otherwise
+     */
+    private function isNegativeZero($x)
+    {
+        $floatVal = floatval($x);
+        return $floatVal === 0.0 && $floatVal ** -1 === -INF;
     }
 }
