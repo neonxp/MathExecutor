@@ -365,7 +365,7 @@ class MathExecutor
             'log' => function ($arg) {
                 return log($arg);
             },
-			'log10' => function ($arg) {
+            'log10' => function ($arg) {
                 return log10($arg);
             },
             'log1p' => function ($arg) {
@@ -401,7 +401,7 @@ class MathExecutor
             'sqrt' => function ($arg) {
                 return sqrt($arg);
             },
-			'tan' => function ($arg) {
+            'tan' => function ($arg) {
                 return tan($arg);
             },
             'tanh' => function ($arg) {
