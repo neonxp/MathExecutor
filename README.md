@@ -202,6 +202,10 @@ This will allow you to remove functions and operators if needed, or implement di
 
 Also note that you can replace an existing default operator by adding a new operator with the same regular expression string.  For example if you just need to redefine TokenPlus, you can just add a new operator with the same regex string, in this case '\\+'.
 
+## Documentation
+
+Full class documentation via [PHPFUI/InstaDoc](http://phpfui.com/?n=NXP&c=MathExecutor)
+
 ## Future Enhancements
 
-This package will continue to track currently supported versions of PHP.  We recommend you keep PHP up-to-date. Currently the code will run under 5.6, but don't expect 5.6 support going forward.
+This package will continue to track currently supported versions of PHP.  PHP 7.1 and earlier support will be dropped when PHP 8 is released.

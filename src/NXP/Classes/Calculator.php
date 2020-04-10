@@ -26,9 +26,9 @@ class Calculator
 {
     /**
      * Calculate array of tokens in reverse polish notation
-     * @param  array                                       $tokens    Array of tokens
-     * @param  array                                       $variables Array of variables
-     * @return number                                      Result
+     * @param  array  $tokens
+     * @param  array  $variables
+     * @return number Result
      * @throws \NXP\Exception\IncorrectExpressionException
      * @throws \NXP\Exception\UnknownVariableException
      */

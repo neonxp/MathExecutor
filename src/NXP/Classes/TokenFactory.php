@@ -54,6 +54,7 @@ class TokenFactory
      * @param string $name
      * @param callable $function
      * @param int $places
+     * @return TokenFactory
      * @throws \ReflectionException
      */
     public function addFunction($name, callable $function, $places = null)
@@ -63,6 +64,8 @@ class TokenFactory
             $places = $reflector->getNumberOfParameters();
         }
         $this->functions[$name] = [$places, $function];
+
+        return $this;
     }
 
     /**
@@ -79,6 +82,7 @@ class TokenFactory
     /**
      * Add operator
      * @param  string $operatorClass
+     * @return TokenFactory
      * @throws UnknownOperatorException
      * @throws \ReflectionException
      */
@@ -91,6 +95,8 @@ class TokenFactory
         }
 
         $this->operators[$operatorClass::getRegex()] = $operatorClass;
+
+        return $this;
     }
 
     /**
@@ -113,6 +119,7 @@ class TokenFactory
     public function setDivisionByZeroException($exception = true)
     {
         $this->divideByZeroReporting = $exception;
+
         return $this;
     }
 
@@ -147,6 +154,7 @@ class TokenFactory
             TokenComma::getRegex()
         );
         $s .= $operatorsRegex . '/i';
+
         return $s;
     }
 

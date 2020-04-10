@@ -133,6 +133,7 @@ class MathExecutor
 
     /**
      * Remove all variables
+     * @return MathExecutor
      */
     public function removeVars()
     {
@@ -196,7 +197,6 @@ class MathExecutor
      * Set division by zero exception reporting
      *
      * @param bool $exception default true
-     *
      * @return MathExecutor
      */
     public function setDivisionByZeroException($exception = true)
@@ -256,25 +256,36 @@ class MathExecutor
         $this->setVars($this->defaultVars());
     }
 
+    /**
+     * Get the default operators
+     *
+     * @return array of class names
+     */
     protected function defaultOperators()
     {
         return [
-            'NXP\Classes\Token\TokenPlus',
-            'NXP\Classes\Token\TokenMinus',
-            'NXP\Classes\Token\TokenMultiply',
-            'NXP\Classes\Token\TokenDivision',
-            'NXP\Classes\Token\TokenDegree',
-            'NXP\Classes\Token\TokenAnd',
-            'NXP\Classes\Token\TokenOr',
-            'NXP\Classes\Token\TokenEqual',
-            'NXP\Classes\Token\TokenNotEqual',
-            'NXP\Classes\Token\TokenGreaterThanOrEqual',
-            'NXP\Classes\Token\TokenGreaterThan',
-            'NXP\Classes\Token\TokenLessThanOrEqual',
-            'NXP\Classes\Token\TokenLessThan',
+            \NXP\Classes\Token\TokenPlus::class,
+            \NXP\Classes\Token\TokenMinus::class,
+            \NXP\Classes\Token\TokenMultiply::class,
+            \NXP\Classes\Token\TokenDivision::class,
+            \NXP\Classes\Token\TokenDegree::class,
+            \NXP\Classes\Token\TokenAnd::class,
+            \NXP\Classes\Token\TokenOr::class,
+            \NXP\Classes\Token\TokenEqual::class,
+            \NXP\Classes\Token\TokenNotEqual::class,
+            \NXP\Classes\Token\TokenGreaterThanOrEqual::class,
+            \NXP\Classes\Token\TokenGreaterThan::class,
+            \NXP\Classes\Token\TokenLessThanOrEqual::class,
+            \NXP\Classes\Token\TokenLessThan::class,
         ];
     }
 
+    /**
+     * Gets the default functions as an array.  Key is function name
+     * and value is the function as a closure.
+     *
+     * @return array
+     */
     protected function defaultFunctions()
     {
         return [
@@ -413,6 +424,11 @@ class MathExecutor
         ];
     }
 
+    /**
+     * Returns the default variables names as key/value pairs
+     *
+     * @return array
+     */
     protected function defaultVars()
     {
         return [

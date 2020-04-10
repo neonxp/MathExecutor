@@ -155,6 +155,7 @@ class Lexer
     private function isNegativeZero($x)
     {
         $floatVal = floatval($x);
+
         return $floatVal === 0.0 && $floatVal ** -1 === -INF;
     }
 }
