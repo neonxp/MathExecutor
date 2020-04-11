@@ -35,6 +35,7 @@ abstract class AbstractOperator implements InterfaceToken, InterfaceOperator
     public function setDivisionByZeroException($exception = true)
     {
         $this->divideByZeroReporting = $exception;
+
         return $this;
     }
 
