@@ -76,10 +76,10 @@ class Lexer
                 $output[] = $token;
             } elseif ($token instanceof TokenNumber) {
                 // if the number starts with a minus sign, it could be a negative number, or it could be an operator grabbed by the greedy regex
-                // if previous token is an operator, then it negative, otherwise remove the minus sign and put a negative operator on the stack
+                // if previous token is an operator or open bracket, then it negative, otherwise remove the minus sign and put a negative operator on the stack
                 if ($lastToken !== null) {
                     $value = $token->getValue();
-                    if (($value < 0 || $this->isNegativeZero($value)) && ! ($lastToken instanceof AbstractOperator)) {
+                    if (($value < 0 || $this->isNegativeZero($value)) && ! ($lastToken instanceof AbstractOperator || $lastToken instanceof TokenLeftBracket)) {
                         $token = new TokenNumber(abs($value));
                         $output[] = $token;
                         $output[] = new TokenMinus('-');
