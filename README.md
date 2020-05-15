@@ -23,7 +23,7 @@ composer require nxp/math-executor
 
 ## Sample usage:
 ```php
-use NXP\MathExecutor;require 'vendor/autoload.php';
+use NXP\MathExecutor;
 
 $executor = new MathExecutor();
 
@@ -84,7 +84,9 @@ Default operators: `+ - * / ^`
 Add custom operator to executor:
 
 ```php
-use NXP\Classes\Operator;$executor->addOperator(new Operator(
+use NXP\Classes\Operator;
+
+$executor->addOperator(new Operator(
     '%', // Operator sign
     false, // Is right associated operator
     170, // Operator priority
