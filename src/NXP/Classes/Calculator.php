@@ -10,12 +10,6 @@
 
 namespace NXP\Classes;
 
-use NXP\Classes\Token\InterfaceOperator;
-use NXP\Classes\Token\TokenFunction;
-use NXP\Classes\Token\TokenNumber;
-use NXP\Classes\Token\TokenStringDoubleQuoted;
-use NXP\Classes\Token\TokenStringSingleQuoted;
-use NXP\Classes\Token\TokenVariable;
 use NXP\Exception\IncorrectExpressionException;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownOperatorException;
