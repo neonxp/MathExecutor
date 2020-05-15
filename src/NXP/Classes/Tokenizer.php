@@ -10,18 +10,6 @@
 
 namespace NXP\Classes;
 
-use NXP\Classes\Token\AbstractOperator;
-use NXP\Classes\Token\InterfaceOperator;
-use NXP\Classes\Token\InterfaceToken;
-use NXP\Classes\Token\TokenComma;
-use NXP\Classes\Token\TokenFunction;
-use NXP\Classes\Token\TokenLeftBracket;
-use NXP\Classes\Token\TokenMinus;
-use NXP\Classes\Token\TokenNumber;
-use NXP\Classes\Token\TokenRightBracket;
-use NXP\Classes\Token\TokenStringDoubleQuoted;
-use NXP\Classes\Token\TokenStringSingleQuoted;
-use NXP\Classes\Token\TokenVariable;
 use NXP\Exception\IncorrectBracketsException;
 use NXP\Exception\UnknownOperatorException;
 use RuntimeException;
@@ -80,7 +68,7 @@ class Tokenizer
 
     public function tokenize()
     {
-        foreach (mb_str_split($this->input, 1) as $ch) {
+        foreach (str_split($this->input, 1) as $ch) {
             switch (true) {
                 case $this->inSingleQuotedString:
                     if ($ch === "'") {
@@ -111,6 +99,7 @@ class Tokenizer
                     $this->numberBuffer .= $ch;
                     $this->allowNegative = false;
                     break;
+                /** @noinspection PhpMissingBreakStatementInspection */
                 case strtolower($ch) === "e":
                     if ($this->numberBuffer != "" && strpos($this->numberBuffer, ".") !== false) {
                         $this->numberBuffer .= "e";

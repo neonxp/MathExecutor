@@ -14,8 +14,6 @@ namespace NXP;
 use NXP\Classes\Calculator;
 use NXP\Classes\CustomFunction;
 use NXP\Classes\Operator;
-use NXP\Classes\Token\AbstractOperator;
-use NXP\Classes\TokenFactory;
 use NXP\Classes\Tokenizer;
 use NXP\Exception\DivisionByZeroException;
 use ReflectionException;
