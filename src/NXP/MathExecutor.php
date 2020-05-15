@@ -12,9 +12,13 @@
 namespace NXP;
 
 use NXP\Classes\Calculator;
-use NXP\Classes\Lexer;
+use NXP\Classes\CustomFunction;
+use NXP\Classes\Operator;
+use NXP\Classes\Token\AbstractOperator;
 use NXP\Classes\TokenFactory;
-use NXP\Exception\UnknownVariableException;
+use NXP\Classes\Tokenizer;
+use NXP\Exception\DivisionByZeroException;
+use ReflectionException;
 
 /**
  * Class MathExecutor
@@ -27,12 +31,17 @@ class MathExecutor
      *
      * @var array
      */
-    private $variables = [];
+    public $variables = [];
 
     /**
-     * @var TokenFactory
+     * @var Operator[]
      */
-    private $tokenFactory;
+    public $operators = [];
+
+    /**
+     * @var CustomFunction[]
+     */
+    public $functions = [];
 
     /**
      * @var array
@@ -47,213 +56,20 @@ class MathExecutor
         $this->addDefaults();
     }
 
-    public function __clone()
-    {
-        $this->addDefaults();
-    }
-
-    /**
-     * Get all vars
-     *
-     * @return array
-     */
-    public function getVars()
-    {
-        return $this->variables;
-    }
-
-    /**
-     * Get a specific var
-     *
-     * @param  string $variable
-     * @return integer|float
-     * @throws UnknownVariableException
-     */
-    public function getVar($variable)
-    {
-        if (!isset($this->variables[$variable])) {
-            throw new UnknownVariableException("Variable ({$variable}) not set");
-        }
-
-        return $this->variables[$variable];
-    }
-
-    /**
-     * Add variable to executor
-     *
-     * @param  string $variable
-     * @param  integer|float $value
-     * @return MathExecutor
-     * @throws \Exception
-     */
-    public function setVar($variable, $value)
-    {
-        if (!is_numeric($value)) {
-            throw new \Exception("Variable ({$variable}) value must be a number ({$value}) type ({gettype($value)})");
-        }
-
-        $this->variables[$variable] = $value;
-
-        return $this;
-    }
-
-    /**
-     * Add variables to executor
-     *
-     * @param  array $variables
-     * @param  bool $clear Clear previous variables
-     * @return MathExecutor
-     * @throws \Exception
-     */
-    public function setVars(array $variables, $clear = true)
-    {
-        if ($clear) {
-            $this->removeVars();
-        }
-
-        foreach ($variables as $name => $value) {
-            $this->setVar($name, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove variable from executor
-     *
-     * @param  string $variable
-     * @return MathExecutor
-     */
-    public function removeVar($variable)
-    {
-        unset ($this->variables[$variable]);
-
-        return $this;
-    }
-
-    /**
-     * Remove all variables
-     * @return MathExecutor
-     */
-    public function removeVars()
-    {
-        $this->variables = [];
-
-        return $this;
-    }
-
-    /**
-     * Add operator to executor
-     *
-     * @param  string $operatorClass Class of operator token
-     * @return MathExecutor
-     * @throws Exception\UnknownOperatorException
-     */
-    public function addOperator($operatorClass)
-    {
-        $this->tokenFactory->addOperator($operatorClass);
-
-        return $this;
-    }
-
-    /**
-     * Get all registered operators to executor
-     *
-     * @return array of operator class names
-     */
-    public function getOperators()
-    {
-        return $this->tokenFactory->getOperators();
-    }
-
-    /**
-     * Add function to executor
-     *
-     * @param  string $name Name of function
-     * @param  callable $function Function
-     * @param  int $places Count of arguments
-     * @return MathExecutor
-     * @throws \ReflectionException
-     */
-    public function addFunction($name, $function = null, $places = null)
-    {
-        $this->tokenFactory->addFunction($name, $function, $places);
-
-        return $this;
-    }
-
-    /**
-     * Get all registered functions
-     *
-     * @return array containing callback and places indexed by
-     *         function name
-     */
-    public function getFunctions()
-    {
-        return $this->tokenFactory->getFunctions();
-    }
-
-    /**
-     * Set division by zero exception reporting
-     *
-     * @param bool $exception default true
-     * @return MathExecutor
-     */
-    public function setDivisionByZeroException($exception = true)
-    {
-        $this->tokenFactory->setDivisionByZeroException($exception);
-        return $this;
-    }
-
-    /**
-     * Get division by zero exception status
-     *
-     * @return bool
-     */
-    public function getDivisionByZeroException()
-    {
-        return $this->tokenFactory->getDivisionByZeroException();
-    }
-
-    /**
-     * Execute expression
-     *
-     * @param $expression
-     * @return number
-     */
-    public function execute($expression)
-    {
-        $cachekey = (string)$expression;
-        if (!array_key_exists($cachekey, $this->cache)) {
-            $lexer = new Lexer($this->tokenFactory);
-            $tokensStream = $lexer->stringToTokensStream($expression);
-            $tokens = $lexer->buildReversePolishNotation($tokensStream);
-            $this->cache[$cachekey] = $tokens;
-        } else {
-            $tokens = $this->cache[$cachekey];
-        }
-        $calculator = new Calculator();
-        $result = $calculator->calculate($tokens, $this->variables);
-
-        return $result;
-    }
-
     /**
      * Set default operands and functions
+     * @throws ReflectionException
      */
     protected function addDefaults()
     {
-        $this->tokenFactory = new TokenFactory();
-
-        foreach ($this->defaultOperators() as $operatorClass) {
-            $this->tokenFactory->addOperator($operatorClass);
+        foreach ($this->defaultOperators() as $name => $operator) {
+            list($callable, $priority, $isRightAssoc) = $operator;
+            $this->addOperator(new Operator($name, $isRightAssoc, $priority, $callable));
         }
-
         foreach ($this->defaultFunctions() as $name => $callable) {
-            $this->tokenFactory->addFunction($name, $callable);
+            $this->addFunction($name, $callable);
         }
-
-        $this->setVars($this->defaultVars());
+        $this->variables = $this->defaultVars();
     }
 
     /**
@@ -264,20 +80,113 @@ class MathExecutor
     protected function defaultOperators()
     {
         return [
-            \NXP\Classes\Token\TokenPlus::class,
-            \NXP\Classes\Token\TokenMinus::class,
-            \NXP\Classes\Token\TokenMultiply::class,
-            \NXP\Classes\Token\TokenDivision::class,
-            \NXP\Classes\Token\TokenDegree::class,
-            \NXP\Classes\Token\TokenAnd::class,
-            \NXP\Classes\Token\TokenOr::class,
-            \NXP\Classes\Token\TokenEqual::class,
-            \NXP\Classes\Token\TokenNotEqual::class,
-            \NXP\Classes\Token\TokenGreaterThanOrEqual::class,
-            \NXP\Classes\Token\TokenGreaterThan::class,
-            \NXP\Classes\Token\TokenLessThanOrEqual::class,
-            \NXP\Classes\Token\TokenLessThan::class,
+            '+' => [
+                function ($a, $b) {
+                    return $a + $b;
+                },
+                170,
+                false
+            ],
+            '-' => [
+                function ($a, $b) {
+                    return $a - $b;
+                },
+                170,
+                false
+            ],
+            '*' => [
+                function ($a, $b) {
+                    return $a * $b;
+                },
+                180,
+                false
+            ],
+            '/' => [
+                function ($a, $b) {
+                    if ($b == 0) {
+                        throw new DivisionByZeroException();
+                    }
+                    return $a / $b;
+                },
+                180,
+                false
+            ],
+            '^' => [
+                function ($a, $b) {
+                    return pow($a, $b);
+                },
+                220,
+                true
+            ],
+            '&&' => [
+                function ($a, $b) {
+                    return $a && $b;
+                },
+                100,
+                false
+            ],
+            '||' => [
+                function ($a, $b) {
+                    return $a || $b;
+                },
+                90,
+                false
+            ],
+            '==' => [
+                function ($a, $b) {
+                    return $a == $b;
+                },
+                140,
+                false
+            ],
+            '!=' => [
+                function ($a, $b) {
+                    return $a != $b;
+                },
+                140,
+                false
+            ],
+            '>=' => [
+                function ($a, $b) {
+                    return $a >= $b;
+                },
+                150,
+                false
+            ],
+            '>' => [
+                function ($a, $b) {
+                    return $a > $b;
+                },
+                150,
+                false
+            ],
+            '<=' => [
+                function ($a, $b) {
+                    return $a <= $b;
+                },
+                150,
+                false
+            ],
+            '<' => [
+                function ($a, $b) {
+                    return $a < $b;
+                },
+                150,
+                false
+            ],
         ];
+    }
+
+    /**
+     * Add operator to executor
+     *
+     * @param Operator $operator
+     * @return MathExecutor
+     */
+    public function addOperator(Operator $operator)
+    {
+        $this->operators[$operator->operator] = $operator;
+        return $this;
     }
 
     /**
@@ -425,6 +334,44 @@ class MathExecutor
     }
 
     /**
+     * Execute expression
+     *
+     * @param $expression
+     * @return number
+     * @throws Exception\IncorrectExpressionException
+     * @throws Exception\IncorrectBracketsException
+     * @throws Exception\UnknownOperatorException
+     * @throws Exception\UnknownVariableException
+     */
+    public function execute($expression)
+    {
+        $cachekey = (string)$expression;
+        if (!array_key_exists($cachekey, $this->cache)) {
+            $tokens = (new Tokenizer($expression, $this->operators))->tokenize()->buildReversePolishNotation();
+            $this->cache[$cachekey] = $tokens;
+        } else {
+            $tokens = $this->cache[$cachekey];
+        }
+        $calculator = new Calculator($this->functions, $this->operators);
+        return $calculator->calculate($tokens, $this->variables);
+    }
+
+    /**
+     * Add function to executor
+     *
+     * @param string $name Name of function
+     * @param callable $function Function
+     * @param int $places Count of arguments
+     * @return MathExecutor
+     * @throws ReflectionException
+     */
+    public function addFunction($name, $function = null, $places = null)
+    {
+        $this->functions[$name] = new CustomFunction($name, $function, $places);
+        return $this;
+    }
+
+    /**
      * Returns the default variables names as key/value pairs
      *
      * @return array
@@ -433,7 +380,12 @@ class MathExecutor
     {
         return [
             'pi' => 3.14159265359,
-            'e'  => 2.71828182846
+            'e' => 2.71828182846
         ];
+    }
+
+    public function __clone()
+    {
+        $this->addDefaults();
     }
 }

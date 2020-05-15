@@ -23,9 +23,9 @@ composer require nxp/math-executor
 
 ## Sample usage:
 ```php
-require 'vendor/autoload.php';
+use NXP\MathExecutor;require 'vendor/autoload.php';
 
-$executor = new \NXP\MathExecutor();
+$executor = new MathExecutor();
 
 echo $executor->execute('1 + 2 * (2 - (4+10))^2 + sin(10)');
 ```
@@ -84,60 +84,19 @@ Default operators: `+ - * / ^`
 Add custom operator to executor:
 
 ```php
-<?php
-namespace MyNamespace;
-
-use NXP\Classes\Token\AbstractOperator;
-
-class ModulusToken extends AbstractOperator
-{
-    /**
-     * Regex of this operator
-     * @return string
-     */
-    public static function getRegex()
+use NXP\Classes\Operator;$executor->addOperator(new Operator(
+    '%', // Operator sign
+    false, // Is right associated operator
+    170, // Operator priority
+    function (&$stack)
     {
-        return '\%';
+       $op2 = array_pop($stack);
+       $op1 = array_pop($stack);
+       $result = $op1->getValue() % $op2->getValue();
+    
+       return $result;
     }
-
-    /**
-     * Priority of this operator
-     * @return int
-     */
-    public function getPriority()
-    {
-        return 180;
-    }
-
-    /**
-     * Associaion of this operator (self::LEFT_ASSOC or self::RIGHT_ASSOC)
-     * @return string
-     */
-    public function getAssociation()
-    {
-        return self::LEFT_ASSOC;
-    }
-
-    /**
-     * Execution of this operator
-     * @param InterfaceToken[] $stack Stack of tokens
-     * @return TokenNumber            Result of execution
-     */
-    public function execute(&$stack)
-    {
-        $op2 = array_pop($stack);
-        $op1 = array_pop($stack);
-        $result = $op1->getValue() % $op2->getValue();
-
-        return new TokenNumber($result);
-    }
-}
-```
-
-And adding to executor:
-
-```php
-$executor->addOperator('MyNamespace\ModulusToken');
+));
 ```
 
 ## Logical operators:
@@ -171,15 +130,24 @@ $executor->setVars([
 echo $executor->execute("$var1 + $var2");
 ```
 ## Division By Zero Support:
-By default, the result of division by zero is zero and no error is generated.  You have the option to throw a `\NXP\Exception\DivisionByZeroException` by calling `setDivisionByZeroException`.
-
+Division by zero throws a `\NXP\Exception\DivisionByZeroException`
 ```php
-$executor->setDivisionByZeroException();
 try {
     echo $executor->execute('1/0');
-} catch (\NXP\Exception\DivisionByZeroException $e) {
+} catch (DivisionByZeroException $e) {
     echo $e->getMessage();
 }
+```
+If you want another behavior, you should override division operator:
+
+```php
+$executor->addOperator("/", false, 180, function($a, $b) {
+    if ($b == 0) {
+        return 0;
+    }
+    return $a / $b;
+});
+echo $executor->execute('1/0');
 ```
 
 ## Unary Minus Operator:
