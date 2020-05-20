@@ -15,6 +15,7 @@ use NXP\Classes\Calculator;
 use NXP\Classes\CustomFunction;
 use NXP\Classes\Operator;
 use NXP\Classes\Tokenizer;
+use NXP\MathExecutorException;
 use NXP\Exception\DivisionByZeroException;
 use ReflectionException;
 
@@ -29,17 +30,17 @@ class MathExecutor
      *
      * @var array
      */
-    public $variables = [];
+    private $variables = [];
 
     /**
      * @var Operator[]
      */
-    public $operators = [];
+    private $operators = [];
 
     /**
      * @var CustomFunction[]
      */
-    public $functions = [];
+    private $functions = [];
 
     /**
      * @var array
@@ -61,7 +62,7 @@ class MathExecutor
     protected function addDefaults() : void
     {
         foreach ($this->defaultOperators() as $name => $operator) {
-            list($callable, $priority, $isRightAssoc) = $operator;
+            [$callable, $priority, $isRightAssoc] = $operator;
             $this->addOperator(new Operator($name, $isRightAssoc, $priority, $callable));
         }
         foreach ($this->defaultFunctions() as $name => $callable) {
@@ -380,6 +381,91 @@ class MathExecutor
             'pi' => 3.14159265359,
             'e' => 2.71828182846
         ];
+    }
+
+    /**
+     * Get all vars
+     *
+     * @return array
+     */
+    public function getVars() : array
+    {
+        return $this->variables;
+    }
+
+    /**
+     * Get a specific var
+     *
+     * @param  string $variable
+     * @return integer|float
+     * @throws UnknownVariableException
+     */
+    public function getVar(string $variable)
+    {
+        if (!isset($this->variables[$variable])) {
+          throw new UnknownVariableException("Variable ({$variable}) not set");
+        }
+        return $this->variables[$variable];
+    }
+
+    /**
+     * Add variable to executor
+     *
+     * @param  string $variable
+     * @param  integer|float $value
+     * @return MathExecutor
+     * @throws MathExecutorException
+     */
+    public function setVar(string $variable, $value) : self
+    {
+        if (!is_numeric($value)) {
+            throw new MathExecutorException("Variable ({$variable}) value must be a number ({$value}) type ({gettype($value)})");
+        }
+        $this->variables[$variable] = $value;
+        return $this;
+    }
+
+    /**
+     * Remove variable from executor
+     *
+     * @param  string $variable
+     * @return MathExecutor
+     */
+    public function removeVar(string $variable) : self
+    {
+        unset ($this->variables[$variable]);
+        return $this;
+    }
+
+    /**
+     * Remove all variables
+     * @return MathExecutor
+     */
+    public function removeVars() : self
+    {
+        $this->variables = [];
+        return $this;
+    }
+
+    /**
+     * Get all registered operators to executor
+     *
+     * @return array of operator class names
+     */
+    public function getOperators()
+    {
+        return $this->tokenFactory->getOperators();
+    }
+
+    /**
+     * Get all registered functions
+     *
+     * @return array containing callback and places indexed by
+     *         function name
+     */
+    public function getFunctions() : array
+    {
+        return $this->tokenFactory->getFunctions();
     }
 
     public function __clone()
