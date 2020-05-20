@@ -32,7 +32,7 @@ class CustomFunction
      * @param int $places
      * @throws ReflectionException
      */
-    public function __construct(string $name, callable $function, int $places = null)
+    public function __construct(string $name, callable $function, ?int $places = null)
     {
         $this->name = $name;
         $this->function = $function;

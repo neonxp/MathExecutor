@@ -30,7 +30,7 @@ class MathExecutor
      *
      * @var array
      */
-    private $variables = [];
+    public $variables = [];
 
     /**
      * @var Operator[]
@@ -103,7 +103,7 @@ class MathExecutor
             '/' => [
                 function ($a, $b) {
                     if ($b == 0) {
-											throw new DivisionByZeroException();
+                        throw new DivisionByZeroException();
                     }
                     return $a / $b;
                 },

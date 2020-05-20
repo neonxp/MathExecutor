@@ -141,9 +141,7 @@ Or call setDivisionByZeroIsZero
 ```php
 echo $executor->setDivisionByZeroIsZero()->execute('1/0');
 ```
-
 If you want another behavior, you can override division operator:
-
 ```php
 $executor->addOperator("/", false, 180, function($a, $b) {
     if ($b == 0) {
