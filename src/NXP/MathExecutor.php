@@ -364,7 +364,7 @@ class MathExecutor
      * @return MathExecutor
      * @throws ReflectionException
      */
-    public function addFunction(string $name, callable $function = null, int $places = null) : self
+    public function addFunction(string $name, ?callable $function = null, ?int $places = null) : self
     {
         $this->functions[$name] = new CustomFunction($name, $function, $places);
         return $this;
