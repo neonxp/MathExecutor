@@ -10,13 +10,9 @@
 
 namespace NXP\Classes;
 
-use NXP\Classes\Token\InterfaceOperator;
-use NXP\Classes\Token\TokenFunction;
-use NXP\Classes\Token\TokenNumber;
-use NXP\Classes\Token\TokenStringSingleQuoted;
-use NXP\Classes\Token\TokenStringDoubleQuoted;
-use NXP\Classes\Token\TokenVariable;
 use NXP\Exception\IncorrectExpressionException;
+use NXP\Exception\UnknownFunctionException;
+use NXP\Exception\UnknownOperatorException;
 use NXP\Exception\UnknownVariableException;
 
 /**
@@ -25,35 +21,64 @@ use NXP\Exception\UnknownVariableException;
 class Calculator
 {
     /**
+     * @var CustomFunction[]
+     */
+    private $functions;
+
+    /**
+     * @var Operator[]
+     */
+    private $operators;
+
+    /**
+     * Calculator constructor.
+     * @param CustomFunction[] $functions
+     * @param Operator[] $operators
+     */
+    public function __construct(array $functions, array $operators)
+    {
+        $this->functions = $functions;
+        $this->operators = $operators;
+    }
+
+    /**
      * Calculate array of tokens in reverse polish notation
-     * @param  array  $tokens
-     * @param  array  $variables
-     * @return number Result
-     * @throws \NXP\Exception\IncorrectExpressionException
-     * @throws \NXP\Exception\UnknownVariableException
+     * @param Token[] $tokens
+     * @param array $variables
+     * @return mixed
+     * @throws IncorrectExpressionException
+     * @throws UnknownVariableException
      */
     public function calculate($tokens, $variables)
     {
+        /** @var Token[] $stack */
         $stack = [];
         foreach ($tokens as $token) {
-            if ($token instanceof TokenNumber || $token instanceof TokenStringDoubleQuoted || $token instanceof TokenStringSingleQuoted) {
+            if ($token->type === Token::Literal || $token->type === Token::String) {
                 $stack[] = $token;
-            } else if ($token instanceof TokenVariable) {
-                $variable = $token->getValue();
+            } else if ($token->type === Token::Variable) {
+                $variable = $token->value;
                 if (!array_key_exists($variable, $variables)) {
                     throw new UnknownVariableException($variable);
                 }
                 $value = $variables[$variable];
-                $stack[] = new TokenNumber($value);
-            } else if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {
-                $stack[] = $token->execute($stack);
+                $stack[] = new Token(Token::Literal, $value);
+            } else if ($token->type === Token::Function) {
+                if (!array_key_exists($token->value, $this->functions)) {
+                    throw new UnknownFunctionException($token->value);
+                }
+                $stack[] = $this->functions[$token->value]->execute($stack);
+            } elseif ($token->type === Token::Operator) {
+                if (!array_key_exists($token->value, $this->operators)) {
+                    throw new UnknownOperatorException($token->value);
+                }
+                $stack[] = $this->operators[$token->value]->execute($stack);
             }
         }
         $result = array_pop($stack);
-        if ($result === null || ! empty($stack)) {
+        if ($result === null || !empty($stack)) {
             throw new IncorrectExpressionException();
         }
-
-        return $result->getValue();
+        return $result->value;
     }
 }
