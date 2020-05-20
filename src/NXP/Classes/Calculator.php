@@ -49,7 +49,7 @@ class Calculator
      * @throws IncorrectExpressionException
      * @throws UnknownVariableException
      */
-    public function calculate($tokens, $variables)
+    public function calculate(array $tokens, array $variables)
     {
         /** @var Token[] $stack */
         $stack = [];

@@ -58,7 +58,7 @@ class MathExecutor
      * Set default operands and functions
      * @throws ReflectionException
      */
-    protected function addDefaults()
+    protected function addDefaults() : void
     {
         foreach ($this->defaultOperators() as $name => $operator) {
             list($callable, $priority, $isRightAssoc) = $operator;
@@ -75,7 +75,7 @@ class MathExecutor
      *
      * @return array of class names
      */
-    protected function defaultOperators()
+    protected function defaultOperators() : array
     {
         return [
             '+' => [
@@ -102,7 +102,7 @@ class MathExecutor
             '/' => [
                 function ($a, $b) {
                     if ($b == 0) {
-                        throw new DivisionByZeroException();
+											throw new DivisionByZeroException();
                     }
                     return $a / $b;
                 },
@@ -181,7 +181,7 @@ class MathExecutor
      * @param Operator $operator
      * @return MathExecutor
      */
-    public function addOperator(Operator $operator)
+    public function addOperator(Operator $operator) : self
     {
         $this->operators[$operator->operator] = $operator;
         return $this;
@@ -193,7 +193,7 @@ class MathExecutor
      *
      * @return array
      */
-    protected function defaultFunctions()
+    protected function defaultFunctions() : array
     {
         return [
             'abs' => function ($arg) {
@@ -341,9 +341,9 @@ class MathExecutor
      * @throws Exception\UnknownOperatorException
      * @throws Exception\UnknownVariableException
      */
-    public function execute($expression)
+    public function execute(string $expression)
     {
-        $cachekey = (string)$expression;
+        $cachekey = $expression;
         if (!array_key_exists($cachekey, $this->cache)) {
             $tokens = (new Tokenizer($expression, $this->operators))->tokenize()->buildReversePolishNotation();
             $this->cache[$cachekey] = $tokens;
@@ -363,7 +363,7 @@ class MathExecutor
      * @return MathExecutor
      * @throws ReflectionException
      */
-    public function addFunction($name, $function = null, $places = null)
+    public function addFunction(string $name, callable $function = null, int $places = null) : self
     {
         $this->functions[$name] = new CustomFunction($name, $function, $places);
         return $this;
@@ -374,7 +374,7 @@ class MathExecutor
      *
      * @return array
      */
-    protected function defaultVars()
+    protected function defaultVars() : array
     {
         return [
             'pi' => 3.14159265359,
