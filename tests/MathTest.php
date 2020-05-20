@@ -203,7 +203,7 @@ class MathTest extends TestCase
             ['(-3 * -1)'],
             ['1 + (-3 * -1)'],
             ['1 + ( -3 * 1)'],
-            ['1 + (3 * -1)'],
+            ['1 + (3 *-1)'],
             ['1 - 0'],
             ['1-0'],
         ];
@@ -226,12 +226,7 @@ class MathTest extends TestCase
     public function testZeroDivision()
     {
         $calculator = new MathExecutor();
-        $calculator->addOperator(new Operator("/", false, 180, function ($a, $b) {
-            if ($b == 0) {
-                return 0;
-            }
-            return $a / $b;
-        }));
+        $calculator->setDivisionByZeroIsZero();
         $this->assertEquals(0, $calculator->execute('10 / 0'));
     }
 

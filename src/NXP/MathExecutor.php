@@ -468,6 +468,22 @@ class MathExecutor
         return $this->tokenFactory->getFunctions();
     }
 
+    /**
+     * Set division by zero returns zero instead of throwing DivisionByZeroException
+     *
+     * @return MathExecutor
+     */
+    public function setDivisionByZeroIsZero() : self
+    {
+        $this->addOperator(new Operator("/", false, 180, function ($a, $b) {
+            if ($b == 0) {
+                return 0;
+            }
+            return $a / $b;
+        }));
+        return $this;
+    }
+
     public function __clone()
     {
         $this->addDefaults();
