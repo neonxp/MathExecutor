@@ -95,7 +95,7 @@ $executor->addOperator(new Operator(
        $op2 = array_pop($stack);
        $op1 = array_pop($stack);
        $result = $op1->getValue() % $op2->getValue();
-    
+
        return $result;
     }
 ));
@@ -124,15 +124,12 @@ $e  = 2.71828182846
 You can add your own variables to executor:
 
 ```php
-$executor->setVars([
-    'var1' => 0.15,
-    'var2' => 0.22
-]);
+$executor->setVar('var1', 0.15)->setVar('var2', 0.22);
 
 echo $executor->execute("$var1 + $var2");
 ```
 ## Division By Zero Support:
-Division by zero throws a `\NXP\Exception\DivisionByZeroException`
+Division by zero throws a `\NXP\Exception\DivisionByZeroException` by default
 ```php
 try {
     echo $executor->execute('1/0');
@@ -140,12 +137,15 @@ try {
     echo $e->getMessage();
 }
 ```
-If you want another behavior, you should override division operator:
-
+Or call setDivisionByZeroIsZero
+```php
+echo $executor->setDivisionByZeroIsZero()->execute('1/0');
+```
+If you want another behavior, you can override division operator:
 ```php
 $executor->addOperator("/", false, 180, function($a, $b) {
     if ($b == 0) {
-        return 0;
+        return null;
     }
     return $a / $b;
 });

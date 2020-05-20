@@ -66,7 +66,7 @@ class Tokenizer
         $this->operators = $operators;
     }
 
-    public function tokenize()
+    public function tokenize() : self
     {
         foreach (str_split($this->input, 1) as $ch) {
             switch (true) {
@@ -173,17 +173,17 @@ class Tokenizer
         return $this;
     }
 
-    private function isNumber($ch)
+    private function isNumber(string $ch) : bool
     {
         return $ch >= '0' && $ch <= '9';
     }
 
-    private function isAlpha($ch)
+    private function isAlpha(string $ch) : bool
     {
         return $ch >= 'a' && $ch <= 'z' || $ch >= 'A' && $ch <= 'Z' || $ch == '_';
     }
 
-    private function emptyNumberBufferAsLiteral()
+    private function emptyNumberBufferAsLiteral() : void
     {
         if ($this->numberBuffer != "") {
             $this->tokens[] = new Token(Token::Literal, $this->numberBuffer);
@@ -191,22 +191,22 @@ class Tokenizer
         }
     }
 
-    private function isDot($ch)
+    private function isDot(string $ch) : bool
     {
         return $ch == '.';
     }
 
-    private function isLP($ch)
+    private function isLP(string $ch) : bool
     {
         return $ch == '(';
     }
 
-    private function isRP($ch)
+    private function isRP(string $ch) : bool
     {
         return $ch == ')';
     }
 
-    private function emptyStrBufferAsVariable()
+    private function emptyStrBufferAsVariable() : void
     {
         if ($this->stringBuffer != "") {
             $this->tokens[] = new Token(Token::Variable, $this->stringBuffer);
@@ -214,7 +214,7 @@ class Tokenizer
         }
     }
 
-    private function isComma($ch)
+    private function isComma(string $ch) : bool
     {
         return $ch == ',';
     }
@@ -224,7 +224,7 @@ class Tokenizer
      * @throws IncorrectBracketsException
      * @throws UnknownOperatorException
      */
-    public function buildReversePolishNotation()
+    public function buildReversePolishNotation() : array
     {
         $tokens = [];
         /** @var SplStack<Token> $stack */
