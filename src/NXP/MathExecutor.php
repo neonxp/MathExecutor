@@ -426,6 +426,25 @@ class MathExecutor
     }
 
     /**
+     * Add variables to executor
+     *
+     * @param  array $variables
+     * @param  bool $clear Clear previous variables
+     * @return MathExecutor
+     * @throws \Exception
+     */
+    public function setVars(array $variables, bool $clear = true) : self
+    {
+        if ($clear) {
+            $this->removeVars();
+        }
+        foreach ($variables as $name => $value) {
+            $this->setVar($name, $value);
+        }
+        return $this;
+    }
+
+		/**
      * Remove variable from executor
      *
      * @param  string $variable
