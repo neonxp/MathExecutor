@@ -1,4 +1,4 @@
-# MathExecutor [![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor)
+# MathExecutor [![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor) [![Latest Packagist release](https://img.shields.io/packagist/v/nxp/math-executor.svg)](https://packagist.org/packages/nxp/math-executor)
 
 # A simple and extensible math expressions calculator
 

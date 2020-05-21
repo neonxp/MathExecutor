@@ -30,7 +30,7 @@ class MathExecutor
      *
      * @var array
      */
-    public $variables = [];
+    private $variables = [];
 
     /**
      * @var Operator[]
