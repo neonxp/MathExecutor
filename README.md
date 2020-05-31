@@ -1,4 +1,4 @@
-# MathExecutor ![Tests](https://github.com/neonxp/MathExecutor/workflows/Tests/badge.svg) [![Latest Packagist release](https://img.shields.io/packagist/v/nxp/math-executor.svg)](https://packagist.org/packages/nxp/math-executor)
+# MathExecutor [![Tests](https://github.com/neonxp/MathExecutor/workflows/Tests/badge.svg)](https://github.com/neonxp/MathExecutor/actions?query=workflow%3ATests) [![Latest Packagist release](https://img.shields.io/packagist/v/nxp/math-executor.svg)](https://packagist.org/packages/nxp/math-executor)
 
 # A simple and extensible math expressions calculator
 
