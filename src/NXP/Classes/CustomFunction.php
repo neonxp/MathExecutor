@@ -3,7 +3,6 @@
 
 namespace NXP\Classes;
 
-
 use NXP\Exception\IncorrectExpressionException;
 use ReflectionException;
 use ReflectionFunction;
@@ -58,6 +57,4 @@ class CustomFunction
 
         return new Token(Token::Literal, $result);
     }
-
-
 }

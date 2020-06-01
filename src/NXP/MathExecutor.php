@@ -15,8 +15,9 @@ use NXP\Classes\Calculator;
 use NXP\Classes\CustomFunction;
 use NXP\Classes\Operator;
 use NXP\Classes\Tokenizer;
-use NXP\MathExecutorException;
+use NXP\Exception\MathExecutorException;
 use NXP\Exception\DivisionByZeroException;
+use NXP\Exception\UnknownVariableException;
 use ReflectionException;
 
 /**
@@ -403,7 +404,7 @@ class MathExecutor
     public function getVar(string $variable)
     {
         if (!isset($this->variables[$variable])) {
-          throw new UnknownVariableException("Variable ({$variable}) not set");
+            throw new UnknownVariableException("Variable ({$variable}) not set");
         }
         return $this->variables[$variable];
     }
@@ -444,7 +445,7 @@ class MathExecutor
         return $this;
     }
 
-		/**
+    /**
      * Remove variable from executor
      *
      * @param  string $variable
@@ -452,7 +453,7 @@ class MathExecutor
      */
     public function removeVar(string $variable) : self
     {
-        unset ($this->variables[$variable]);
+        unset($this->variables[$variable]);
         return $this;
     }
 

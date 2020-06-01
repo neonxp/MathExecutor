@@ -12,7 +12,6 @@
 namespace NXP\Tests;
 
 use Exception;
-use NXP\Classes\Operator;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\IncorrectExpressionException;
 use NXP\Exception\UnknownFunctionException;
@@ -267,27 +266,37 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $this->assertEquals(30, $calculator->execute(
-            'if(100 > 99, 30, 0)'));
+            'if(100 > 99, 30, 0)'
+        ));
         $this->assertEquals(0, $calculator->execute(
-            'if(100 < 99, 30, 0)'));
+            'if(100 < 99, 30, 0)'
+        ));
         $this->assertEquals(30, $calculator->execute(
-            'if(98 < 99 && sin(1) < 1, 30, 0)'));
+            'if(98 < 99 && sin(1) < 1, 30, 0)'
+        ));
         $this->assertEquals(40, $calculator->execute(
-            'if(98 < 99 && sin(1) < 1, max(30, 40), 0)'));
+            'if(98 < 99 && sin(1) < 1, max(30, 40), 0)'
+        ));
         $this->assertEquals(40, $calculator->execute(
-            'if(98 < 99 && sin(1) < 1, if(10 > 5, max(30, 40), 1), 0)'));
+            'if(98 < 99 && sin(1) < 1, if(10 > 5, max(30, 40), 1), 0)'
+        ));
         $this->assertEquals(20, $calculator->execute(
-            'if(98 < 99 && sin(1) > 1, if(10 > 5, max(30, 40), 1), if(4 <= 4, 20, 21))'));
+            'if(98 < 99 && sin(1) > 1, if(10 > 5, max(30, 40), 1), if(4 <= 4, 20, 21))'
+        ));
         $this->assertEquals(cos(2), $calculator->execute(
-            'if(98 < 99 && sin(1) >= 1, max(30, 40), cos(2))'));
+            'if(98 < 99 && sin(1) >= 1, max(30, 40), cos(2))'
+        ));
         $this->assertEquals(cos(2), $calculator->execute(
-            'if(cos(2), cos(2), 0)'));
+            'if(cos(2), cos(2), 0)'
+        ));
     }
 
     public function testEvaluateFunctionParameters()
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('round', function ($value, $decimals) {
+        $calculator->addFunction(
+            'round',
+            function ($value, $decimals) {
             return round($value, $decimals);
         }
         );
@@ -314,7 +323,9 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $testString = "some, long. arg; with: different-separators!";
-        $calculator->addFunction('test', function ($arg) use ($testString) {
+        $calculator->addFunction(
+            'test',
+            function ($arg) use ($testString) {
             $this->assertEquals($testString, $arg);
             return 0;
         }

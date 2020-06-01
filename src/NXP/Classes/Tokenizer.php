@@ -106,6 +106,7 @@ class Tokenizer
                         $this->allowNegative = true;
                         break;
                     }
+                    // no break
                 case $this->isAlpha($ch):
                     if ($this->numberBuffer != "") {
                         $this->emptyNumberBufferAsLiteral();
@@ -299,4 +300,3 @@ class Tokenizer
         return $tokens;
     }
 }
-

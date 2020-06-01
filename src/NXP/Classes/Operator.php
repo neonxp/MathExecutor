@@ -3,7 +3,6 @@
 
 namespace NXP\Classes;
 
-
 use NXP\Exception\IncorrectExpressionException;
 use ReflectionFunction;
 
