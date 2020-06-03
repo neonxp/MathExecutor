@@ -289,6 +289,13 @@ class MathTest extends TestCase
         $this->assertEquals(cos(2), $calculator->execute(
             'if(cos(2), cos(2), 0)'
         ));
+		$calculator->setVar('trx_amount', 100000);
+		$this->assertEquals(100000 * 0.03, $calculator->execute(
+			'if($trx_amount < 40000, $trx_amount * 0.06, $trx_amount * 0.03)'
+		));
+		$this->assertEquals(100000 * 0.03, $calculator->execute(
+			'if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
+		));
     }
 
     public function testEvaluateFunctionParameters()
