@@ -56,14 +56,14 @@ class Calculator
         foreach ($tokens as $token) {
             if ($token->type === Token::Literal || $token->type === Token::String) {
                 $stack[] = $token;
-            } else if ($token->type === Token::Variable) {
+            } elseif ($token->type === Token::Variable) {
                 $variable = $token->value;
                 if (!array_key_exists($variable, $variables)) {
                     throw new UnknownVariableException($variable);
                 }
                 $value = $variables[$variable];
                 $stack[] = new Token(Token::Literal, $value);
-            } else if ($token->type === Token::Function) {
+            } elseif ($token->type === Token::Function) {
                 if (!array_key_exists($token->value, $this->functions)) {
                     throw new UnknownFunctionException($token->value);
                 }
