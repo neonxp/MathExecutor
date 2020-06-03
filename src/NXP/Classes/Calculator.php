@@ -77,7 +77,7 @@ class Calculator
         }
         $result = array_pop($stack);
         if ($result === null || !empty($stack)) {
-            throw new IncorrectExpressionException();
+            throw new IncorrectExpressionException('Empty Stack');
         }
         return $result->value;
     }

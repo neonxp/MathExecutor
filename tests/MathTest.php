@@ -14,6 +14,7 @@ namespace NXP\Tests;
 use Exception;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\IncorrectExpressionException;
+use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownVariableException;
 use NXP\MathExecutor;
@@ -320,6 +321,10 @@ class MathTest extends TestCase
         $calculator->setVar('trx_amount', $trx_amount);
         $this->assertEquals($trx_amount * 0.05, $calculator->execute(
             'if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
+        ));
+        $this->expectException(IncorrectNumberOfFunctionParametersException::class);
+        $this->assertEquals(0.0, $calculator->execute(
+            'if($trx_amount < 40000, $trx_amount * 0.06)'
         ));
     }
 
