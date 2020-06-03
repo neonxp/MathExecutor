@@ -157,17 +157,17 @@ class Tokenizer
                     }
                     $this->emptyNumberBufferAsLiteral();
                     $this->emptyStrBufferAsVariable();
-					if ($ch != '$') {
-						if (count($this->tokens) > 0) {
-							if ($this->tokens[count($this->tokens) - 1]->type === Token::Operator) {
-								$this->tokens[count($this->tokens) - 1]->value .= $ch;
-							} else {
-								$this->tokens[] = new Token(Token::Operator, $ch);
-							}
-						} else {
-							$this->tokens[] = new Token(Token::Operator, $ch);
-						}
-					}
+                    if ($ch != '$') {
+                        if (count($this->tokens) > 0) {
+                            if ($this->tokens[count($this->tokens) - 1]->type === Token::Operator) {
+                                $this->tokens[count($this->tokens) - 1]->value .= $ch;
+                            } else {
+                                $this->tokens[] = new Token(Token::Operator, $ch);
+                            }
+                        } else {
+                            $this->tokens[] = new Token(Token::Operator, $ch);
+                        }
+                    }
                     $this->allowNegative = true;
             }
         }

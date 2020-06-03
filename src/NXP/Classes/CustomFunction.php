@@ -29,8 +29,8 @@ class CustomFunction
      * @param string $name
      * @param callable $function
      * @param int $places
-	 * @throws ReflectionException
-	 * @throws IncorrectNumberOfFunctionParametersException
+     * @throws ReflectionException
+     * @throws IncorrectNumberOfFunctionParametersException
      */
     public function __construct(string $name, callable $function, ?int $places = null)
     {
