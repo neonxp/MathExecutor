@@ -46,7 +46,6 @@ class Operator
         $this->isRightAssoc = $isRightAssoc;
         $this->priority = $priority;
         $this->function = $function;
-        $this->function = $function;
         $reflection = new ReflectionFunction($function);
         $this->places = $reflection->getNumberOfParameters();
     }
