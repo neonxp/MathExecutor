@@ -3,7 +3,7 @@
 
 namespace NXP\Classes;
 
-use NXP\Exception\IncorrectExpressionException;
+use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use ReflectionException;
 use ReflectionFunction;
 
@@ -30,6 +30,7 @@ class CustomFunction
      * @param callable $function
      * @param int $places
      * @throws ReflectionException
+     * @throws IncorrectNumberOfFunctionParametersException
      */
     public function __construct(string $name, callable $function, ?int $places = null)
     {
@@ -46,7 +47,7 @@ class CustomFunction
     public function execute(array &$stack) : Token
     {
         if (count($stack) < $this->places) {
-            throw new IncorrectExpressionException();
+            throw new IncorrectNumberOfFunctionParametersException($this->name);
         }
         $args = [];
         for ($i = 0; $i < $this->places; $i++) {

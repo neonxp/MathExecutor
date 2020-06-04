@@ -157,14 +157,16 @@ class Tokenizer
                     }
                     $this->emptyNumberBufferAsLiteral();
                     $this->emptyStrBufferAsVariable();
-                    if (count($this->tokens) > 0) {
-                        if ($this->tokens[count($this->tokens) - 1]->type === Token::Operator) {
-                            $this->tokens[count($this->tokens) - 1]->value .= $ch;
+                    if ($ch != '$') {
+                        if (count($this->tokens) > 0) {
+                            if ($this->tokens[count($this->tokens) - 1]->type === Token::Operator) {
+                                $this->tokens[count($this->tokens) - 1]->value .= $ch;
+                            } else {
+                                $this->tokens[] = new Token(Token::Operator, $ch);
+                            }
                         } else {
                             $this->tokens[] = new Token(Token::Operator, $ch);
                         }
-                    } else {
-                        $this->tokens[] = new Token(Token::Operator, $ch);
                     }
                     $this->allowNegative = true;
             }
@@ -251,12 +253,12 @@ class Tokenizer
                     break;
                 case Token::Operator:
                     if (!array_key_exists($token->value, $this->operators)) {
-                        throw new UnknownOperatorException();
+                        throw new UnknownOperatorException($token->value);
                     }
                     $op1 = $this->operators[$token->value];
                     while ($stack->count() > 0 && $stack->top()->type === Token::Operator) {
                         if (!array_key_exists($stack->top()->value, $this->operators)) {
-                            throw new UnknownOperatorException();
+                            throw new UnknownOperatorException($stack->top()->value);
                         }
                         $op2 = $this->operators[$stack->top()->value];
                         if ($op2->priority >= $op1->priority) {
