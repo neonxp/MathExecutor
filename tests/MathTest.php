@@ -409,6 +409,37 @@ class MathTest extends TestCase
         $this->assertEquals(1, $calculator->execute('(-4 + 5)'));
     }
 
+    public function testStringComparison()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(true, $calculator->execute('"a" == \'a\''));
+        $this->assertEquals(true, $calculator->execute('"hello world" == "hello world"'));
+        $this->assertEquals(false, $calculator->execute('"hello world" == "hola mundo"'));
+        $this->assertEquals(true, $calculator->execute('"hello world" != "hola mundo"'));
+    }
+
+    public function testVarStringComparison()
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVar('var', 0);
+        $this->assertEquals($calculator->execute('0 == "a"'), $calculator->execute('var == "a"'));
+    }
+
+    public function testOnVarNotFound()
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVarNotFoundHandler(
+            function ($varName) {
+                if ($varName == 'undefined') {
+                    return 3;
+                } else {
+                    return null;
+                }
+            }
+        );
+        $this->assertEquals(15, $calculator->execute('5 * undefined'));
+    }
+
     public function testMinusZero()
     {
         $calculator = new MathExecutor();
