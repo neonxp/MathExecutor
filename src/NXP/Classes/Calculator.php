@@ -58,17 +58,18 @@ class Calculator
                 $stack[] = $token;
             } elseif ($token->type === Token::Variable) {
                 $variable = $token->value;
+
+                $value = null;
                 if (array_key_exists($variable, $variables)) {
                     $value = $variables[$variable];
-                } else {
-                    if ($onVarNotFound) {
-                        $value = call_user_func($onVarNotFound, $variable);
-                    }
-
-                    if (!isset($value)) {
-                        throw new UnknownVariableException($variable);
-                    }
+                } elseif ($onVarNotFound) {
+                    $value = call_user_func($onVarNotFound, $variable);
                 }
+
+                if (!isset($value)) {
+                    throw new UnknownVariableException($variable);
+                }
+
                 $stack[] = new Token(Token::Literal, $value);
             } elseif ($token->type === Token::Function) {
                 if (!array_key_exists($token->value, $this->functions)) {

@@ -17,6 +17,7 @@ use NXP\Classes\Operator;
 use NXP\Classes\Tokenizer;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\UnknownVariableException;
+use NXP\Exception\MathExecutorException;
 use ReflectionException;
 
 /**
@@ -430,6 +431,10 @@ class MathExecutor
      */
     public function setVar(string $variable, $value) : self
     {
+        if (!is_scalar($value)) {
+            throw new MathExecutorException("Variable ({$variable}) value must be a scalar type ({gettype($value)})");
+        }
+
         $this->variables[$variable] = $value;
         return $this;
     }
