@@ -49,7 +49,7 @@ class Calculator
      * @throws IncorrectExpressionException
      * @throws UnknownVariableException
      */
-    public function calculate(array $tokens, array $variables)
+    public function calculate(array $tokens, array $variables, callable $onVarNotFound = null)
     {
         /** @var Token[] $stack */
         $stack = [];
@@ -58,10 +58,18 @@ class Calculator
                 $stack[] = $token;
             } elseif ($token->type === Token::Variable) {
                 $variable = $token->value;
-                if (!array_key_exists($variable, $variables)) {
+
+                $value = null;
+                if (array_key_exists($variable, $variables)) {
+                    $value = $variables[$variable];
+                } elseif ($onVarNotFound) {
+                    $value = call_user_func($onVarNotFound, $variable);
+                }
+
+                if (!isset($value)) {
                     throw new UnknownVariableException($variable);
                 }
-                $value = $variables[$variable];
+
                 $stack[] = new Token(Token::Literal, $value);
             } elseif ($token->type === Token::Function) {
                 if (!array_key_exists($token->value, $this->functions)) {
