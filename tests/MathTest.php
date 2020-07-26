@@ -14,7 +14,9 @@ namespace NXP\Tests;
 use Exception;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\IncorrectExpressionException;
+use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use NXP\Exception\UnknownFunctionException;
+use NXP\Exception\UnknownVariableException;
 use NXP\MathExecutor;
 use PHPUnit\Framework\TestCase;
 
@@ -234,6 +236,18 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $this->expectException(DivisionByZeroException::class);
         $calculator->execute('10 / 0');
+		$calculator->setVar('one', 1)->setVar('zero', 0);
+		$this->assertEquals(0.0, $calculator->execute('$one / $zero'));
+    }
+
+    public function testVariableIncorrectExpressionException()
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVar('four', 4);
+        $this->assertEquals(4, $calculator->execute('$four'));
+        $this->expectException(IncorrectExpressionException::class);
+        $this->assertEquals(0.0, $calculator->execute('$'));
+        $this->assertEquals(0.0, $calculator->execute('$ + $four'));
     }
 
     public function testExponentiation()
@@ -289,6 +303,60 @@ class MathTest extends TestCase
         $this->assertEquals(cos(2), $calculator->execute(
             'if(cos(2), cos(2), 0)'
         ));
+        $trx_amount = 100000;
+        $calculator->setVar('trx_amount', $trx_amount);
+        $this->assertEquals($trx_amount, $calculator->execute('$trx_amount'));
+        $this->assertEquals($trx_amount * 0.03, $calculator->execute(
+            'if($trx_amount < 40000, $trx_amount * 0.06, $trx_amount * 0.03)'
+        ));
+        $this->assertEquals($trx_amount * 0.03, $calculator->execute(
+            'if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
+        ));
+        $trx_amount = 39000;
+        $calculator->setVar('trx_amount', $trx_amount);
+        $this->assertEquals($trx_amount * 0.06, $calculator->execute(
+            'if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
+        ));
+        $trx_amount = 59000;
+        $calculator->setVar('trx_amount', $trx_amount);
+        $this->assertEquals($trx_amount * 0.05, $calculator->execute(
+            'if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
+        ));
+        $this->expectException(IncorrectNumberOfFunctionParametersException::class);
+        $this->assertEquals(0.0, $calculator->execute(
+            'if($trx_amount < 40000, $trx_amount * 0.06)'
+        ));
+    }
+
+    public function testVariables()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(3.14159265359, $calculator->execute('$pi'));
+        $this->assertEquals(2.71828182846, $calculator->execute('$e'));
+        $calculator->setVars([
+           'trx_amount' => 100000,
+           'ten' => 10,
+           'nine' => 9,
+           'eight' => 8,
+           'seven' => 7,
+           'six' => 6,
+           'five' => 5,
+           'four' => 4,
+           'three' => 3,
+           'two' => 2,
+           'one' => 1,
+           'zero' => 0,
+        ]);
+        $this->assertEquals(100000, $calculator->execute('$trx_amount'));
+        $this->assertEquals(10 - 9, $calculator->execute('$ten - $nine'));
+        $this->assertEquals(9 - 10, $calculator->execute('$nine - $ten'));
+        $this->assertEquals(10 + 9, $calculator->execute('$ten + $nine'));
+        $this->assertEquals(10 * 9, $calculator->execute('$ten * $nine'));
+        $this->assertEquals(10 / 9, $calculator->execute('$ten / $nine'));
+        $this->assertEquals(10 / (9 / 5), $calculator->execute('$ten / ($nine / $five)'));
+
+        $this->expectException(UnknownVariableException::class);
+        $this->assertEquals(0.0, $calculator->execute('$unsetVariable'));
     }
 
     public function testEvaluateFunctionParameters()
@@ -339,6 +407,37 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $this->assertEquals(-4, $calculator->execute('(-4)'));
         $this->assertEquals(1, $calculator->execute('(-4 + 5)'));
+    }
+
+    public function testStringComparison()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(true, $calculator->execute('"a" == \'a\''));
+        $this->assertEquals(true, $calculator->execute('"hello world" == "hello world"'));
+        $this->assertEquals(false, $calculator->execute('"hello world" == "hola mundo"'));
+        $this->assertEquals(true, $calculator->execute('"hello world" != "hola mundo"'));
+    }
+
+    public function testVarStringComparison()
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVar('var', 0);
+        $this->assertEquals($calculator->execute('0 == "a"'), $calculator->execute('var == "a"'));
+    }
+
+    public function testOnVarNotFound()
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVarNotFoundHandler(
+            function ($varName) {
+                if ($varName == 'undefined') {
+                    return 3;
+                } else {
+                    return null;
+                }
+            }
+        );
+        $this->assertEquals(15, $calculator->execute('5 * undefined'));
     }
 
     public function testMinusZero()

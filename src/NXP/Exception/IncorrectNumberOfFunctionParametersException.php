@@ -11,9 +11,6 @@
 
 namespace NXP\Exception;
 
-/**
- * @author Vitaliy Zhuk <zhuk2205@gmail.com>
- */
-class MathExecutorException extends \Exception
+class IncorrectNumberOfFunctionParametersException extends MathExecutorException
 {
 }
