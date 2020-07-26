@@ -14,6 +14,6 @@ namespace NXP\Exception;
 /**
  * @author Vitaliy Zhuk <zhuk2205@gmail.com>
  */
-abstract class MathExecutorException extends \Exception
+class MathExecutorException extends \Exception
 {
 }

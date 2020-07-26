@@ -15,9 +15,9 @@ use NXP\Classes\Calculator;
 use NXP\Classes\CustomFunction;
 use NXP\Classes\Operator;
 use NXP\Classes\Tokenizer;
-use NXP\Exception\MathExecutorException;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\UnknownVariableException;
+use NXP\Exception\MathExecutorException;
 use ReflectionException;
 
 /**
@@ -32,6 +32,11 @@ class MathExecutor
      * @var array
      */
     private $variables = [];
+
+    /**
+     * @var callable
+     */
+    private $onVarNotFound = null;
 
     /**
      * @var Operator[]
@@ -134,14 +139,22 @@ class MathExecutor
             ],
             '==' => [
                 function ($a, $b) {
-                    return $a == $b;
+                    if (is_string($a) || is_string($b)) {
+                        return strcmp($a, $b) == 0;
+                    } else {
+                        return $a == $b;
+                    }
                 },
                 140,
                 false
             ],
             '!=' => [
                 function ($a, $b) {
-                    return $a != $b;
+                    if (is_string($a) || is_string($b)) {
+                        return strcmp($a, $b) != 0;
+                    } else {
+                        return $a != $b;
+                    }
                 },
                 140,
                 false
@@ -353,7 +366,7 @@ class MathExecutor
             $tokens = $this->cache[$cachekey];
         }
         $calculator = new Calculator($this->functions, $this->operators);
-        return $calculator->calculate($tokens, $this->variables);
+        return $calculator->calculate($tokens, $this->variables, $this->onVarNotFound);
     }
 
     /**
@@ -415,13 +428,13 @@ class MathExecutor
      * @param  string $variable
      * @param  integer|float $value
      * @return MathExecutor
-     * @throws MathExecutorException
      */
     public function setVar(string $variable, $value) : self
     {
-        if (!is_numeric($value)) {
-            throw new MathExecutorException("Variable ({$variable}) value must be a number ({$value}) type ({gettype($value)})");
+        if (!is_scalar($value)) {
+            throw new MathExecutorException("Variable ({$variable}) value must be a scalar type ({gettype($value)})");
         }
+
         $this->variables[$variable] = $value;
         return $this;
     }
@@ -446,6 +459,20 @@ class MathExecutor
     }
 
     /**
+     * Define a method that will be invoked when a variable is not found.
+     * The first parameter will be the variable name, and the returned value will be used as the variable value.
+     *
+     * @param callable $handler
+     *
+     * @return MathExecutor
+     */
+    public function setVarNotFoundHandler(callable $handler): self
+    {
+        $this->onVarNotFound = $handler;
+        return $this;
+    }
+
+    /**
      * Remove variable from executor
      *
      * @param  string $variable
@@ -458,12 +485,13 @@ class MathExecutor
     }
 
     /**
-     * Remove all variables
+     * Remove all variables and the variable not found handler
      * @return MathExecutor
      */
     public function removeVars() : self
     {
         $this->variables = [];
+        $this->onVarNotFound = null;
         return $this;
     }
 
@@ -474,7 +502,7 @@ class MathExecutor
      */
     public function getOperators()
     {
-        return $this->tokenFactory->getOperators();
+        return $this->operators;
     }
 
     /**
@@ -485,7 +513,7 @@ class MathExecutor
      */
     public function getFunctions() : array
     {
-        return $this->tokenFactory->getFunctions();
+        return $this->functions;
     }
 
     /**
