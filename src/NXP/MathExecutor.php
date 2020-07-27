@@ -432,7 +432,8 @@ class MathExecutor
     public function setVar(string $variable, $value) : self
     {
         if (!is_scalar($value)) {
-            throw new MathExecutorException("Variable ({$variable}) value must be a scalar type ({gettype($value)})");
+            $type = gettype($value);
+            throw new MathExecutorException("Variable ({$variable}) type ({$type}) is not scalar");
         }
 
         $this->variables[$variable] = $value;
