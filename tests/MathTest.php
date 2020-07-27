@@ -15,6 +15,7 @@ use Exception;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\IncorrectExpressionException;
 use NXP\Exception\IncorrectNumberOfFunctionParametersException;
+use NXP\Exception\MathExecutorException;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownVariableException;
 use NXP\MathExecutor;
@@ -332,9 +333,11 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $this->assertEquals(3.14159265359, $calculator->execute('$pi'));
+        $this->assertEquals(3.14159265359, $calculator->execute('pi'));
         $this->assertEquals(2.71828182846, $calculator->execute('$e'));
+        $this->assertEquals(2.71828182846, $calculator->execute('e'));
         $calculator->setVars([
-           'trx_amount' => 100000,
+           'trx_amount' => 100000.01,
            'ten' => 10,
            'nine' => 9,
            'eight' => 8,
@@ -347,7 +350,7 @@ class MathTest extends TestCase
            'one' => 1,
            'zero' => 0,
         ]);
-        $this->assertEquals(100000, $calculator->execute('$trx_amount'));
+        $this->assertEquals(100000.01, $calculator->execute('$trx_amount'));
         $this->assertEquals(10 - 9, $calculator->execute('$ten - $nine'));
         $this->assertEquals(9 - 10, $calculator->execute('$nine - $ten'));
         $this->assertEquals(10 + 9, $calculator->execute('$ten + $nine'));
@@ -355,8 +358,14 @@ class MathTest extends TestCase
         $this->assertEquals(10 / 9, $calculator->execute('$ten / $nine'));
         $this->assertEquals(10 / (9 / 5), $calculator->execute('$ten / ($nine / $five)'));
 
-        $this->expectException(UnknownVariableException::class);
-        $this->assertEquals(0.0, $calculator->execute('$unsetVariable'));
+        // test variables without leading $
+        $this->assertEquals(100000.01, $calculator->execute('trx_amount'));
+        $this->assertEquals(10 - 9, $calculator->execute('ten - nine'));
+        $this->assertEquals(9 - 10, $calculator->execute('nine - ten'));
+        $this->assertEquals(10 + 9, $calculator->execute('ten + nine'));
+        $this->assertEquals(10 * 9, $calculator->execute('ten * nine'));
+        $this->assertEquals(10 / 9, $calculator->execute('ten / nine'));
+        $this->assertEquals(10 / (9 / 5), $calculator->execute('ten / (nine / five)'));
     }
 
     public function testEvaluateFunctionParameters()
@@ -476,5 +485,45 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $this->assertGreaterThan(1, count($calculator->getVars()));
+    }
+
+    public function testUndefinedVarThrowsExecption()
+    {
+        $calculator = new MathExecutor();
+        $this->assertGreaterThan(1, count($calculator->getVars()));
+        $this->expectException(UnknownVariableException::class);
+        $calculator->execute('5 * undefined');
+    }
+
+    public function testSetVarsAcceptsAllScalars()
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVar('boolTrue', true);
+        $calculator->setVar('boolFalse', false);
+        $calculator->setVar('int', 1);
+        $calculator->setVar('float', 1.1);
+        $calculator->setVar('string', 'string');
+        $this->assertEquals(7, count($calculator->getVars()));
+    }
+
+    public function testSetVarsDoesNoAcceptObject()
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(MathExecutorException::class);
+        $calculator->setVar('object', $this);
+    }
+
+    public function testSetVarsDoesNotAcceptNull()
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(MathExecutorException::class);
+        $calculator->setVar('null', null);
+    }
+
+    public function testSetVarsDoesNotAcceptResource()
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(MathExecutorException::class);
+        $calculator->setVar('resource', tmpfile());
     }
 }
