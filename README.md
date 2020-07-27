@@ -9,6 +9,7 @@
 * Conditional If logic
 * Support for user defined operators
 * Support for user defined functions
+* Dynamic variable resolution (delayed computation)
 * Unlimited variable name lengths
 * String support, as function parameters or as evaluated as a number by PHP
 * Exceptions on divide by zero, or treat as zero
@@ -128,6 +129,21 @@ $executor->setVar('var1', 0.15)->setVar('var2', 0.22);
 
 echo $executor->execute("$var1 + $var2");
 ```
+
+You can dynamically define variables at run time. If a variable has a high computation cost, but might not be used, then you can define an undefined variable handler. It will only get called when the variable is used, rather than having to always set it initially.
+
+```php
+$calculator = new MathExecutor();
+$calculator->setVarNotFoundHandler(
+    function ($varName) {
+        if ($varName == 'trans') {
+            return transmogrify();
+        }
+        return null;
+    }
+);
+```
+
 ## Division By Zero Support:
 Division by zero throws a `\NXP\Exception\DivisionByZeroException` by default
 ```php

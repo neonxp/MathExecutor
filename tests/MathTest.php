@@ -416,13 +416,21 @@ class MathTest extends TestCase
         $this->assertEquals(true, $calculator->execute('"hello world" == "hello world"'));
         $this->assertEquals(false, $calculator->execute('"hello world" == "hola mundo"'));
         $this->assertEquals(true, $calculator->execute('"hello world" != "hola mundo"'));
+        $this->assertEquals(true, $calculator->execute('"a" < "b"'));
+        $this->assertEquals(false, $calculator->execute('"a" > "b"'));
+        $this->assertEquals(true, $calculator->execute('"a" <= "b"'));
+        $this->assertEquals(false, $calculator->execute('"a" >= "b"'));
+        $this->assertEquals(true, $calculator->execute('"A" != "a"'));
     }
 
     public function testVarStringComparison()
     {
         $calculator = new MathExecutor();
-        $calculator->setVar('var', 0);
-        $this->assertEquals($calculator->execute('0 == "a"'), $calculator->execute('var == "a"'));
+        $calculator->setVar('var', 97);
+        $this->assertEquals(false, $calculator->execute('97 == "a"'));
+        $this->assertEquals(false, $calculator->execute('$var == "a"'));
+        $calculator->setVar('var', 'a');
+        $this->assertEquals(true, $calculator->execute('$var == "a"'));
     }
 
     public function testOnVarNotFound()
@@ -432,9 +440,8 @@ class MathTest extends TestCase
             function ($varName) {
                 if ($varName == 'undefined') {
                     return 3;
-                } else {
-                    return null;
                 }
+                return null;
             }
         );
         $this->assertEquals(15, $calculator->execute('5 * undefined'));
@@ -445,5 +452,29 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $this->assertEquals(1, $calculator->execute('1 - 0'));
         $this->assertEquals(1, $calculator->execute('1-0'));
+    }
+
+    public function testGetFunctionsReturnsArray()
+    {
+        $calculator = new MathExecutor();
+        $this->assertIsArray($calculator->getFunctions());
+    }
+
+    public function testGetFunctionsReturnsFunctions()
+    {
+        $calculator = new MathExecutor();
+        $this->assertGreaterThan(40, count($calculator->getFunctions()));
+    }
+
+    public function testGetVarsReturnsArray()
+    {
+        $calculator = new MathExecutor();
+        $this->assertIsArray($calculator->getVars());
+    }
+
+    public function testGetVarsReturnsCount()
+    {
+        $calculator = new MathExecutor();
+        $this->assertGreaterThan(1, count($calculator->getVars()));
     }
 }
