@@ -453,4 +453,28 @@ class MathTest extends TestCase
         $this->assertEquals(1, $calculator->execute('1 - 0'));
         $this->assertEquals(1, $calculator->execute('1-0'));
     }
+
+    public function testGetFunctionsReturnsArray()
+    {
+        $calculator = new MathExecutor();
+        $this->assertIsArray($calculator->getFunctions());
+    }
+
+    public function testGetFunctionsReturnsFunctions()
+    {
+        $calculator = new MathExecutor();
+        $this->assertGreaterThan(40, count($calculator->getFunctions()));
+    }
+
+    public function testGetVarsReturnsArray()
+    {
+        $calculator = new MathExecutor();
+        $this->assertIsArray($calculator->getVars());
+    }
+
+    public function testGetVarsReturnsCount()
+    {
+        $calculator = new MathExecutor();
+        $this->assertGreaterThan(1, count($calculator->getVars()));
+    }
 }
