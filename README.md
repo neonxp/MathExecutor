@@ -1,4 +1,4 @@
-# MathExecutor [![Tests](https://github.com/neonxp/MathExecutor/workflows/Tests/badge.svg)](https://github.com/neonxp/MathExecutor/actions?query=workflow%3ATests) [![Latest Packagist release](https://img.shields.io/packagist/v/nxp/math-executor.svg)](https://packagist.org/packages/nxp/math-executor)
+# MathExecutor [![Tests](https://github.com/neonxp/MathExecutor/workflows/Tests/badge.svg)](https://github.com/neonxp/MathExecutor/actions?query=workflow%3ATests)
 
 # A simple and extensible math expressions calculator
 
@@ -115,6 +115,8 @@ You can think of the **if** function as prototyped like:
 function if($condition, $returnIfTrue, $returnIfFalse)
 ```
 ## Variables:
+Variables can be prefixed with the dollar sign ($) for PHP compatibility, but is not required.
+
 Default variables:
 
 ```
@@ -127,7 +129,7 @@ You can add your own variables to executor:
 ```php
 $executor->setVar('var1', 0.15)->setVar('var2', 0.22);
 
-echo $executor->execute("$var1 + $var2");
+echo $executor->execute("$var1 + var2");
 ```
 
 You can dynamically define variables at run time. If a variable has a high computation cost, but might not be used, then you can define an undefined variable handler. It will only get called when the variable is used, rather than having to always set it initially.
