@@ -416,7 +416,7 @@ class MathExecutor
      */
     public function getVar(string $variable)
     {
-        if (!array_key_exists($variable, $this->variables)) {
+        if (!isset($this->variables[$variable])) {
             throw new UnknownVariableException("Variable ({$variable}) not set");
         }
         return $this->variables[$variable];
@@ -432,8 +432,7 @@ class MathExecutor
     public function setVar(string $variable, $value) : self
     {
         if (!is_scalar($value)) {
-            $type = gettype($value);
-            throw new MathExecutorException("Variable ({$variable}) type ({$type}) is not scalar");
+            throw new MathExecutorException("Variable ({$variable}) value must be a scalar type ({gettype($value)})");
         }
 
         $this->variables[$variable] = $value;

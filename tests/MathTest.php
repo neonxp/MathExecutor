@@ -15,7 +15,6 @@ use Exception;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\IncorrectExpressionException;
 use NXP\Exception\IncorrectNumberOfFunctionParametersException;
-use NXP\Exception\MathExecutorException;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownVariableException;
 use NXP\MathExecutor;
@@ -333,11 +332,9 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $this->assertEquals(3.14159265359, $calculator->execute('$pi'));
-        $this->assertEquals(3.14159265359, $calculator->execute('pi'));
         $this->assertEquals(2.71828182846, $calculator->execute('$e'));
-        $this->assertEquals(2.71828182846, $calculator->execute('e'));
         $calculator->setVars([
-           'trx_amount' => 100000.01,
+           'trx_amount' => 100000,
            'ten' => 10,
            'nine' => 9,
            'eight' => 8,
@@ -425,21 +422,13 @@ class MathTest extends TestCase
         $this->assertEquals(true, $calculator->execute('"hello world" == "hello world"'));
         $this->assertEquals(false, $calculator->execute('"hello world" == "hola mundo"'));
         $this->assertEquals(true, $calculator->execute('"hello world" != "hola mundo"'));
-        $this->assertEquals(true, $calculator->execute('"a" < "b"'));
-        $this->assertEquals(false, $calculator->execute('"a" > "b"'));
-        $this->assertEquals(true, $calculator->execute('"a" <= "b"'));
-        $this->assertEquals(false, $calculator->execute('"a" >= "b"'));
-        $this->assertEquals(true, $calculator->execute('"A" != "a"'));
     }
 
     public function testVarStringComparison()
     {
         $calculator = new MathExecutor();
-        $calculator->setVar('var', 97);
-        $this->assertEquals(false, $calculator->execute('97 == "a"'));
-        $this->assertEquals(false, $calculator->execute('$var == "a"'));
-        $calculator->setVar('var', 'a');
-        $this->assertEquals(true, $calculator->execute('$var == "a"'));
+        $calculator->setVar('var', 0);
+        $this->assertEquals($calculator->execute('0 == "a"'), $calculator->execute('var == "a"'));
     }
 
     public function testOnVarNotFound()
@@ -449,8 +438,9 @@ class MathTest extends TestCase
             function ($varName) {
                 if ($varName == 'undefined') {
                     return 3;
+                } else {
+                    return null;
                 }
-                return null;
             }
         );
         $this->assertEquals(15, $calculator->execute('5 * undefined'));
