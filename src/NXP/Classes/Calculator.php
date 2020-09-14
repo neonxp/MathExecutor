@@ -64,9 +64,7 @@ class Calculator
                     $value = $variables[$variable];
                 } elseif ($onVarNotFound) {
                     $value = call_user_func($onVarNotFound, $variable);
-                }
-
-                if (!isset($value)) {
+                } else {
                     throw new UnknownVariableException($variable);
                 }
 
