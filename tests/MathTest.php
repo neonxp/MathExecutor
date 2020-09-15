@@ -237,8 +237,8 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $this->expectException(DivisionByZeroException::class);
         $calculator->execute('10 / 0');
-		$calculator->setVar('one', 1)->setVar('zero', 0);
-		$this->assertEquals(0.0, $calculator->execute('$one / $zero'));
+        $calculator->setVar('one', 1)->setVar('zero', 0);
+        $this->assertEquals(0.0, $calculator->execute('$one / $zero'));
     }
 
     public function testVariableIncorrectExpressionException()
@@ -337,19 +337,19 @@ class MathTest extends TestCase
         $this->assertEquals(2.71828182846, $calculator->execute('$e'));
         $this->assertEquals(2.71828182846, $calculator->execute('e'));
         $calculator->setVars([
-           'trx_amount' => 100000.01,
-           'ten' => 10,
-           'nine' => 9,
-           'eight' => 8,
-           'seven' => 7,
-           'six' => 6,
-           'five' => 5,
-           'four' => 4,
-           'three' => 3,
-           'two' => 2,
-           'one' => 1,
-           'zero' => 0,
-        ]);
+                                 'trx_amount' => 100000.01,
+                                 'ten' => 10,
+                                 'nine' => 9,
+                                 'eight' => 8,
+                                 'seven' => 7,
+                                 'six' => 6,
+                                 'five' => 5,
+                                 'four' => 4,
+                                 'three' => 3,
+                                 'two' => 2,
+                                 'one' => 1,
+                                 'zero' => 0,
+                             ]);
         $this->assertEquals(100000.01, $calculator->execute('$trx_amount'));
         $this->assertEquals(10 - 9, $calculator->execute('$ten - $nine'));
         $this->assertEquals(9 - 10, $calculator->execute('$nine - $ten'));
@@ -374,8 +374,8 @@ class MathTest extends TestCase
         $calculator->addFunction(
             'round',
             function ($value, $decimals) {
-            return round($value, $decimals);
-        }
+                return round($value, $decimals);
+            }
         );
         $expression = 'round(100 * 1.111111, 2)';
         $phpResult = 0;
@@ -403,9 +403,9 @@ class MathTest extends TestCase
         $calculator->addFunction(
             'test',
             function ($arg) use ($testString) {
-            $this->assertEquals($testString, $arg);
-            return 0;
-        }
+                $this->assertEquals($testString, $arg);
+                return 0;
+            }
         );
         $calculator->execute('test("' . $testString . '")'); // single quotes
         $calculator->execute("test('" . $testString . "')"); // double quotes
