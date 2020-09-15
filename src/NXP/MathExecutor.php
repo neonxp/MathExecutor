@@ -416,7 +416,7 @@ class MathExecutor
      */
     public function getVar(string $variable)
     {
-        if (!isset($this->variables[$variable])) {
+        if (!array_key_exists($variable, $this->variables)) {
             throw new UnknownVariableException("Variable ({$variable}) not set");
         }
         return $this->variables[$variable];
