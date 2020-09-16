@@ -45,7 +45,7 @@ class MathTest extends TestCase
      *
      * Most tests can go in here.  The idea is that each expression will be evaluated by MathExecutor and by PHP with eval.
      * The results should be the same.  If they are not, then the test fails.  No need to add extra test unless you are doing
-     * something more complete and not a simple mathmatical expression.
+     * something more complex and not a simple mathmatical expression.
      */
     public function providerExpressions()
     {
@@ -501,23 +501,23 @@ class MathTest extends TestCase
         $calculator->setVar('boolTrue', true);
         $calculator->setVar('boolFalse', false);
         $calculator->setVar('int', 1);
+        $calculator->setVar('null', null);
         $calculator->setVar('float', 1.1);
         $calculator->setVar('string', 'string');
-        $this->assertEquals(7, count($calculator->getVars()));
+        $this->assertEquals(8, count($calculator->getVars()));
+        $this->assertEquals(true, $calculator->getVar('boolTrue'));
+        $this->assertEquals(false, $calculator->getVar('boolFalse'));
+        $this->assertEquals(1, $calculator->getVar('int'));
+        $this->assertEquals(null, $calculator->getVar('null'));
+        $this->assertEquals(1.1, $calculator->getVar('float'));
+        $this->assertEquals('string', $calculator->getVar('string'));
     }
 
-    public function testSetVarsDoesNoAcceptObject()
+    public function testSetVarsDoesNotAcceptObject()
     {
         $calculator = new MathExecutor();
         $this->expectException(MathExecutorException::class);
         $calculator->setVar('object', $this);
-    }
-
-    public function testSetVarsDoesNotAcceptNull()
-    {
-        $calculator = new MathExecutor();
-        $this->expectException(MathExecutorException::class);
-        $calculator->setVar('null', null);
     }
 
     public function testSetVarsDoesNotAcceptResource()
