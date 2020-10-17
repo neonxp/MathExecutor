@@ -526,4 +526,45 @@ class MathTest extends TestCase
         $this->expectException(MathExecutorException::class);
         $calculator->setVar('resource', tmpfile());
     }
+
+    /**
+     * @dataProvider providerExpressionValues
+     */
+    public function testCalculatingValues($expression, $value)
+    {
+        $calculator = new MathExecutor();
+
+        try {
+            $result = $calculator->execute($expression);
+        } catch (Exception $e) {
+            $this->fail(sprintf("Exception: %s (%s:%d), expression was: %s", get_class($e), $e->getFile(), $e->getLine(), $expression));
+        }
+        $this->assertEquals($value, $result, "${expression} did not evaluate to {$value}");
+    }
+
+    /**
+     * Expressions data provider
+     *
+     * Most tests can go in here.  The idea is that each expression will be evaluated by MathExecutor and by PHP with eval.
+     * The results should be the same.  If they are not, then the test fails.  No need to add extra test unless you are doing
+     * something more complex and not a simple mathmatical expression.
+     */
+    public function providerExpressionValues()
+    {
+        return [
+            ['arcsec(4)', 1.3181160716528],
+            ['arccsc(4)', 0.2526802551421],
+            ['arctan(4)', 1.3258176636680],
+            ['cosec(4)', -1.3213487088109],
+            ['cotan(4)', 0.8636911544506],
+            ['sec(4)', -1.5298856564664],
+            ['tg(4)', 1.1578212823496],
+            ['arcsin(0.5)', 0.5235987755983],
+            ['arccosec(4)', 0.2526802551421],
+            ['arccos(0.5)', 1.0471975511966],
+            ['arccotan(4)', 0.2449786631269],
+            ['ln(2)', 0.6931471805599],
+            ['lg(2)', 0.3010299956639],
+        ];
+    }
 }
