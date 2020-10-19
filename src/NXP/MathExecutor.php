@@ -220,6 +220,36 @@ class MathExecutor
             'acosh' => function ($arg) {
                 return acosh($arg);
             },
+            'arcsin' => function ($arg) {
+                return asin($arg);
+            },
+            'arcctg' => function ($arg) {
+                return M_PI/2 - atan($arg);
+            },
+            'arccot' => function ($arg) {
+                return M_PI/2 - atan($arg);
+            },
+            'arccotan' => function ($arg) {
+                return M_PI/2 - atan($arg);
+            },
+            'arcsec' => function ($arg) {
+                return acos(1/$arg);
+            },
+            'arccosec' => function ($arg) {
+                return asin(1/$arg);
+            },
+            'arccsc' => function ($arg) {
+                return asin(1/$arg);
+            },
+            'arccos' => function ($arg) {
+                return acos($arg);
+            },
+            'arctan' => function ($arg) {
+                return atan($arg);
+            },
+            'arctg' => function ($arg) {
+                return atan($arg);
+            },
             'asin' => function ($arg) {
                 return asin($arg);
             },
@@ -247,8 +277,29 @@ class MathExecutor
             'cos' => function ($arg) {
                 return cos($arg);
             },
+            'cosec' => function ($arg) {
+                return 1 / sin($arg);
+            },
+            'csc' => function ($arg) {
+                return 1 / sin($arg);
+            },
             'cosh' => function ($arg) {
                 return cosh($arg);
+            },
+            'ctg' => function ($arg) {
+                return cos($arg) / sin($arg);
+            },
+            'cot' => function ($arg) {
+                return cos($arg) / sin($arg);
+            },
+            'cotan' => function ($arg) {
+                return cos($arg) / sin($arg);
+            },
+            'cotg' => function ($arg) {
+                return cos($arg) / sin($arg);
+            },
+            'ctn' => function ($arg) {
+                return cos($arg) / sin($arg);
             },
             'decbin' => function ($arg) {
                 return decbin($arg);
@@ -295,6 +346,12 @@ class MathExecutor
             'intdiv' => function ($arg1, $arg2) {
                 return intdiv($arg1, $arg2);
             },
+            'ln' => function ($arg) {
+                return log($arg);
+            },
+            'lg' => function ($arg) {
+                return log10($arg);
+            },
             'log' => function ($arg) {
                 return log($arg);
             },
@@ -317,7 +374,7 @@ class MathExecutor
                 return pi();
             },
             'pow' => function ($arg1, $arg2) {
-                return pow($arg1, $arg2);
+                return $arg1 ** $arg2;
             },
             'rad2deg' => function ($arg) {
                 return rad2deg($arg);
@@ -331,6 +388,9 @@ class MathExecutor
             'sinh' => function ($arg) {
                 return sinh($arg);
             },
+            'sec' => function ($arg) {
+                return 1 / cos($arg);
+            },
             'sqrt' => function ($arg) {
                 return sqrt($arg);
             },
@@ -341,6 +401,9 @@ class MathExecutor
                 return tanh($arg);
             },
             'tn' => function ($arg) {
+                return tan($arg);
+            },
+            'tg' => function ($arg) {
                 return tan($arg);
             }
         ];
