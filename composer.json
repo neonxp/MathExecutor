@@ -23,14 +23,19 @@
     }
   ],
   "require": {
-    "php": ">=7.1"
+    "php": ">=7.2"
   },
   "require-dev": {
     "phpunit/phpunit": ">=8.0"
   },
   "autoload": {
-    "psr-0": {
-      "NXP": "src/"
+    "psr-4": {
+      "NXP\\": "src/NXP"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NXP\\Tests\\": "tests/"
     }
   }
 }
