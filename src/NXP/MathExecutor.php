@@ -425,8 +425,9 @@ class MathExecutor
         $cachekey = $expression;
         if (!array_key_exists($cachekey, $this->cache)) {
             $tokens = (new Tokenizer($expression, $this->operators))->tokenize()->buildReversePolishNotation();
-            if ($cache)
+            if ($cache) {
                 $this->cache[$cachekey] = $tokens;
+            }
         } else {
             $tokens = $this->cache[$cachekey];
         }
