@@ -604,14 +604,16 @@ class MathExecutor
      * Get cache array with tokens
      * @return array
      */
-    public function getCache() : array {
+    public function getCache() : array 
+    {
         return $this->cache;
     }
 
     /**
      * Clear token's cache
      */
-    public function clearCache() : void {
+    public function clearCache() : void 
+    {
         $this->cache = [];
     }
 
