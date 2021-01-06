@@ -29,8 +29,13 @@
     "phpunit/phpunit": ">=8.0"
   },
   "autoload": {
-    "psr-0": {
-      "NXP": "src/"
+    "psr-4": {
+      "NXP\\": "src/NXP"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NXP\\Tests\\": "tests/"
     }
   }
 }
