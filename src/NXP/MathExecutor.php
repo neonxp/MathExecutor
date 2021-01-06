@@ -412,22 +412,26 @@ class MathExecutor
     /**
      * Execute expression
      *
-     * @param $expression
+     * @param string $expression
+     * @param bool $cache
      * @return number
-     * @throws Exception\IncorrectExpressionException
      * @throws Exception\IncorrectBracketsException
+     * @throws Exception\IncorrectExpressionException
      * @throws Exception\UnknownOperatorException
-     * @throws Exception\UnknownVariableException
+     * @throws UnknownVariableException
      */
-    public function execute(string $expression)
+    public function execute(string $expression, bool $cache = true)
     {
         $cachekey = $expression;
         if (!array_key_exists($cachekey, $this->cache)) {
             $tokens = (new Tokenizer($expression, $this->operators))->tokenize()->buildReversePolishNotation();
-            $this->cache[$cachekey] = $tokens;
+            if ($cache) {
+                $this->cache[$cachekey] = $tokens;
+            }
         } else {
             $tokens = $this->cache[$cachekey];
         }
+
         $calculator = new Calculator($this->functions, $this->operators);
         return $calculator->calculate($tokens, $this->variables, $this->onVarNotFound);
     }
@@ -594,6 +598,23 @@ class MathExecutor
             return $a / $b;
         }));
         return $this;
+    }
+
+    /**
+     * Get cache array with tokens
+     * @return array
+     */
+    public function getCache() : array
+    {
+        return $this->cache;
+    }
+
+    /**
+     * Clear token's cache
+     */
+    public function clearCache() : void
+    {
+        $this->cache = [];
     }
 
     public function __clone()

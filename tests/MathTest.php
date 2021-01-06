@@ -589,4 +589,28 @@ class MathTest extends TestCase
         ];
     }
 
+    public function testCache()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(256, $calculator->execute('2 ^ 8')); // second arg $cache is true by default
+
+        $this->assertIsArray($calculator->getCache());
+        $this->assertEquals(1, count($calculator->getCache()));
+
+        $this->assertEquals(512, $calculator->execute('2 ^ 9', true));
+        $this->assertEquals(2, count($calculator->getCache()));
+
+        $this->assertEquals(1024, $calculator->execute('2 ^ 10', false));
+        $this->assertEquals(2, count($calculator->getCache()));
+
+        $calculator->clearCache();
+        $this->assertIsArray($calculator->getCache());
+        $this->assertEquals(0, count($calculator->getCache()));
+
+        $this->assertEquals(2048, $calculator->execute('2 ^ 11', false));
+        $this->assertEquals(0, count($calculator->getCache()));
+
+
+    }
+
 }
