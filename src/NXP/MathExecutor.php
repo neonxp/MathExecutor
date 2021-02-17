@@ -99,6 +99,13 @@ class MathExecutor
                 170,
                 false
             ],
+            '`' => [ // unary minus token
+                function ($a) {
+                    return 0 - $a;
+                },
+                200,
+                false
+            ],
             '*' => [
                 function ($a, $b) {
                     return $a * $b;
