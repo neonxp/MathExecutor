@@ -45,7 +45,7 @@ class MathTest extends TestCase
      *
      * Most tests can go in here.  The idea is that each expression will be evaluated by MathExecutor and by PHP with eval.
      * The results should be the same.  If they are not, then the test fails.  No need to add extra test unless you are doing
-     * something more complete and not a simple mathmatical expression.
+     * something more complex and not a simple mathmatical expression.
      */
     public function providerExpressions()
     {
@@ -147,6 +147,8 @@ class MathTest extends TestCase
             ['sin(10) * cos(50) / min(10, (20/2))'],
             ['sin(10) * cos(50) / min(10, (max(10,20)/2))'],
 
+            ['100500 * 3.5e5'],
+            ['100500 * 3.5e-5'],
             ['100500 * 3.5E5'],
             ['100500 * 3.5E-5'],
 
@@ -208,6 +210,24 @@ class MathTest extends TestCase
             ['1 + (3 *-1)'],
             ['1 - 0'],
             ['1-0'],
+
+            ['-(1.5)'],
+            ['-log(4)'],
+            ['0-acosh(1.5)'],
+            ['-acosh(1.5)'],
+            ['-(-4)'],
+            ['-(-4 + 5)'],
+            ['-(3 * 1)'],
+            ['-(-3 * -1)'],
+            ['-1 + (-3 * -1)'],
+            ['-1 + ( -3 * 1)'],
+            ['-1 + (3 *-1)'],
+            ['-1 - 0'],
+            ['-1-0'],
+            ['-(4*2)-5'],
+            ['-(4*-2)-5'],
+            ['-(-4*2) - 5'],
+            ['-4*-5'],
         ];
     }
 
@@ -501,23 +521,23 @@ class MathTest extends TestCase
         $calculator->setVar('boolTrue', true);
         $calculator->setVar('boolFalse', false);
         $calculator->setVar('int', 1);
+        $calculator->setVar('null', null);
         $calculator->setVar('float', 1.1);
         $calculator->setVar('string', 'string');
-        $this->assertEquals(7, count($calculator->getVars()));
+        $this->assertCount(8, $calculator->getVars());
+        $this->assertEquals(true, $calculator->getVar('boolTrue'));
+        $this->assertEquals(false, $calculator->getVar('boolFalse'));
+        $this->assertEquals(1, $calculator->getVar('int'));
+        $this->assertEquals(null, $calculator->getVar('null'));
+        $this->assertEquals(1.1, $calculator->getVar('float'));
+        $this->assertEquals('string', $calculator->getVar('string'));
     }
 
-    public function testSetVarsDoesNoAcceptObject()
+    public function testSetVarsDoesNotAcceptObject()
     {
         $calculator = new MathExecutor();
         $this->expectException(MathExecutorException::class);
         $calculator->setVar('object', $this);
-    }
-
-    public function testSetVarsDoesNotAcceptNull()
-    {
-        $calculator = new MathExecutor();
-        $this->expectException(MathExecutorException::class);
-        $calculator->setVar('null', null);
     }
 
     public function testSetVarsDoesNotAcceptResource()
@@ -526,4 +546,91 @@ class MathTest extends TestCase
         $this->expectException(MathExecutorException::class);
         $calculator->setVar('resource', tmpfile());
     }
+
+    /**
+     * @dataProvider providerExpressionValues
+     */
+    public function testCalculatingValues($expression, $value)
+    {
+        $calculator = new MathExecutor();
+
+        try {
+            $result = $calculator->execute($expression);
+        } catch (Exception $e) {
+            $this->fail(sprintf("Exception: %s (%s:%d), expression was: %s", get_class($e), $e->getFile(), $e->getLine(), $expression));
+        }
+        $this->assertEquals($value, $result, "${expression} did not evaluate to {$value}");
+    }
+
+    /**
+     * Expressions data provider
+     *
+     * Most tests can go in here.  The idea is that each expression will be evaluated by MathExecutor and by PHP directly.
+     * The results should be the same.  If they are not, then the test fails.  No need to add extra test unless you are doing
+     * something more complex and not a simple mathmatical expression.
+     */
+    public function providerExpressionValues()
+    {
+        return [
+            ['arccos(0.5)', 1.0471975511966],
+            ['arccos(0.5)', acos(0.5)],
+            ['arccosec(4)', 0.2526802551421],
+            ['arccosec(4)', asin(1/4)],
+            ['arccot(3)', M_PI/2 - atan(3)],
+            ['arccotan(4)', 0.2449786631269],
+            ['arccotan(4)', M_PI/2 - atan(4)],
+            ['arccsc(4)', 0.2526802551421],
+            ['arccsc(4)', asin(1/4)],
+            ['arcctg(3)', M_PI/2 - atan(3)],
+            ['arcsec(4)', 1.3181160716528],
+            ['arcsec(4)', acos(1/4)],
+            ['arcsin(0.5)', 0.5235987755983],
+            ['arcsin(0.5)', asin(0.5)],
+            ['arctan(0.5)', atan(0.5)],
+            ['arctan(4)', 1.3258176636680],
+            ['arctg(0.5)', atan(0.5)],
+            ['cosec(12)', 1 / sin(12)],
+            ['cosec(4)', -1.3213487088109],
+            ['cosh(12)', cosh(12)],
+            ['cot(12)', cos(12) / sin(12)],
+            ['cotan(12)', cos(12) / sin(12)],
+            ['cotan(4)', 0.8636911544506],
+            ['cotg(3)', cos(3) / sin(3)],
+            ['csc(4)', 1 / sin(4)],
+            ['ctg(4)', cos(4) / sin(4)],
+            ['ctn(4)', cos(4) / sin(4)],
+            ['decbin(10)', decbin(10)],
+            ['lg(2)', 0.3010299956639],
+            ['lg(2)', log10(2)],
+            ['ln(2)', 0.6931471805599],
+            ['ln(2)', log(2)],
+            ['sec(4)', -1.5298856564664],
+            ['tg(4)', 1.1578212823496],
+        ];
+    }
+
+    public function testCache()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(256, $calculator->execute('2 ^ 8')); // second arg $cache is true by default
+
+        $this->assertIsArray($calculator->getCache());
+        $this->assertEquals(1, count($calculator->getCache()));
+
+        $this->assertEquals(512, $calculator->execute('2 ^ 9', true));
+        $this->assertEquals(2, count($calculator->getCache()));
+
+        $this->assertEquals(1024, $calculator->execute('2 ^ 10', false));
+        $this->assertEquals(2, count($calculator->getCache()));
+
+        $calculator->clearCache();
+        $this->assertIsArray($calculator->getCache());
+        $this->assertEquals(0, count($calculator->getCache()));
+
+        $this->assertEquals(2048, $calculator->execute('2 ^ 11', false));
+        $this->assertEquals(0, count($calculator->getCache()));
+
+
+    }
+
 }

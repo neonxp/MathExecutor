@@ -1,19 +1,39 @@
 name: Tests
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build-test:
-    runs-on: ubuntu-latest
+  php-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        php: [8.0, 7.4, 7.3, 7.2]
+        dependency-version: [prefer-lowest, prefer-stable]
+        os: [ubuntu-latest, windows-latest]
+
+    name: ${{ matrix.os }} - PHP${{ matrix.php }} - ${{ matrix.dependency-version }}
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: php-actions/composer@v1
-    - name: PHPUnit
-      uses: php-actions/phpunit@v1
-      with:
-        config: ./phpunit.xml.dist
-    - name: PHP CS Fixer
-      uses: StephaneBour/actions-php-cs-fixer@1.0
-      with:
-        dir: './src'
+      - name: Checkout code
+        uses: actions/checkout@v1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, bcmath, intl
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction
+          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
+
+      - name: Execute tests
+        run: vendor/bin/phpunit
+
+      - name: PHP CS Fixer
+        uses: StephaneBour/actions-php-cs-fixer@1.0
+        if: matrix.os != 'windows-latest'
+        with:
+          dir: './src'

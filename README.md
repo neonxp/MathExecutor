@@ -34,17 +34,22 @@ echo $executor->execute('1 + 2 * (2 - (4+10))^2 + sin(10)');
 ## Functions:
 Default functions:
 * abs
-* acos
+* acos (arccos)
 * acosh
-* asin
-* atan (atn)
+* arcctg (arccot, arccotan)
+* arcsec
+* arccsc (arccosec)
+* asin (arcsin)
+* atan (atn, arctan, arctg)
 * atan2
 * atanh
 * avg
 * bindec
 * ceil
 * cos
+* cosec (csc)
 * cosh
+* ctg (cot, cotan, cotg, ctn)
 * decbin
 * dechex
 * decoct
@@ -57,8 +62,8 @@ Default functions:
 * hypot
 * if
 * intdiv
-* log
-* log10
+* log (ln)
+* log10 (lg)
 * log1p
 * max
 * min
@@ -67,10 +72,11 @@ Default functions:
 * pow
 * rad2deg
 * round
+* sec
 * sin
 * sinh
 * sqrt
-* tan (tn)
+* tan (tn, tg)
 * tanh
 
 Add custom function to executor:
