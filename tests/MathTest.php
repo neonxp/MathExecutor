@@ -252,6 +252,17 @@ class MathTest extends TestCase
         $this->assertEquals(0, $calculator->execute('10 / 0'));
     }
 
+    public function testUnaryOperators()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(5, $calculator->execute('+5'));
+        $this->assertEquals(5, $calculator->execute('+(3+2)'));
+        $this->assertEquals(-5, $calculator->execute('-5'));
+        $this->assertEquals(5, $calculator->execute('-(-5)'));
+        $this->assertEquals(-5, $calculator->execute('+(-5)'));
+        $this->assertEquals(-5, $calculator->execute('-(3+2)'));
+    }
+
     public function testZeroDivisionException()
     {
         $calculator = new MathExecutor();
