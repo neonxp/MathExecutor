@@ -150,11 +150,11 @@ class Tokenizer
                     $this->tokens[] = new Token(Token::ParamSeparator, '');
                     break;
                 default:
-                    // special case for unary minus
-                    if ($ch == '-') {
+                    // special case for unary operations
+                    if ($ch == '-' || $ch == '+') {
                         if ($this->allowNegative) {
                             $this->allowNegative = false;
-                            $this->tokens[] = new Token(Token::Operator, '`');
+                            $this->tokens[] = new Token(Token::Operator, $ch == '-' ? 'uNeg' : 'uPos');
                             continue 2;
                         }
                         // could be in exponent, in which case negative should be added to the numberBuffer

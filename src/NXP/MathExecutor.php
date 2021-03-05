@@ -16,8 +16,8 @@ use NXP\Classes\CustomFunction;
 use NXP\Classes\Operator;
 use NXP\Classes\Tokenizer;
 use NXP\Exception\DivisionByZeroException;
-use NXP\Exception\UnknownVariableException;
 use NXP\Exception\MathExecutorException;
+use NXP\Exception\UnknownVariableException;
 use ReflectionException;
 
 /**
@@ -85,35 +85,42 @@ class MathExecutor
     protected function defaultOperators() : array
     {
         return [
-            '+' => [
+            '+'    => [
                 function ($a, $b) {
                     return $a + $b;
                 },
                 170,
                 false
             ],
-            '-' => [
+            '-'    => [
                 function ($a, $b) {
                     return $a - $b;
                 },
                 170,
                 false
             ],
-            '`' => [ // unary minus token
-                function ($a) {
-                    return 0 - $a;
-                },
-                200,
-                false
+            'uPos' => [ // unary positive token
+                        function ($a) {
+                            return $a;
+                        },
+                        200,
+                        false
             ],
-            '*' => [
+            'uNeg' => [ // unary minus token
+                        function ($a) {
+                            return 0 - $a;
+                        },
+                        200,
+                        false
+            ],
+            '*'    => [
                 function ($a, $b) {
                     return $a * $b;
                 },
                 180,
                 false
             ],
-            '/' => [
+            '/'    => [
                 function ($a, $b) {
                     if ($b == 0) {
                         throw new DivisionByZeroException();
@@ -123,28 +130,28 @@ class MathExecutor
                 180,
                 false
             ],
-            '^' => [
+            '^'    => [
                 function ($a, $b) {
                     return pow($a, $b);
                 },
                 220,
                 true
             ],
-            '&&' => [
+            '&&'   => [
                 function ($a, $b) {
                     return $a && $b;
                 },
                 100,
                 false
             ],
-            '||' => [
+            '||'   => [
                 function ($a, $b) {
                     return $a || $b;
                 },
                 90,
                 false
             ],
-            '==' => [
+            '=='   => [
                 function ($a, $b) {
                     if (is_string($a) || is_string($b)) {
                         return strcmp($a, $b) == 0;
@@ -155,7 +162,7 @@ class MathExecutor
                 140,
                 false
             ],
-            '!=' => [
+            '!='   => [
                 function ($a, $b) {
                     if (is_string($a) || is_string($b)) {
                         return strcmp($a, $b) != 0;
@@ -166,28 +173,28 @@ class MathExecutor
                 140,
                 false
             ],
-            '>=' => [
+            '>='   => [
                 function ($a, $b) {
                     return $a >= $b;
                 },
                 150,
                 false
             ],
-            '>' => [
+            '>'    => [
                 function ($a, $b) {
                     return $a > $b;
                 },
                 150,
                 false
             ],
-            '<=' => [
+            '<='   => [
                 function ($a, $b) {
                     return $a <= $b;
                 },
                 150,
                 false
             ],
-            '<' => [
+            '<'    => [
                 function ($a, $b) {
                     return $a < $b;
                 },
