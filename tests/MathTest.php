@@ -58,6 +58,17 @@ class MathTest extends TestCase
             ['(4*2) - 5'],
             ['4*-5'],
             ['4 * -5'],
+			['+5'],
+			['+(3+2)'],
+			['+(+3+2)'],
+			['+(-3+2)'],
+			['-5'],
+			['-(-5)'],
+			['-(+5)'],
+			['+(-5)'],
+			['+(+5)'],
+			['-(3+2)'],
+			['-(-3+-2)'],
 
             ['abs(1.5)'],
             ['acos(0.15)'],
@@ -92,6 +103,9 @@ class MathTest extends TestCase
             ['rad2deg(1.5)'],
             ['round(1.5)'],
             ['sin(1.5)'],
+            ['sin(12)'],
+            ['+sin(12)'],
+            ['-sin(12)'],
             ['sinh(1.5)'],
             ['sqrt(1.5)'],
             ['tan(1.5)'],
@@ -250,17 +264,6 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $calculator->setDivisionByZeroIsZero();
         $this->assertEquals(0, $calculator->execute('10 / 0'));
-    }
-
-    public function testUnaryOperators()
-    {
-        $calculator = new MathExecutor();
-        $this->assertEquals(5, $calculator->execute('+5'));
-        $this->assertEquals(5, $calculator->execute('+(3+2)'));
-        $this->assertEquals(-5, $calculator->execute('-5'));
-        $this->assertEquals(5, $calculator->execute('-(-5)'));
-        $this->assertEquals(-5, $calculator->execute('+(-5)'));
-        $this->assertEquals(-5, $calculator->execute('-(3+2)'));
     }
 
     public function testZeroDivisionException()
