@@ -535,7 +535,7 @@ class MathTest extends TestCase
         $calculator->setVar('null', null);
         $calculator->setVar('float', 1.1);
         $calculator->setVar('string', 'string');
-        $this->assertCount(8, $calculator->getVars());
+        $this->assertEquals(8, count($calculator->getVars()));
         $this->assertEquals(true, $calculator->getVar('boolTrue'));
         $this->assertEquals(false, $calculator->getVar('boolFalse'));
         $this->assertEquals(1, $calculator->getVar('int'));
