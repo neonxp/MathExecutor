@@ -58,6 +58,17 @@ class MathTest extends TestCase
             ['(4*2) - 5'],
             ['4*-5'],
             ['4 * -5'],
+			['+5'],
+			['+(3+2)'],
+			['+(+3+2)'],
+			['+(-3+2)'],
+			['-5'],
+			['-(-5)'],
+			['-(+5)'],
+			['+(-5)'],
+			['+(+5)'],
+			['-(3+2)'],
+			['-(-3+-2)'],
 
             ['abs(1.5)'],
             ['acos(0.15)'],
@@ -92,6 +103,9 @@ class MathTest extends TestCase
             ['rad2deg(1.5)'],
             ['round(1.5)'],
             ['sin(1.5)'],
+            ['sin(12)'],
+            ['+sin(12)'],
+            ['-sin(12)'],
             ['sinh(1.5)'],
             ['sqrt(1.5)'],
             ['tan(1.5)'],
@@ -535,7 +549,7 @@ class MathTest extends TestCase
         $calculator->setVar('null', null);
         $calculator->setVar('float', 1.1);
         $calculator->setVar('string', 'string');
-        $this->assertCount(8, $calculator->getVars());
+        $this->assertEquals(8, count($calculator->getVars()));
         $this->assertEquals(true, $calculator->getVar('boolTrue'));
         $this->assertEquals(false, $calculator->getVar('boolFalse'));
         $this->assertEquals(1, $calculator->getVar('int'));
