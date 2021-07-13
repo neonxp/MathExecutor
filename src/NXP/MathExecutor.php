@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of the MathExecutor package
  *
@@ -14,6 +13,7 @@ namespace NXP;
 use NXP\Classes\Calculator;
 use NXP\Classes\CustomFunction;
 use NXP\Classes\Operator;
+use NXP\Classes\Token;
 use NXP\Classes\Tokenizer;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\MathExecutorException;
@@ -29,12 +29,12 @@ class MathExecutor
     /**
      * Available variables
      *
-     * @var array
+     * @var array<string, float|string>
      */
     private $variables = [];
 
     /**
-     * @var callable
+     * @var callable|null
      */
     private $onVarNotFound = null;
 
@@ -44,12 +44,12 @@ class MathExecutor
     private $operators = [];
 
     /**
-     * @var CustomFunction[]
+     * @var array<string, CustomFunction>
      */
     private $functions = [];
 
     /**
-     * @var array
+     * @var array<string, Token[]>
      */
     private $cache = [];
 
@@ -80,7 +80,7 @@ class MathExecutor
     /**
      * Get the default operators
      *
-     * @return array of class names
+     * @return array<string, array{callable, int, bool}>
      */
     protected function defaultOperators() : array
     {
@@ -220,7 +220,7 @@ class MathExecutor
      * Gets the default functions as an array.  Key is function name
      * and value is the function as a closure.
      *
-     * @return array
+     * @return array<callable>
      */
     protected function defaultFunctions() : array
     {
@@ -436,14 +436,14 @@ class MathExecutor
      */
     public function execute(string $expression, bool $cache = true)
     {
-        $cachekey = $expression;
-        if (!array_key_exists($cachekey, $this->cache)) {
+        $cacheKey = $expression;
+        if (!array_key_exists($cacheKey, $this->cache)) {
             $tokens = (new Tokenizer($expression, $this->operators))->tokenize()->buildReversePolishNotation();
             if ($cache) {
-                $this->cache[$cachekey] = $tokens;
+                $this->cache[$cacheKey] = $tokens;
             }
         } else {
-            $tokens = $this->cache[$cachekey];
+            $tokens = $this->cache[$cacheKey];
         }
 
         $calculator = new Calculator($this->functions, $this->operators);
@@ -468,7 +468,7 @@ class MathExecutor
     /**
      * Returns the default variables names as key/value pairs
      *
-     * @return array
+     * @return array<string, float>
      */
     protected function defaultVars() : array
     {
@@ -481,7 +481,7 @@ class MathExecutor
     /**
      * Get all vars
      *
-     * @return array
+     * @return array<string, float|string>
      */
     public function getVars() : array
     {
@@ -507,7 +507,7 @@ class MathExecutor
      * Add variable to executor
      *
      * @param  string $variable
-     * @param  integer|float $value
+     * @param  int|float $value
      * @return MathExecutor
      */
     public function setVar(string $variable, $value) : self
@@ -524,7 +524,7 @@ class MathExecutor
     /**
      * Add variables to executor
      *
-     * @param  array $variables
+     * @param  array<string, float|int|string> $variables
      * @param  bool $clear Clear previous variables
      * @return MathExecutor
      * @throws \Exception
@@ -580,7 +580,7 @@ class MathExecutor
     /**
      * Get all registered operators to executor
      *
-     * @return array of operator class names
+     * @return array<Operator> of operator class names
      */
     public function getOperators()
     {
@@ -590,7 +590,7 @@ class MathExecutor
     /**
      * Get all registered functions
      *
-     * @return array containing callback and places indexed by
+     * @return array<string, CustomFunction> containing callback and places indexed by
      *         function name
      */
     public function getFunctions() : array
@@ -616,7 +616,7 @@ class MathExecutor
 
     /**
      * Get cache array with tokens
-     * @return array
+     * @return array<string, Token[]>
      */
     public function getCache() : array
     {

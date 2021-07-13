@@ -44,6 +44,11 @@ class CustomFunction
         }
     }
 
+    /**
+     * @param array<Token> $stack
+     *
+     * @throws IncorrectNumberOfFunctionParametersException
+     */
     public function execute(array &$stack) : Token
     {
         if (count($stack) < $this->places) {
