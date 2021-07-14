@@ -24,7 +24,7 @@ class Operator
     public $priority;
 
     /**
-     * @var callable<\SplStack>
+     * @var callable(\SplStack)
      */
     public $function;
 
@@ -50,6 +50,11 @@ class Operator
         $this->places = $reflection->getNumberOfParameters();
     }
 
+    /**
+     * @param array<Token> $stack
+     *
+     * @throws IncorrectExpressionException
+     */
     public function execute(array &$stack) : Token
     {
         if (count($stack) < $this->places) {

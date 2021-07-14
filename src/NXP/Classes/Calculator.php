@@ -44,7 +44,7 @@ class Calculator
     /**
      * Calculate array of tokens in reverse polish notation
      * @param Token[] $tokens
-     * @param array $variables
+     * @param array<string, float|string> $variables
      * @return mixed
      * @throws IncorrectExpressionException
      * @throws UnknownVariableException
@@ -68,7 +68,7 @@ class Calculator
                     throw new UnknownVariableException($variable);
                 }
 
-                $stack[] = new Token(Token::Literal, $value);
+                $stack[] = new Token(Token::Literal, $value, $variable);
             } elseif ($token->type === Token::Function) {
                 if (!array_key_exists($token->value, $this->functions)) {
                     throw new UnknownFunctionException($token->value);
