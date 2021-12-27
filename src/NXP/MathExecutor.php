@@ -428,7 +428,7 @@ class MathExecutor
      *
      * @param string $expression
      * @param bool $cache
-     * @return int|float
+     * @return number
      * @throws Exception\IncorrectBracketsException
      * @throws Exception\IncorrectExpressionException
      * @throws Exception\UnknownOperatorException
@@ -507,7 +507,7 @@ class MathExecutor
      * Add variable to executor
      *
      * @param  string $variable
-     * @param  int|float|string $value
+     * @param  int|float $value
      * @return MathExecutor
      */
     public function setVar(string $variable, $value) : self
