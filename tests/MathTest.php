@@ -508,6 +508,14 @@ class MathTest extends TestCase
         $this->assertEquals(1, $calculator->execute('1-0'));
     }
 
+    public function testScientificNotation()
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals(1.5e9, $calculator->execute('1.5e9'));
+        $this->assertEquals(1.5e-9, $calculator->execute('1.5e-9'));
+        $this->assertEquals(1.5e+9, $calculator->execute('1.5e+9'));
+    }
+
     public function testGetFunctionsReturnsArray()
     {
         $calculator = new MathExecutor();

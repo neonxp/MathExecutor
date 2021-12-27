@@ -157,9 +157,9 @@ class Tokenizer
                             $this->tokens[] = new Token(Token::Operator, $ch == '-' ? 'uNeg' : 'uPos');
                             continue 2;
                         }
-                        // could be in exponent, in which case negative should be added to the numberBuffer
+                        // could be in exponent, in which case negative / positive should be added to the numberBuffer
                         if ($this->numberBuffer && $this->numberBuffer[strlen($this->numberBuffer) - 1] == 'e') {
-                            $this->numberBuffer .= '-';
+                            $this->numberBuffer .= $ch;
                             continue 2;
                         }
                     }
