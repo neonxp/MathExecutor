@@ -22,11 +22,16 @@
       "email": "brucekwells@gmail.com"
     }
   ],
+  "scripts": {
+    "test": "vendor/bin/phpunit --colors=always",
+    "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+  },
   "require": {
-    "php": ">=7.2"
+    "php": ">=7.3"
   },
   "require-dev": {
-    "phpunit/phpunit": ">=8.0"
+    "phpunit/phpunit": ">=9.0"
   },
   "autoload": {
     "psr-4": {
