@@ -66,7 +66,7 @@ class Tokenizer
         $this->operators = $operators;
     }
 
-    public function tokenize() : self
+    public function tokenize(): self
     {
         foreach (str_split($this->input, 1) as $ch) {
             switch (true) {
@@ -184,17 +184,17 @@ class Tokenizer
         return $this;
     }
 
-    private function isNumber(string $ch) : bool
+    private function isNumber(string $ch): bool
     {
         return $ch >= '0' && $ch <= '9';
     }
 
-    private function isAlpha(string $ch) : bool
+    private function isAlpha(string $ch): bool
     {
         return $ch >= 'a' && $ch <= 'z' || $ch >= 'A' && $ch <= 'Z' || $ch == '_';
     }
 
-    private function emptyNumberBufferAsLiteral() : void
+    private function emptyNumberBufferAsLiteral(): void
     {
         if (strlen($this->numberBuffer)) {
             $this->tokens[] = new Token(Token::Literal, $this->numberBuffer);
@@ -202,22 +202,22 @@ class Tokenizer
         }
     }
 
-    private function isDot(string $ch) : bool
+    private function isDot(string $ch): bool
     {
         return $ch == '.';
     }
 
-    private function isLP(string $ch) : bool
+    private function isLP(string $ch): bool
     {
         return $ch == '(';
     }
 
-    private function isRP(string $ch) : bool
+    private function isRP(string $ch): bool
     {
         return $ch == ')';
     }
 
-    private function emptyStrBufferAsVariable() : void
+    private function emptyStrBufferAsVariable(): void
     {
         if ($this->stringBuffer != '') {
             $this->tokens[] = new Token(Token::Variable, $this->stringBuffer);
@@ -225,7 +225,7 @@ class Tokenizer
         }
     }
 
-    private function isComma(string $ch) : bool
+    private function isComma(string $ch): bool
     {
         return $ch == ',';
     }
@@ -235,7 +235,7 @@ class Tokenizer
      * @throws IncorrectBracketsException
      * @throws UnknownOperatorException
      */
-    public function buildReversePolishNotation() : array
+    public function buildReversePolishNotation(): array
     {
         $tokens = [];
         /** @var SplStack<Token> $stack */

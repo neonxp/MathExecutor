@@ -680,8 +680,5 @@ class MathTest extends TestCase
 
         $this->assertEquals(2048, $calculator->execute('2 ^ 11', false));
         $this->assertEquals(0, count($calculator->getCache()));
-
-
     }
-
 }

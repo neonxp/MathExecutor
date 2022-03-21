@@ -1,6 +1,5 @@
 <?php
 
-
 namespace NXP\Classes;
 
 class Token

@@ -65,7 +65,7 @@ class MathExecutor
      * Set default operands and functions
      * @throws ReflectionException
      */
-    protected function addDefaults() : void
+    protected function addDefaults(): void
     {
         foreach ($this->defaultOperators() as $name => $operator) {
             [$callable, $priority, $isRightAssoc] = $operator;
@@ -82,7 +82,7 @@ class MathExecutor
      *
      * @return array<string, array{callable, int, bool}>
      */
-    protected function defaultOperators() : array
+    protected function defaultOperators(): array
     {
         return [
             '+'    => [
@@ -210,7 +210,7 @@ class MathExecutor
      * @param Operator $operator
      * @return MathExecutor
      */
-    public function addOperator(Operator $operator) : self
+    public function addOperator(Operator $operator): self
     {
         $this->operators[$operator->operator] = $operator;
         return $this;
@@ -222,7 +222,7 @@ class MathExecutor
      *
      * @return array<callable>
      */
-    protected function defaultFunctions() : array
+    protected function defaultFunctions(): array
     {
         return [
             'abs' => function ($arg) {
@@ -459,7 +459,7 @@ class MathExecutor
      * @return MathExecutor
      * @throws ReflectionException
      */
-    public function addFunction(string $name, ?callable $function = null, ?int $places = null) : self
+    public function addFunction(string $name, ?callable $function = null, ?int $places = null): self
     {
         $this->functions[$name] = new CustomFunction($name, $function, $places);
         return $this;
@@ -470,7 +470,7 @@ class MathExecutor
      *
      * @return array<string, float>
      */
-    protected function defaultVars() : array
+    protected function defaultVars(): array
     {
         return [
             'pi' => 3.14159265359,
@@ -483,7 +483,7 @@ class MathExecutor
      *
      * @return array<string, float|string>
      */
-    public function getVars() : array
+    public function getVars(): array
     {
         return $this->variables;
     }
@@ -499,9 +499,9 @@ class MathExecutor
     {
         if (!array_key_exists($variable, $this->variables)) {
             if ($this->onVarNotFound) {
-              return call_user_func($this->onVarNotFound, $variable);
+                return call_user_func($this->onVarNotFound, $variable);
             }
-          throw new UnknownVariableException("Variable ({$variable}) not set");
+            throw new UnknownVariableException("Variable ({$variable}) not set");
         }
         return $this->variables[$variable];
     }
@@ -513,7 +513,7 @@ class MathExecutor
      * @param  int|float $value
      * @return MathExecutor
      */
-    public function setVar(string $variable, $value) : self
+    public function setVar(string $variable, $value): self
     {
         if (!is_scalar($value) && $value !== null) {
             $type = gettype($value);
@@ -529,7 +529,7 @@ class MathExecutor
      *
      * @param  string $variable
      */
-    public function varExists(string $variable) : bool
+    public function varExists(string $variable): bool
     {
         return array_key_exists($variable, $this->variables);
     }
@@ -542,7 +542,7 @@ class MathExecutor
      * @return MathExecutor
      * @throws \Exception
      */
-    public function setVars(array $variables, bool $clear = true) : self
+    public function setVars(array $variables, bool $clear = true): self
     {
         if ($clear) {
             $this->removeVars();
@@ -573,7 +573,7 @@ class MathExecutor
      * @param  string $variable
      * @return MathExecutor
      */
-    public function removeVar(string $variable) : self
+    public function removeVar(string $variable): self
     {
         unset($this->variables[$variable]);
         return $this;
@@ -583,7 +583,7 @@ class MathExecutor
      * Remove all variables and the variable not found handler
      * @return MathExecutor
      */
-    public function removeVars() : self
+    public function removeVars(): self
     {
         $this->variables = [];
         $this->onVarNotFound = null;
@@ -606,7 +606,7 @@ class MathExecutor
      * @return array<string, CustomFunction> containing callback and places indexed by
      *         function name
      */
-    public function getFunctions() : array
+    public function getFunctions(): array
     {
         return $this->functions;
     }
@@ -616,7 +616,7 @@ class MathExecutor
      *
      * @return MathExecutor
      */
-    public function setDivisionByZeroIsZero() : self
+    public function setDivisionByZeroIsZero(): self
     {
         $this->addOperator(new Operator("/", false, 180, function ($a, $b) {
             if ($b == 0) {
@@ -631,7 +631,7 @@ class MathExecutor
      * Get cache array with tokens
      * @return array<string, Token[]>
      */
-    public function getCache() : array
+    public function getCache(): array
     {
         return $this->cache;
     }
@@ -639,7 +639,7 @@ class MathExecutor
     /**
      * Clear token's cache
      */
-    public function clearCache() : void
+    public function clearCache(): void
     {
         $this->cache = [];
     }

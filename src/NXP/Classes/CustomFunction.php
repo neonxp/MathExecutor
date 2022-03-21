@@ -1,6 +1,5 @@
 <?php
 
-
 namespace NXP\Classes;
 
 use NXP\Exception\IncorrectNumberOfFunctionParametersException;
@@ -49,7 +48,7 @@ class CustomFunction
      *
      * @throws IncorrectNumberOfFunctionParametersException
      */
-    public function execute(array &$stack) : Token
+    public function execute(array &$stack): Token
     {
         if (count($stack) < $this->places) {
             throw new IncorrectNumberOfFunctionParametersException($this->name);
