@@ -493,12 +493,15 @@ class MathExecutor
      *
      * @param  string $variable
      * @return integer|float
-     * @throws UnknownVariableException
+     * @throws UnknownVariableException if VarNotFoundHandler is not set
      */
     public function getVar(string $variable)
     {
         if (!array_key_exists($variable, $this->variables)) {
-            throw new UnknownVariableException("Variable ({$variable}) not set");
+            if ($this->onVarNotFound) {
+              return call_user_func($this->onVarNotFound, $variable);
+            }
+          throw new UnknownVariableException("Variable ({$variable}) not set");
         }
         return $this->variables[$variable];
     }

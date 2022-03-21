@@ -499,6 +499,15 @@ class MathTest extends TestCase
             }
         );
         $this->assertEquals(15, $calculator->execute('5 * undefined'));
+        $this->assertEquals(3, $calculator->getVar('undefined'));
+        $this->assertNull($calculator->getVar('Lucy'));
+    }
+
+    public function testGetVarException()
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(UnknownVariableException::class);
+        $this->assertNull($calculator->getVar('Lucy'));
     }
 
     public function testMinusZero()
