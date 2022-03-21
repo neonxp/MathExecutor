@@ -58,17 +58,17 @@ class MathTest extends TestCase
             ['(4*2) - 5'],
             ['4*-5'],
             ['4 * -5'],
-			['+5'],
-			['+(3+2)'],
-			['+(+3+2)'],
-			['+(-3+2)'],
-			['-5'],
-			['-(-5)'],
-			['-(+5)'],
-			['+(-5)'],
-			['+(+5)'],
-			['-(3+2)'],
-			['-(-3+-2)'],
+            ['+5'],
+            ['+(3+2)'],
+            ['+(+3+2)'],
+            ['+(-3+2)'],
+            ['-5'],
+            ['-(-5)'],
+            ['-(+5)'],
+            ['+(-5)'],
+            ['+(+5)'],
+            ['-(3+2)'],
+            ['-(-3+-2)'],
 
             ['abs(1.5)'],
             ['acos(0.15)'],
@@ -578,6 +578,15 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $this->expectException(MathExecutorException::class);
         $calculator->setVar('resource', tmpfile());
+    }
+
+    public function testVarExists()
+    {
+        $calculator = new MathExecutor();
+        $varName = 'Eythel';
+        $calculator->setVar($varName, 1);
+        $this->assertTrue($calculator->varExists($varName));
+        $this->assertFalse($calculator->varExists('Lucy'));
     }
 
     /**

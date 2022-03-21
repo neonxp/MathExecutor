@@ -522,6 +522,16 @@ class MathExecutor
     }
 
     /**
+     * Test to see if a variable exists
+     *
+     * @param  string $variable
+     */
+    public function varExists(string $variable) : bool
+    {
+        return array_key_exists($variable, $this->variables);
+    }
+
+    /**
      * Add variables to executor
      *
      * @param  array<string, float|int|string> $variables
