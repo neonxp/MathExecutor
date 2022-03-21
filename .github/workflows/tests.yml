@@ -35,7 +35,7 @@ jobs:
 
       - name: PHP CS Fixer
         if: matrix.os != 'windows-latest'
-        with:
+        steps:
           run: |
             vendor/bin/php-cs-fixer fix --dry-run -v ./src
             vendor/bin/php-cs-fixer fix --dry-run -v ./tests
