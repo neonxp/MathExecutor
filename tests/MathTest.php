@@ -58,17 +58,17 @@ class MathTest extends TestCase
             ['(4*2) - 5'],
             ['4*-5'],
             ['4 * -5'],
-			['+5'],
-			['+(3+2)'],
-			['+(+3+2)'],
-			['+(-3+2)'],
-			['-5'],
-			['-(-5)'],
-			['-(+5)'],
-			['+(-5)'],
-			['+(+5)'],
-			['-(3+2)'],
-			['-(-3+-2)'],
+            ['+5'],
+            ['+(3+2)'],
+            ['+(+3+2)'],
+            ['+(-3+2)'],
+            ['-5'],
+            ['-(-5)'],
+            ['-(+5)'],
+            ['+(-5)'],
+            ['+(+5)'],
+            ['-(3+2)'],
+            ['-(-3+-2)'],
 
             ['abs(1.5)'],
             ['acos(0.15)'],
@@ -499,6 +499,15 @@ class MathTest extends TestCase
             }
         );
         $this->assertEquals(15, $calculator->execute('5 * undefined'));
+        $this->assertEquals(3, $calculator->getVar('undefined'));
+        $this->assertNull($calculator->getVar('Lucy'));
+    }
+
+    public function testGetVarException()
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(UnknownVariableException::class);
+        $this->assertNull($calculator->getVar('Lucy'));
     }
 
     public function testMinusZero()
@@ -578,6 +587,15 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $this->expectException(MathExecutorException::class);
         $calculator->setVar('resource', tmpfile());
+    }
+
+    public function testVarExists()
+    {
+        $calculator = new MathExecutor();
+        $varName = 'Eythel';
+        $calculator->setVar($varName, 1);
+        $this->assertTrue($calculator->varExists($varName));
+        $this->assertFalse($calculator->varExists('Lucy'));
     }
 
     /**
@@ -662,8 +680,5 @@ class MathTest extends TestCase
 
         $this->assertEquals(2048, $calculator->execute('2 ^ 11', false));
         $this->assertEquals(0, count($calculator->getCache()));
-
-
     }
-
 }

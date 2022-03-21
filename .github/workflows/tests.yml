@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [8.1, 8.0, 7.4, 7.3]
+        php: [8.1, 8.0, 7.4]
         dependency-version: [prefer-lowest, prefer-stable]
         os: [ubuntu-latest, windows-latest]
 
@@ -34,7 +34,7 @@ jobs:
         run: vendor/bin/phpunit
 
       - name: PHP CS Fixer
-        uses: StephaneBour/actions-php-cs-fixer@1.0
         if: matrix.os != 'windows-latest'
-        with:
-          dir: './src'
+        run: |
+          vendor/bin/php-cs-fixer fix --dry-run -v ./src
+          vendor/bin/php-cs-fixer fix --dry-run -v ./tests

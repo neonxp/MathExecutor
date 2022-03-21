@@ -1,6 +1,5 @@
 <?php
 
-
 namespace NXP\Classes;
 
 use NXP\Exception\IncorrectExpressionException;
@@ -55,7 +54,7 @@ class Operator
      *
      * @throws IncorrectExpressionException
      */
-    public function execute(array &$stack) : Token
+    public function execute(array &$stack): Token
     {
         if (count($stack) < $this->places) {
             throw new IncorrectExpressionException();
