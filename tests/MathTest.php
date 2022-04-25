@@ -589,6 +589,21 @@ class MathTest extends TestCase
         $calculator->setVar('resource', tmpfile());
     }
 
+    public function testSetCustomVarValidator()
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVarValidationHandler(function ($name, $variable) {
+            if ($name === 'invalidVar' && $variable === 'invalid') {
+                throw new MathExecutorException("Invalid variable");
+            }
+        });
+
+        $calculator->setVar('valid', $this);
+
+        $this->expectException(MathExecutorException::class);
+        $calculator->setVar('invalidVar', 'invalid');
+    }
+
     public function testVarExists()
     {
         $calculator = new MathExecutor();
