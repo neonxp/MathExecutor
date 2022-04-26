@@ -22,10 +22,6 @@ class Operator
 
     /**
      * Operator constructor.
-     * @param string $operator
-     * @param bool $isRightAssoc
-     * @param int $priority
-     * @param callable $function
      */
     public function __construct(string $operator, bool $isRightAssoc, int $priority, callable $function)
     {
@@ -42,17 +38,18 @@ class Operator
      *
      * @throws IncorrectExpressionException
      */
-    public function execute(array &$stack): Token
+    public function execute(array &$stack) : Token
     {
-        if (count($stack) < $this->places) {
+        if (\count($stack) < $this->places) {
             throw new IncorrectExpressionException();
         }
         $args = [];
+
         for ($i = 0; $i < $this->places; $i++) {
-            array_unshift($args, array_pop($stack)->value);
+            \array_unshift($args, \array_pop($stack)->value);
         }
 
-        $result = call_user_func_array($this->function, $args);
+        $result = \call_user_func_array($this->function, $args);
 
         return new Token(Token::Literal, $result);
     }

@@ -19,8 +19,6 @@ class CustomFunction
 
     /**
      * CustomFunction constructor.
-     * @param string $name
-     * @param callable $function
      * @param int $places
      * @throws ReflectionException
      * @throws IncorrectNumberOfFunctionParametersException
@@ -29,7 +27,8 @@ class CustomFunction
     {
         $this->name = $name;
         $this->function = $function;
-        if ($places === null) {
+
+        if (null === $places) {
             $reflection = new ReflectionFunction($function);
             $this->places = $reflection->getNumberOfParameters();
         } else {
@@ -42,17 +41,18 @@ class CustomFunction
      *
      * @throws IncorrectNumberOfFunctionParametersException
      */
-    public function execute(array &$stack): Token
+    public function execute(array &$stack) : Token
     {
-        if (count($stack) < $this->places) {
+        if (\count($stack) < $this->places) {
             throw new IncorrectNumberOfFunctionParametersException($this->name);
         }
         $args = [];
+
         for ($i = 0; $i < $this->places; $i++) {
-            array_unshift($args, array_pop($stack)->value);
+            \array_unshift($args, \array_pop($stack)->value);
         }
 
-        $result = call_user_func_array($this->function, $args);
+        $result = \call_user_func_array($this->function, $args);
 
         return new Token(Token::Literal, $result);
     }
