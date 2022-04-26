@@ -20,21 +20,10 @@ use NXP\Exception\UnknownVariableException;
  */
 class Calculator
 {
-    /**
-     * @var CustomFunction[]
-     */
-    private $functions;
+    private array $functions = [];
 
-    /**
-     * @var Operator[]
-     */
-    private $operators;
+    private array $operators = [];
 
-    /**
-     * Calculator constructor.
-     * @param CustomFunction[] $functions
-     * @param Operator[] $operators
-     */
     public function __construct(array $functions, array $operators)
     {
         $this->functions = $functions;
@@ -45,46 +34,49 @@ class Calculator
      * Calculate array of tokens in reverse polish notation
      * @param Token[] $tokens
      * @param array<string, float|string> $variables
-     * @return mixed
      * @throws IncorrectExpressionException
      * @throws UnknownVariableException
      */
-    public function calculate(array $tokens, array $variables, callable $onVarNotFound = null)
+    public function calculate(array $tokens, array $variables, ?callable $onVarNotFound = null)
     {
         /** @var Token[] $stack */
         $stack = [];
+
         foreach ($tokens as $token) {
-            if ($token->type === Token::Literal || $token->type === Token::String) {
+            if (Token::Literal === $token->type || Token::String === $token->type) {
                 $stack[] = $token;
-            } elseif ($token->type === Token::Variable) {
+            } elseif (Token::Variable === $token->type) {
                 $variable = $token->value;
 
                 $value = null;
-                if (array_key_exists($variable, $variables)) {
+
+                if (\array_key_exists($variable, $variables)) {
                     $value = $variables[$variable];
                 } elseif ($onVarNotFound) {
-                    $value = call_user_func($onVarNotFound, $variable);
+                    $value = \call_user_func($onVarNotFound, $variable);
                 } else {
                     throw new UnknownVariableException($variable);
                 }
 
                 $stack[] = new Token(Token::Literal, $value, $variable);
-            } elseif ($token->type === Token::Function) {
-                if (!array_key_exists($token->value, $this->functions)) {
+            } elseif (Token::Function === $token->type) {
+                if (! \array_key_exists($token->value, $this->functions)) {
                     throw new UnknownFunctionException($token->value);
                 }
                 $stack[] = $this->functions[$token->value]->execute($stack);
-            } elseif ($token->type === Token::Operator) {
-                if (!array_key_exists($token->value, $this->operators)) {
+            } elseif (Token::Operator === $token->type) {
+                if (! \array_key_exists($token->value, $this->operators)) {
                     throw new UnknownOperatorException($token->value);
                 }
                 $stack[] = $this->operators[$token->value]->execute($stack);
             }
         }
-        $result = array_pop($stack);
-        if ($result === null || !empty($stack)) {
+        $result = \array_pop($stack);
+
+        if (null === $result || ! empty($stack)) {
             throw new IncorrectExpressionException('Stack must be empty');
         }
+
         return $result->value;
     }
 }
