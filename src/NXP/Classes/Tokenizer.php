@@ -20,44 +20,24 @@ use SplStack;
  */
 class Tokenizer
 {
-    /**
-     * @var Token[]
-     */
-    public $tokens = [];
-    /**
-     * @var string
-     */
-    private $input = '';
-    /**
-     * @var string
-     */
-    private $numberBuffer = '';
-    /**
-     * @var string
-     */
-    private $stringBuffer = '';
-    /**
-     * @var bool
-     */
-    private $allowNegative = true;
-    /**
-     * @var Operator[]
-     */
-    private $operators = [];
+    public array $tokens = [];
 
-    /**
-     * @var bool
-     */
-    private $inSingleQuotedString = false;
+    private string $input = '';
 
-    /**
-     * @var bool
-     */
-    private $inDoubleQuotedString = false;
+    private string $numberBuffer = '';
+
+    private string $stringBuffer = '';
+
+    private bool $allowNegative = true;
+
+    private array $operators = [];
+
+    private bool $inSingleQuotedString = false;
+
+    private bool $inDoubleQuotedString = false;
 
     /**
      * Tokenizer constructor.
-     * @param string $input
      * @param Operator[] $operators
      */
     public function __construct(string $input, array $operators)
@@ -66,109 +46,137 @@ class Tokenizer
         $this->operators = $operators;
     }
 
-    public function tokenize(): self
+    public function tokenize() : self
     {
-        foreach (str_split($this->input, 1) as $ch) {
+        foreach (\str_split($this->input, 1) as $ch) {
             switch (true) {
                 case $this->inSingleQuotedString:
-                    if ($ch === "'") {
+                    if ("'" === $ch) {
                         $this->tokens[] = new Token(Token::String, $this->stringBuffer);
                         $this->inSingleQuotedString = false;
                         $this->stringBuffer = '';
+
                         continue 2;
                     }
                     $this->stringBuffer .= $ch;
+
                     continue 2;
+
                 case $this->inDoubleQuotedString:
-                    if ($ch === '"') {
+                    if ('"' === $ch) {
                         $this->tokens[] = new Token(Token::String, $this->stringBuffer);
                         $this->inDoubleQuotedString = false;
                         $this->stringBuffer = '';
+
                         continue 2;
                     }
                     $this->stringBuffer .= $ch;
+
                     continue 2;
-                case $ch == ' ' || $ch == "\n" || $ch == "\r" || $ch == "\t":
+
+                case ' ' == $ch || "\n" == $ch || "\r" == $ch || "\t" == $ch:
                     $this->tokens[] = new Token(Token::Space, '');
+
                     continue 2;
+
                 case $this->isNumber($ch):
-                    if ($this->stringBuffer != '') {
+                    if ('' != $this->stringBuffer) {
                         $this->stringBuffer .= $ch;
+
                         continue 2;
                     }
                     $this->numberBuffer .= $ch;
                     $this->allowNegative = false;
+
                     break;
                 /** @noinspection PhpMissingBreakStatementInspection */
-                case strtolower($ch) === 'e':
-                    if (strlen($this->numberBuffer) && strpos($this->numberBuffer, '.') !== false) {
+                case 'e' === \strtolower($ch):
+                    if (\strlen($this->numberBuffer) && false !== \strpos($this->numberBuffer, '.')) {
                         $this->numberBuffer .= 'e';
                         $this->allowNegative = false;
+
                         break;
                     }
                     // no break
+                    // Intentionally fall through
                 case $this->isAlpha($ch):
-                    if (strlen($this->numberBuffer)) {
+                    if (\strlen($this->numberBuffer)) {
                         $this->emptyNumberBufferAsLiteral();
                         $this->tokens[] = new Token(Token::Operator, '*');
                     }
                     $this->allowNegative = false;
                     $this->stringBuffer .= $ch;
+
                     break;
-                case $ch == '"':
+
+                case '"' == $ch:
                     $this->inDoubleQuotedString = true;
+
                     continue 2;
-                case $ch == "'":
+
+                case "'" == $ch:
                     $this->inSingleQuotedString = true;
+
                     continue 2;
 
                 case $this->isDot($ch):
                     $this->numberBuffer .= $ch;
                     $this->allowNegative = false;
+
                     break;
+
                 case $this->isLP($ch):
-                    if ($this->stringBuffer != '') {
+                    if ('' != $this->stringBuffer) {
                         $this->tokens[] = new Token(Token::Function, $this->stringBuffer);
                         $this->stringBuffer = '';
-                    } elseif (strlen($this->numberBuffer)) {
+                    } elseif (\strlen($this->numberBuffer)) {
                         $this->emptyNumberBufferAsLiteral();
                         $this->tokens[] = new Token(Token::Operator, '*');
                     }
                     $this->allowNegative = true;
                     $this->tokens[] = new Token(Token::LeftParenthesis, '');
+
                     break;
+
                 case $this->isRP($ch):
                     $this->emptyNumberBufferAsLiteral();
                     $this->emptyStrBufferAsVariable();
                     $this->allowNegative = false;
                     $this->tokens[] = new Token(Token::RightParenthesis, '');
+
                     break;
+
                 case $this->isComma($ch):
                     $this->emptyNumberBufferAsLiteral();
                     $this->emptyStrBufferAsVariable();
                     $this->allowNegative = true;
                     $this->tokens[] = new Token(Token::ParamSeparator, '');
+
                     break;
+
                 default:
                     // special case for unary operations
-                    if ($ch == '-' || $ch == '+') {
+                    if ('-' == $ch || '+' == $ch) {
                         if ($this->allowNegative) {
                             $this->allowNegative = false;
-                            $this->tokens[] = new Token(Token::Operator, $ch == '-' ? 'uNeg' : 'uPos');
+                            $this->tokens[] = new Token(Token::Operator, '-' == $ch ? 'uNeg' : 'uPos');
+
                             continue 2;
                         }
                         // could be in exponent, in which case negative should be added to the numberBuffer
-                        if ($this->numberBuffer && $this->numberBuffer[strlen($this->numberBuffer) - 1] == 'e') {
+                        if ($this->numberBuffer && 'e' == $this->numberBuffer[\strlen($this->numberBuffer) - 1]) {
                             $this->numberBuffer .= $ch;
+
                             continue 2;
                         }
                     }
                     $this->emptyNumberBufferAsLiteral();
                     $this->emptyStrBufferAsVariable();
-                    if ($ch != '$') {
-                        if (count($this->tokens) > 0) {
-                            if ($this->tokens[count($this->tokens) - 1]->type === Token::Operator) {
-                                $this->tokens[count($this->tokens) - 1]->value .= $ch;
+
+                    if ('$' != $ch) {
+                        if (\count($this->tokens) > 0) {
+                            if (Token::Operator === $this->tokens[\count($this->tokens) - 1]->type) {
+                                $this->tokens[\count($this->tokens) - 1]->value .= $ch;
                             } else {
                                 $this->tokens[] = new Token(Token::Operator, $ch);
                             }
@@ -181,107 +189,76 @@ class Tokenizer
         }
         $this->emptyNumberBufferAsLiteral();
         $this->emptyStrBufferAsVariable();
+
         return $this;
     }
 
-    private function isNumber(string $ch): bool
-    {
-        return $ch >= '0' && $ch <= '9';
-    }
-
-    private function isAlpha(string $ch): bool
-    {
-        return $ch >= 'a' && $ch <= 'z' || $ch >= 'A' && $ch <= 'Z' || $ch == '_';
-    }
-
-    private function emptyNumberBufferAsLiteral(): void
-    {
-        if (strlen($this->numberBuffer)) {
-            $this->tokens[] = new Token(Token::Literal, $this->numberBuffer);
-            $this->numberBuffer = '';
-        }
-    }
-
-    private function isDot(string $ch): bool
-    {
-        return $ch == '.';
-    }
-
-    private function isLP(string $ch): bool
-    {
-        return $ch == '(';
-    }
-
-    private function isRP(string $ch): bool
-    {
-        return $ch == ')';
-    }
-
-    private function emptyStrBufferAsVariable(): void
-    {
-        if ($this->stringBuffer != '') {
-            $this->tokens[] = new Token(Token::Variable, $this->stringBuffer);
-            $this->stringBuffer = '';
-        }
-    }
-
-    private function isComma(string $ch): bool
-    {
-        return $ch == ',';
-    }
-
     /**
-     * @return Token[] Array of tokens in revers polish notation
      * @throws IncorrectBracketsException
      * @throws UnknownOperatorException
+     * @return Token[] Array of tokens in revers polish notation
      */
-    public function buildReversePolishNotation(): array
+    public function buildReversePolishNotation() : array
     {
         $tokens = [];
         /** @var SplStack<Token> $stack */
         $stack = new SplStack();
+
         foreach ($this->tokens as $token) {
             switch ($token->type) {
                 case Token::Literal:
                 case Token::Variable:
                 case Token::String:
                     $tokens[] = $token;
+
                     break;
+
                 case Token::Function:
                 case Token::LeftParenthesis:
                     $stack->push($token);
+
                     break;
+
                 case Token::ParamSeparator:
-                    while ($stack->top()->type !== Token::LeftParenthesis) {
-                        if ($stack->count() === 0) {
+                    while (Token::LeftParenthesis !== $stack->top()->type) {
+                        if (0 === $stack->count()) {
                             throw new IncorrectBracketsException();
                         }
                         $tokens[] = $stack->pop();
                     }
+
                     break;
+
                 case Token::Operator:
-                    if (!array_key_exists($token->value, $this->operators)) {
+                    if (! \array_key_exists($token->value, $this->operators)) {
                         throw new UnknownOperatorException($token->value);
                     }
                     $op1 = $this->operators[$token->value];
-                    while ($stack->count() > 0 && $stack->top()->type === Token::Operator) {
-                        if (!array_key_exists($stack->top()->value, $this->operators)) {
+
+                    while ($stack->count() > 0 && Token::Operator === $stack->top()->type) {
+                        if (! \array_key_exists($stack->top()->value, $this->operators)) {
                             throw new UnknownOperatorException($stack->top()->value);
                         }
                         $op2 = $this->operators[$stack->top()->value];
+
                         if ($op2->priority >= $op1->priority) {
                             $tokens[] = $stack->pop();
+
                             continue;
                         }
+
                         break;
                     }
                     $stack->push($token);
+
                     break;
+
                 case Token::RightParenthesis:
                     while (true) {
                         try {
                             $ctoken = $stack->pop();
-                            if ($ctoken->type === Token::LeftParenthesis) {
+
+                            if (Token::LeftParenthesis === $ctoken->type) {
                                 break;
                             }
                             $tokens[] = $ctoken;
@@ -289,24 +266,77 @@ class Tokenizer
                             throw new IncorrectBracketsException();
                         }
                     }
-                    if ($stack->count() > 0 && $stack->top()->type == Token::Function) {
+
+                    if ($stack->count() > 0 && Token::Function == $stack->top()->type) {
                         $tokens[] = $stack->pop();
                     }
+
                     break;
+
                 case Token::Space:
                     //do nothing
             }
         }
-        while ($stack->count() !== 0) {
-            if ($stack->top()->type === Token::LeftParenthesis || $stack->top()->type === Token::RightParenthesis) {
+
+        while (0 !== $stack->count()) {
+            if (Token::LeftParenthesis === $stack->top()->type || Token::RightParenthesis === $stack->top()->type) {
                 throw new IncorrectBracketsException();
             }
-            if ($stack->top()->type === Token::Space) {
+
+            if (Token::Space === $stack->top()->type) {
                 $stack->pop();
+
                 continue;
             }
             $tokens[] = $stack->pop();
         }
+
         return $tokens;
+    }
+
+    private function isNumber(string $ch) : bool
+    {
+        return $ch >= '0' && $ch <= '9';
+    }
+
+    private function isAlpha(string $ch) : bool
+    {
+        return $ch >= 'a' && $ch <= 'z' || $ch >= 'A' && $ch <= 'Z' || '_' == $ch;
+    }
+
+    private function emptyNumberBufferAsLiteral() : void
+    {
+        if (\strlen($this->numberBuffer)) {
+            $this->tokens[] = new Token(Token::Literal, $this->numberBuffer);
+            $this->numberBuffer = '';
+        }
+    }
+
+    private function isDot(string $ch) : bool
+    {
+        return '.' == $ch;
+    }
+
+    private function isLP(string $ch) : bool
+    {
+        return '(' == $ch;
+    }
+
+    private function isRP(string $ch) : bool
+    {
+        return ')' == $ch;
+    }
+
+    private function emptyStrBufferAsVariable() : void
+    {
+        if ('' != $this->stringBuffer) {
+            $this->tokens[] = new Token(Token::Variable, $this->stringBuffer);
+            $this->stringBuffer = '';
+        }
+    }
+
+    private function isComma(string $ch) : bool
+    {
+        return ',' == $ch;
     }
 }
