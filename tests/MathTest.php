@@ -575,6 +575,9 @@ class MathTest extends TestCase
         $this->assertEquals(null, $calculator->getVar('null'));
         $this->assertEquals(1.1, $calculator->getVar('float'));
         $this->assertEquals('string', $calculator->getVar('string'));
+
+        $this->expectException(MathExecutorException::class);
+        $calculator->setVar('validVar', new \DateTime());
     }
 
     public function testSetVarsDoesNotAcceptObject() : void
@@ -594,16 +597,49 @@ class MathTest extends TestCase
     public function testSetCustomVarValidator() : void
     {
         $calculator = new MathExecutor();
-        $calculator->setVarValidationHandler(static function($name, $variable) : void {
-            if ('invalidVar' === $name && 'invalid' === $variable) {
-                throw new MathExecutorException('Invalid variable');
+        $calculator->setVarValidationHandler(static function(string $name, $variable) : void {
+            // allow all scalars and null
+            if (\is_scalar($variable) || null === $variable) {
+                return;
+            }
+            // Allow variables of type DateTime, but not others
+            if (! $variable instanceof \DateTime) {
+                throw new MathExecutorException('Invalid variable type');
             }
         });
 
-        $calculator->setVar('valid', $this);
+        $calculator->setVar('validFloat', 0.0);
+        $calculator->setVar('validInt', 0);
+        $calculator->setVar('validTrue', true);
+        $calculator->setVar('validFalse', false);
+        $calculator->setVar('validString', 'string');
+        $calculator->setVar('validNull', null);
+        $calculator->setVar('validDateTime', new \DateTime());
 
         $this->expectException(MathExecutorException::class);
-        $calculator->setVar('invalidVar', 'invalid');
+        $calculator->setVar('validVar', $this);
+    }
+
+    public function testSetCustomVarNameValidator() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVarValidationHandler(static function(string $name, $variable) : void {
+            // don't allow variable names with the word invalid in them
+            if (\str_contains($name, 'invalid')) {
+                throw new MathExecutorException('Invalid variable name');
+            }
+        });
+
+        $calculator->setVar('validFloat', 0.0);
+        $calculator->setVar('validInt', 0);
+        $calculator->setVar('validTrue', true);
+        $calculator->setVar('validFalse', false);
+        $calculator->setVar('validString', 'string');
+        $calculator->setVar('validNull', null);
+        $calculator->setVar('validDateTime', new \DateTime());
+
+        $this->expectException(MathExecutorException::class);
+        $calculator->setVar('invalidVar', 12);
     }
 
     public function testVarExists() : void
