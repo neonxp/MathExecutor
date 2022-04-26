@@ -9,6 +9,7 @@
 * Conditional If logic
 * Support for user defined operators
 * Support for user defined functions
+* Support for math on user defined objects
 * Dynamic variable resolution (delayed computation)
 * Unlimited variable name lengths
 * String support, as function parameters or as evaluated as a number by PHP
@@ -136,6 +137,21 @@ You can add your own variables to executor:
 $executor->setVar('var1', 0.15)->setVar('var2', 0.22);
 
 echo $executor->execute("$var1 + var2");
+```
+
+By default, variables must be scalar values (int, float, bool or string).  If you would like to support another type, use **setVarValidationHandler**
+
+```php
+$executor->setVarValidationHandler(function (string $name, $variable) {
+		// allow all scalars and null
+		if (is_scalar($variable) || $variable === null) {
+				return;
+		}
+		// Allow variables of type DateTime, but not others
+		if (! $variable instanceof \DateTime) {
+				throw new MathExecutorException("Invalid variable type");
+		}
+});
 ```
 
 You can dynamically define variables at run time. If a variable has a high computation cost, but might not be used, then you can define an undefined variable handler. It will only get called when the variable is used, rather than having to always set it initially.
