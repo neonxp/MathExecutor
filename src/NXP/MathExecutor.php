@@ -31,7 +31,7 @@ class MathExecutor
      *
      * @var array<string, float|string>
      */
-    protected $variables = [];
+    protected array $variables = [];
 
     /**
      * @var callable|null
@@ -46,17 +46,17 @@ class MathExecutor
     /**
      * @var Operator[]
      */
-    protected $operators = [];
+    protected array $operators = [];
 
     /**
      * @var array<string, CustomFunction>
      */
-    protected $functions = [];
+    protected array $functions = [];
 
     /**
      * @var array<string, Token[]>
      */
-    protected $cache = [];
+    protected array $cache = [];
 
     /**
      * Base math operators

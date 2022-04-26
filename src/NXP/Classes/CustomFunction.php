@@ -8,20 +8,14 @@ use ReflectionFunction;
 
 class CustomFunction
 {
-    /**
-     * @var string
-     */
-    public $name;
+    public string $name = '';
 
     /**
      * @var callable $function
      */
     public $function;
 
-    /**
-     * @var int
-     */
-    public $places;
+    public int $places = 0;
 
     /**
      * CustomFunction constructor.

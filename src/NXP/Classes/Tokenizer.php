@@ -20,40 +20,21 @@ use SplStack;
  */
 class Tokenizer
 {
-    /**
-     * @var Token[]
-     */
-    public $tokens = [];
-    /**
-     * @var string
-     */
-    private $input = '';
-    /**
-     * @var string
-     */
-    private $numberBuffer = '';
-    /**
-     * @var string
-     */
-    private $stringBuffer = '';
-    /**
-     * @var bool
-     */
-    private $allowNegative = true;
-    /**
-     * @var Operator[]
-     */
-    private $operators = [];
+    public array $tokens = [];
 
-    /**
-     * @var bool
-     */
-    private $inSingleQuotedString = false;
+	private string $input = '';
 
-    /**
-     * @var bool
-     */
-    private $inDoubleQuotedString = false;
+    private string $numberBuffer = '';
+
+	private string $stringBuffer = '';
+
+	private bool $allowNegative = true;
+
+	private array $operators = [];
+
+    private bool $inSingleQuotedString = false;
+
+    private bool $inDoubleQuotedString = false;
 
     /**
      * Tokenizer constructor.

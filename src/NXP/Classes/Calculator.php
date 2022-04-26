@@ -20,21 +20,10 @@ use NXP\Exception\UnknownVariableException;
  */
 class Calculator
 {
-    /**
-     * @var CustomFunction[]
-     */
-    private $functions;
+    private array $functions = [];
 
-    /**
-     * @var Operator[]
-     */
-    private $operators;
+    private array $operators = [];
 
-    /**
-     * Calculator constructor.
-     * @param CustomFunction[] $functions
-     * @param Operator[] $operators
-     */
     public function __construct(array $functions, array $operators)
     {
         $this->functions = $functions;

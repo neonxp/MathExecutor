@@ -14,19 +14,16 @@ class Token
     public const String = "string";
     public const Space = "space";
 
-    /** @var self::* */
-    public $type = self::Literal;
+    public string $type = self::Literal;
 
-    /** @var float|string */
+		/** @var mixed */
     public $value;
 
-    /** @var string */
-    public $name;
+    public ?string $name;
 
     /**
      * Token constructor.
-     * @param self::* $type
-     * @param float|string $value
+     * @param mixed $value
      */
     public function __construct(string $type, $value, string $name = null)
     {

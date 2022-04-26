@@ -7,30 +7,18 @@ use ReflectionFunction;
 
 class Operator
 {
-    /**
-     * @var string
-     */
-    public $operator;
+    public string $operator = '';
 
-    /**
-     * @var bool
-     */
-    public $isRightAssoc;
+    public bool $isRightAssoc = false;
 
-    /**
-     * @var int
-     */
-    public $priority;
+    public int $priority = 0;
 
     /**
      * @var callable(\SplStack)
      */
     public $function;
 
-    /**
-     * @var int
-     */
-    public $places;
+    public int $places = 0;
 
     /**
      * Operator constructor.
