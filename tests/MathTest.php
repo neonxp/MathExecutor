@@ -620,32 +620,6 @@ class MathTest extends TestCase
         $calculator->setVar('validVar', $this);
     }
 
-    public function testSetCustomVarValidator() : void
-    {
-        $calculator = new MathExecutor();
-        $calculator->setVarValidationHandler(static function(string $name, $variable) : void {
-            // allow all scalars and null
-            if (\is_scalar($variable) || null === $variable) {
-                return;
-            }
-            // Allow variables of type DateTime, but not others
-            if (! $variable instanceof \DateTime) {
-                throw new MathExecutorException('Invalid variable type');
-            }
-        });
-
-        $calculator->setVar('validFloat', 0.0);
-        $calculator->setVar('validInt', 0);
-        $calculator->setVar('validTrue', true);
-        $calculator->setVar('validFalse', false);
-        $calculator->setVar('validString', 'string');
-        $calculator->setVar('validNull', null);
-        $calculator->setVar('validDateTime', new \DateTime());
-
-        $this->expectException(MathExecutorException::class);
-        $calculator->setVar('validVar', $this);
-    }
-
     public function testSetCustomVarNameValidator() : void
     {
         $calculator = new MathExecutor();
