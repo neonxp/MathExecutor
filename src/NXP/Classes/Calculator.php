@@ -20,10 +20,18 @@ use NXP\Exception\UnknownVariableException;
  */
 class Calculator
 {
+    /** @var array<string, CustomFunction>  */
     private array $functions = [];
 
+    /** @var array<Operator>  */
     private array $operators = [];
 
+    /**
+     * @todo PHP8: Use constructor property promotion -> public function __construct(private array $functions, private array $operators)
+     *
+     * @param array<string, CustomFunction> $functions
+     * @param array<Operator> $operators
+     */
     public function __construct(array $functions, array $operators)
     {
         $this->functions = $functions;
@@ -32,10 +40,13 @@ class Calculator
 
     /**
      * Calculate array of tokens in reverse polish notation
-     * @param Token[] $tokens
+     *
+     * @param Token[]                     $tokens
      * @param array<string, float|string> $variables
-     * @throws IncorrectExpressionException
+     *
      * @throws UnknownVariableException
+     * @throws IncorrectExpressionException
+     * @return int|float|string|null
      */
     public function calculate(array $tokens, array $variables, ?callable $onVarNotFound = null)
     {

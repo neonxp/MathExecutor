@@ -90,7 +90,7 @@ class MathExecutor
      * @throws Exception\IncorrectExpressionException
      * @throws Exception\UnknownOperatorException
      * @throws UnknownVariableException
-     * @return number
+     * @return int|float|string|null
      */
     public function execute(string $expression, bool $cache = true)
     {
@@ -114,9 +114,11 @@ class MathExecutor
     /**
      * Add function to executor
      *
-     * @param string $name Name of function
-     * @param callable $function Function
-     * @param int $places Count of arguments
+     * @param string        $name     Name of function
+     * @param callable|null $function Function
+     * @param int|null      $places   Count of arguments
+     *
+     * @throws Exception\IncorrectNumberOfFunctionParametersException
      * @throws ReflectionException
      * @return MathExecutor
      */
@@ -159,7 +161,7 @@ class MathExecutor
     /**
      * Add variable to executor. To set a custom validator use setVarValidationHandler.
      *
-     * @param  $value
+     * @param mixed $value
      * @throws MathExecutorException if the value is invalid based on the default or custom validator
      * @return MathExecutor
      */
@@ -281,18 +283,10 @@ class MathExecutor
 
     /**
      * Set division by zero returns zero instead of throwing DivisionByZeroException
-     *
-     * @return MathExecutor
      */
     public function setDivisionByZeroIsZero() : self
     {
-        $this->addOperator(new Operator('/', false, 180, static function($a, $b) {
-            if (0 == $b) {
-                return 0;
-            }
-
-            return $a / $b;
-        }));
+        $this->addOperator(new Operator('/', false, 180, static fn($a, $b) => 0 == $b ? 0 : $a / $b));
 
         return $this;
     }
@@ -341,43 +335,15 @@ class MathExecutor
     protected function defaultOperators() : array
     {
         return [
-          '+' => [
-            static function($a, $b) {
-                return $a + $b;
-            },
-            170,
-            false
-          ],
-          '-' => [
-            static function($a, $b) {
-                return $a - $b;
-            },
-            170,
-            false
-          ],
-          'uPos' => [ // unary positive token
-            static function($a) {
-                return $a;
-            },
-            200,
-            false
-          ],
-          'uNeg' => [ // unary minus token
-            static function($a) {
-                return 0 - $a;
-            },
-            200,
-            false
-          ],
-          '*' => [
-            static function($a, $b) {
-                return $a * $b;
-            },
-            180,
-            false
-          ],
+          '+' => [static fn($a, $b) => $a + $b, 170, false],
+          '-' => [static fn($a, $b) => $a - $b, 170, false],
+          // unary positive token
+          'uPos' => [static fn($a) => $a, 200, false],
+          // unary minus token
+          'uNeg' => [static fn($a) => 0 - $a, 200, false],
+          '*' => [static fn($a, $b) => $a * $b, 180, false],
           '/' => [
-            static function($a, $b) {
+            static function($a, $b) { /** @todo PHP8: Use throw as expression -> static fn($a, $b) => 0 == $b ? throw new DivisionByZeroException() : $a / $b */
                 if (0 == $b) {
                     throw new DivisionByZeroException();
                 }
@@ -387,79 +353,15 @@ class MathExecutor
             180,
             false
           ],
-          '^' => [
-            static function($a, $b) {
-                return \pow($a, $b);
-            },
-            220,
-            true
-          ],
-          '&&' => [
-            static function($a, $b) {
-                return $a && $b;
-            },
-            100,
-            false
-          ],
-          '||' => [
-            static function($a, $b) {
-                return $a || $b;
-            },
-            90,
-            false
-          ],
-          '==' => [
-            static function($a, $b) {
-                if (\is_string($a) || \is_string($b)) {
-                    return 0 == \strcmp($a, $b);
-                }
-
-                    return $a == $b;
-
-            },
-            140,
-            false
-          ],
-          '!=' => [
-            static function($a, $b) {
-                if (\is_string($a) || \is_string($b)) {
-                    return 0 != \strcmp($a, $b);
-                }
-
-                    return $a != $b;
-
-            },
-            140,
-            false
-          ],
-          '>=' => [
-            static function($a, $b) {
-                return $a >= $b;
-            },
-            150,
-            false
-          ],
-          '>' => [
-            static function($a, $b) {
-                return $a > $b;
-            },
-            150,
-            false
-          ],
-          '<=' => [
-            static function($a, $b) {
-                return $a <= $b;
-            },
-            150,
-            false
-          ],
-          '<' => [
-            static function($a, $b) {
-                return $a < $b;
-            },
-            150,
-            false
-          ],
+          '^' => [static fn($a, $b) => \pow($a, $b), 220, true],
+          '&&' => [static fn($a, $b) => $a && $b, 100, false],
+          '||' => [static fn($a, $b) => $a || $b, 90, false],
+          '==' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 == \strcmp($a, $b) : $a == $b, 140, false],
+          '!=' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 != \strcmp($a, $b) : $a != $b, 140, false],
+          '>=' => [static fn($a, $b) => $a >= $b, 150, false],
+          '>' => [static fn($a, $b) => $a > $b, 150, false],
+          '<=' => [static fn($a, $b) => $a <= $b, 150, false],
+          '<' => [static fn($a, $b) => $a < $b, 150, false],
         ];
     }
 
@@ -472,126 +374,46 @@ class MathExecutor
     protected function defaultFunctions() : array
     {
         return [
-          'abs' => static function($arg) {
-              return \abs($arg);
-          },
-          'acos' => static function($arg) {
-              return \acos($arg);
-          },
-          'acosh' => static function($arg) {
-              return \acosh($arg);
-          },
-          'arcsin' => static function($arg) {
-              return \asin($arg);
-          },
-          'arcctg' => static function($arg) {
-              return M_PI / 2 - \atan($arg);
-          },
-          'arccot' => static function($arg) {
-              return M_PI / 2 - \atan($arg);
-          },
-          'arccotan' => static function($arg) {
-              return M_PI / 2 - \atan($arg);
-          },
-          'arcsec' => static function($arg) {
-              return \acos(1 / $arg);
-          },
-          'arccosec' => static function($arg) {
-              return \asin(1 / $arg);
-          },
-          'arccsc' => static function($arg) {
-              return \asin(1 / $arg);
-          },
-          'arccos' => static function($arg) {
-              return \acos($arg);
-          },
-          'arctan' => static function($arg) {
-              return \atan($arg);
-          },
-          'arctg' => static function($arg) {
-              return \atan($arg);
-          },
-          'asin' => static function($arg) {
-              return \asin($arg);
-          },
-          'atan' => static function($arg) {
-              return \atan($arg);
-          },
-          'atan2' => static function($arg1, $arg2) {
-              return \atan2($arg1, $arg2);
-          },
-          'atanh' => static function($arg) {
-              return \atanh($arg);
-          },
-          'atn' => static function($arg) {
-              return \atan($arg);
-          },
-          'avg' => static function($arg1, $arg2) {
-              return ($arg1 + $arg2) / 2;
-          },
-          'bindec' => static function($arg) {
-              return \bindec($arg);
-          },
-          'ceil' => static function($arg) {
-              return \ceil($arg);
-          },
-          'cos' => static function($arg) {
-              return \cos($arg);
-          },
-          'cosec' => static function($arg) {
-              return 1 / \sin($arg);
-          },
-          'csc' => static function($arg) {
-              return 1 / \sin($arg);
-          },
-          'cosh' => static function($arg) {
-              return \cosh($arg);
-          },
-          'ctg' => static function($arg) {
-              return \cos($arg) / \sin($arg);
-          },
-          'cot' => static function($arg) {
-              return \cos($arg) / \sin($arg);
-          },
-          'cotan' => static function($arg) {
-              return \cos($arg) / \sin($arg);
-          },
-          'cotg' => static function($arg) {
-              return \cos($arg) / \sin($arg);
-          },
-          'ctn' => static function($arg) {
-              return \cos($arg) / \sin($arg);
-          },
-          'decbin' => static function($arg) {
-              return \decbin($arg);
-          },
-          'dechex' => static function($arg) {
-              return \dechex($arg);
-          },
-          'decoct' => static function($arg) {
-              return \decoct($arg);
-          },
-          'deg2rad' => static function($arg) {
-              return \deg2rad($arg);
-          },
-          'exp' => static function($arg) {
-              return \exp($arg);
-          },
-          'expm1' => static function($arg) {
-              return \expm1($arg);
-          },
-          'floor' => static function($arg) {
-              return \floor($arg);
-          },
-          'fmod' => static function($arg1, $arg2) {
-              return \fmod($arg1, $arg2);
-          },
-          'hexdec' => static function($arg) {
-              return \hexdec($arg);
-          },
-          'hypot' => static function($arg1, $arg2) {
-              return \hypot($arg1, $arg2);
-          },
+          'abs' => static fn($arg) => \abs($arg),
+          'acos' => static fn($arg) => \acos($arg),
+          'acosh' => static fn($arg) => \acosh($arg),
+          'arcsin' => static fn($arg) => \asin($arg),
+          'arcctg' => static fn($arg) => M_PI / 2 - \atan($arg),
+          'arccot' => static fn($arg) => M_PI / 2 - \atan($arg),
+          'arccotan' => static fn($arg) => M_PI / 2 - \atan($arg),
+          'arcsec' => static fn($arg) => \acos(1 / $arg),
+          'arccosec' => static fn($arg) => \asin(1 / $arg),
+          'arccsc' => static fn($arg) => \asin(1 / $arg),
+          'arccos' => static fn($arg) => \acos($arg),
+          'arctan' => static fn($arg) => \atan($arg),
+          'arctg' => static fn($arg) => \atan($arg),
+          'asin' => static fn($arg) => \asin($arg),
+          'atan' => static fn($arg) => \atan($arg),
+          'atan2' => static fn($arg1, $arg2) => \atan2($arg1, $arg2),
+          'atanh' => static fn($arg) => \atanh($arg),
+          'atn' => static fn($arg) => \atan($arg),
+          'avg' => static fn($arg1, $arg2) => ($arg1 + $arg2) / 2,
+          'bindec' => static fn($arg) => \bindec($arg),
+          'ceil' => static fn($arg) => \ceil($arg),
+          'cos' => static fn($arg) => \cos($arg),
+          'cosec' => static fn($arg) => 1 / \sin($arg),
+          'csc' => static fn($arg) => 1 / \sin($arg),
+          'cosh' => static fn($arg) => \cosh($arg),
+          'ctg' => static fn($arg) => \cos($arg) / \sin($arg),
+          'cot' => static fn($arg) => \cos($arg) / \sin($arg),
+          'cotan' => static fn($arg) => \cos($arg) / \sin($arg),
+          'cotg' => static fn($arg) => \cos($arg) / \sin($arg),
+          'ctn' => static fn($arg) => \cos($arg) / \sin($arg),
+          'decbin' => static fn($arg) => \decbin($arg),
+          'dechex' => static fn($arg) => \dechex($arg),
+          'decoct' => static fn($arg) => \decoct($arg),
+          'deg2rad' => static fn($arg) => \deg2rad($arg),
+          'exp' => static fn($arg) => \exp($arg),
+          'expm1' => static fn($arg) => \expm1($arg),
+          'floor' => static fn($arg) => \floor($arg),
+          'fmod' => static fn($arg1, $arg2) => \fmod($arg1, $arg2),
+          'hexdec' => static fn($arg) => \hexdec($arg),
+          'hypot' => static fn($arg1, $arg2) => \hypot($arg1, $arg2),
           'if' => function($expr, $trueval, $falseval) {
               if (true === $expr || false === $expr) {
                   $exres = $expr;
@@ -603,72 +425,29 @@ class MathExecutor
                   return $this->execute($trueval);
               }
 
-                  return $this->execute($falseval);
-
+              return $this->execute($falseval);
           },
-          'intdiv' => static function($arg1, $arg2) {
-              return \intdiv($arg1, $arg2);
-          },
-          'ln' => static function($arg) {
-              return \log($arg);
-          },
-          'lg' => static function($arg) {
-              return \log10($arg);
-          },
-          'log' => static function($arg) {
-              return \log($arg);
-          },
-          'log10' => static function($arg) {
-              return \log10($arg);
-          },
-          'log1p' => static function($arg) {
-              return \log1p($arg);
-          },
-          'max' => static function($arg1, $arg2) {
-              return \max($arg1, $arg2);
-          },
-          'min' => static function($arg1, $arg2) {
-              return \min($arg1, $arg2);
-          },
-          'octdec' => static function($arg) {
-              return \octdec($arg);
-          },
-          'pi' => static function() {
-              return M_PI;
-          },
-          'pow' => static function($arg1, $arg2) {
-              return $arg1 ** $arg2;
-          },
-          'rad2deg' => static function($arg) {
-              return \rad2deg($arg);
-          },
-          'round' => static function($arg) {
-              return \round($arg);
-          },
-          'sin' => static function($arg) {
-              return \sin($arg);
-          },
-          'sinh' => static function($arg) {
-              return \sinh($arg);
-          },
-          'sec' => static function($arg) {
-              return 1 / \cos($arg);
-          },
-          'sqrt' => static function($arg) {
-              return \sqrt($arg);
-          },
-          'tan' => static function($arg) {
-              return \tan($arg);
-          },
-          'tanh' => static function($arg) {
-              return \tanh($arg);
-          },
-          'tn' => static function($arg) {
-              return \tan($arg);
-          },
-          'tg' => static function($arg) {
-              return \tan($arg);
-          }
+          'intdiv' => static fn($arg1, $arg2) => \intdiv($arg1, $arg2),
+          'ln' => static fn($arg) => \log($arg),
+          'lg' => static fn($arg) => \log10($arg),
+          'log' => static fn($arg) => \log($arg),
+          'log10' => static fn($arg) => \log10($arg),
+          'log1p' => static fn($arg) => \log1p($arg),
+          'max' => static fn($arg1, $arg2) => \max($arg1, $arg2),
+          'min' => static fn($arg1, $arg2) => \min($arg1, $arg2),
+          'octdec' => static fn($arg) => \octdec($arg),
+          'pi' => static fn() => M_PI,
+          'pow' => static fn($arg1, $arg2) => $arg1 ** $arg2,
+          'rad2deg' => static fn($arg) => \rad2deg($arg),
+          'round' => static fn($arg) => \round($arg),
+          'sin' => static fn($arg) => \sin($arg),
+          'sinh' => static fn($arg) => \sinh($arg),
+          'sec' => static fn($arg) => 1 / \cos($arg),
+          'sqrt' => static fn($arg) => \sqrt($arg),
+          'tan' => static fn($arg) => \tan($arg),
+          'tanh' => static fn($arg) => \tanh($arg),
+          'tn' => static fn($arg) => \tan($arg),
+          'tg' => static fn($arg) => \tan($arg)
         ];
     }
 
@@ -687,7 +466,7 @@ class MathExecutor
 
     /**
      * Default variable validation, ensures that the value is a scalar.
-     * @param $value
+     * @param mixed $value
      * @throws MathExecutorException if the value is not a scalar
      */
     protected function defaultVarValidation(string $variable, $value) : void

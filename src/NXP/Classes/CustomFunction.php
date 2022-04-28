@@ -19,7 +19,7 @@ class CustomFunction
 
     /**
      * CustomFunction constructor.
-     * @param int $places
+     *
      * @throws ReflectionException
      * @throws IncorrectNumberOfFunctionParametersException
      */

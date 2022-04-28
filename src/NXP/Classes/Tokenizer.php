@@ -20,6 +20,7 @@ use SplStack;
  */
 class Tokenizer
 {
+    /** @var array<Token>  */
     public array $tokens = [];
 
     private string $input = '';
@@ -30,6 +31,7 @@ class Tokenizer
 
     private bool $allowNegative = true;
 
+    /** @var array<Operator>  */
     private array $operators = [];
 
     private bool $inSingleQuotedString = false;
