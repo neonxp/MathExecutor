@@ -743,11 +743,16 @@ class MathTest extends TestCase
 
     public function testUnsupportedOperands() : void
     {
-        $calculator = new MathExecutor();
-        $calculator->setVar('stringVar', 'string');
-        $calculator->setVar('intVar', 1);
+        if (\version_compare(PHP_VERSION, '8') >= 0) {
+            $calculator = new MathExecutor();
 
-        $this->expectException(\TypeError::class);
-        $calculator->execute('stringVar + intVar');
+            $calculator->setVar('stringVar', 'string');
+            $calculator->setVar('intVar', 1);
+
+            $this->expectException(\TypeError::class);
+            $calculator->execute('stringVar + intVar');
+        } else {
+            $this->expectNotToPerformAssertions();
+        }
     }
 }
