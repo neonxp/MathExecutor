@@ -161,7 +161,6 @@ class MathExecutor
     /**
      * Add variable to executor. To set a custom validator use setVarValidationHandler.
      *
-     * @param mixed $value
      * @throws MathExecutorException if the value is invalid based on the default or custom validator
      * @return MathExecutor
      */
@@ -466,7 +465,6 @@ class MathExecutor
 
     /**
      * Default variable validation, ensures that the value is a scalar.
-     * @param mixed $value
      * @throws MathExecutorException if the value is not a scalar
      */
     protected function defaultVarValidation(string $variable, $value) : void

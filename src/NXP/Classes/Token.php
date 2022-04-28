@@ -24,7 +24,7 @@ class Token
 
     public string $type = self::Literal;
 
-    /** @var mixed */
+
     public $value;
 
     public ?string $name;
@@ -32,7 +32,6 @@ class Token
     /**
      * Token constructor.
      *
-     * @param mixed $value
      */
     public function __construct(string $type, $value, ?string $name = null)
     {

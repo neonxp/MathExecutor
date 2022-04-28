@@ -741,7 +741,7 @@ class MathTest extends TestCase
         $this->assertCount(0, $calculator->getCache());
     }
 
-    public function testUnsupportedOperands(): void
+    public function testUnsupportedOperands() : void
     {
         $calculator = new MathExecutor();
         $calculator->setVar('stringVar', 'string');
