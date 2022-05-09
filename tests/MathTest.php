@@ -497,7 +497,6 @@ class MathTest extends TestCase
                 if ('undefined' == $varName) {
                     return 3;
                 }
-
             }
         );
         $this->assertEquals(15, $calculator->execute('5 * undefined'));
@@ -525,6 +524,13 @@ class MathTest extends TestCase
         $this->assertEquals(1.5e9, $calculator->execute('1.5e9'));
         $this->assertEquals(1.5e-9, $calculator->execute('1.5e-9'));
         $this->assertEquals(1.5e+9, $calculator->execute('1.5e+9'));
+    }
+
+    public function testNullReturnType() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVar('nullValue', null);
+        $this->assertEquals(null, $calculator->execute('nullValue'));
     }
 
     public function testGetFunctionsReturnsArray() : void
@@ -568,7 +574,7 @@ class MathTest extends TestCase
         $calculator->setVar('null', null);
         $calculator->setVar('float', 1.1);
         $calculator->setVar('string', 'string');
-        $this->assertEquals(8, \count($calculator->getVars()));
+        $this->assertCount(8, $calculator->getVars());
         $this->assertEquals(true, $calculator->getVar('boolTrue'));
         $this->assertEquals(false, $calculator->getVar('boolFalse'));
         $this->assertEquals(1, $calculator->getVar('int'));
@@ -719,19 +725,34 @@ class MathTest extends TestCase
         $this->assertEquals(256, $calculator->execute('2 ^ 8')); // second arg $cache is true by default
 
         $this->assertIsArray($calculator->getCache());
-        $this->assertEquals(1, \count($calculator->getCache()));
+        $this->assertCount(1, $calculator->getCache());
 
         $this->assertEquals(512, $calculator->execute('2 ^ 9', true));
-        $this->assertEquals(2, \count($calculator->getCache()));
+        $this->assertCount(2, $calculator->getCache());
 
         $this->assertEquals(1024, $calculator->execute('2 ^ 10', false));
-        $this->assertEquals(2, \count($calculator->getCache()));
+        $this->assertCount(2, $calculator->getCache());
 
         $calculator->clearCache();
         $this->assertIsArray($calculator->getCache());
-        $this->assertEquals(0, \count($calculator->getCache()));
+        $this->assertCount(0, $calculator->getCache());
 
         $this->assertEquals(2048, $calculator->execute('2 ^ 11', false));
-        $this->assertEquals(0, \count($calculator->getCache()));
+        $this->assertCount(0, $calculator->getCache());
+    }
+
+    public function testUnsupportedOperands() : void
+    {
+        if (\version_compare(PHP_VERSION, '8') >= 0) {
+            $calculator = new MathExecutor();
+
+            $calculator->setVar('stringVar', 'string');
+            $calculator->setVar('intVar', 1);
+
+            $this->expectException(\TypeError::class);
+            $calculator->execute('stringVar + intVar');
+        } else {
+            $this->expectNotToPerformAssertions();
+        }
     }
 }

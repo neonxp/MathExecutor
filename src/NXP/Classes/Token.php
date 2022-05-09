@@ -24,12 +24,14 @@ class Token
 
     public string $type = self::Literal;
 
+
     public $value;
 
     public ?string $name;
 
     /**
      * Token constructor.
+     *
      */
     public function __construct(string $type, $value, ?string $name = null)
     {
