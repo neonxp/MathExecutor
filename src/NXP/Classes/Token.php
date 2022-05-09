@@ -24,7 +24,6 @@ class Token
 
     public string $type = self::Literal;
 
-
     public $value;
 
     public ?string $name;
