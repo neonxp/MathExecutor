@@ -2,6 +2,7 @@
 
 namespace NXP\Classes;
 
+use NXP\Exception\IncorrectFunctionParameterException;
 use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use ReflectionException;
 use ReflectionFunction;
@@ -15,41 +16,48 @@ class CustomFunction
      */
     public $function;
 
-    public int $places = 0;
+    private ReflectionFunction $reflectionFunction;
 
     /**
      * CustomFunction constructor.
      *
      * @throws ReflectionException
-     * @throws IncorrectNumberOfFunctionParametersException
      */
-    public function __construct(string $name, callable $function, ?int $places = null)
+    public function __construct(string $name, callable $function)
     {
         $this->name = $name;
         $this->function = $function;
+        $this->reflectionFunction = new ReflectionFunction($function);
 
-        if (null === $places) {
-            $reflection = new ReflectionFunction($function);
-            $this->places = $reflection->getNumberOfParameters();
-        } else {
-            $this->places = $places;
-        }
     }
 
     /**
      * @param array<Token> $stack
      *
-     * @throws IncorrectNumberOfFunctionParametersException
+     * @throws IncorrectNumberOfFunctionParametersException|IncorrectFunctionParameterException
      */
-    public function execute(array &$stack) : Token
+    public function execute(array &$stack, int $paramCountInStack) : Token
     {
-        if (\count($stack) < $this->places) {
+        if ($paramCountInStack < $this->reflectionFunction->getNumberOfRequiredParameters()) {
             throw new IncorrectNumberOfFunctionParametersException($this->name);
         }
         $args = [];
 
-        for ($i = 0; $i < $this->places; $i++) {
-            \array_unshift($args, \array_pop($stack)->value);
+        if ($paramCountInStack > 0) {
+            $reflectionParameters = $this->reflectionFunction->getParameters();
+
+            for ($i = 0; $i < $paramCountInStack; $i++) {
+                $value = \array_pop($stack)->value;
+                $valueType = \gettype($value);
+                $reflectionParameter = $reflectionParameters[\min(\count($reflectionParameters) - 1, $i)];
+                //TODO to support type check for union types (php >= 8.0) and intersection types (php >= 8.1), we should increase min php level in composer.json
+                // For now, only support basic types. @see testFunctionParameterTypes
+                if ($reflectionParameter->hasType() && $reflectionParameter->getType()->getName() !== $valueType){
+                    throw new IncorrectFunctionParameterException();
+                }
+
+                \array_unshift($args, $value);
+            }
         }
 
         $result = \call_user_func_array($this->function, $args);

@@ -74,7 +74,7 @@ class Calculator
                 if (! \array_key_exists($token->value, $this->functions)) {
                     throw new UnknownFunctionException($token->value);
                 }
-                $stack[] = $this->functions[$token->value]->execute($stack);
+                $stack[] = $this->functions[$token->value]->execute($stack, $token->paramCount);
             } elseif (Token::Operator === $token->type) {
                 if (! \array_key_exists($token->value, $this->operators)) {
                     throw new UnknownOperatorException($token->value);

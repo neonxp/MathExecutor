@@ -28,6 +28,8 @@ class Token
 
     public ?string $name;
 
+    public ?int $paramCount = null;//to store function parameter count in stack
+
     /**
      * Token constructor.
      *

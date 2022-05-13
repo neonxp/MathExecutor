@@ -20,7 +20,7 @@ use SplStack;
  */
 class Tokenizer
 {
-    /** @var array<Token>  */
+    /** @var array<Token> */
     public array $tokens = [];
 
     private string $input = '';
@@ -31,7 +31,7 @@ class Tokenizer
 
     private bool $allowNegative = true;
 
-    /** @var array<Operator>  */
+    /** @var array<Operator> */
     private array $operators = [];
 
     private bool $inSingleQuotedString = false;
@@ -99,8 +99,8 @@ class Tokenizer
 
                         break;
                     }
-                    // no break
-                    // Intentionally fall through
+                // no break
+                // Intentionally fall through
                 case $this->isAlpha($ch):
                     if (\strlen($this->numberBuffer)) {
                         $this->emptyNumberBufferAsLiteral();
@@ -196,8 +196,8 @@ class Tokenizer
     }
 
     /**
-     * @throws IncorrectBracketsException
      * @throws UnknownOperatorException
+     * @throws IncorrectBracketsException
      * @return Token[] Array of tokens in revers polish notation
      */
     public function buildReversePolishNotation() : array
@@ -205,6 +205,10 @@ class Tokenizer
         $tokens = [];
         /** @var SplStack<Token> $stack */
         $stack = new SplStack();
+        /**
+         * @var SplStack<int> $paramCounter
+         */
+        $paramCounter = new SplStack();
 
         foreach ($this->tokens as $token) {
             switch ($token->type) {
@@ -213,9 +217,21 @@ class Tokenizer
                 case Token::String:
                     $tokens[] = $token;
 
+                    if ($paramCounter->count() > 0 && 0 === $paramCounter->top()) {
+                        $paramCounter->push($paramCounter->pop() + 1);
+                    }
+
                     break;
 
                 case Token::Function:
+                    if ($paramCounter->count() > 0 && 0 === $paramCounter->top()) {
+                        $paramCounter->push($paramCounter->pop() + 1);
+                    }
+                    $stack->push($token);
+                    $paramCounter->push(0);
+
+                    break;
+
                 case Token::LeftParenthesis:
                     $stack->push($token);
 
@@ -228,6 +244,7 @@ class Tokenizer
                         }
                         $tokens[] = $stack->pop();
                     }
+                    $paramCounter->push($paramCounter->pop() + 1);
 
                     break;
 
@@ -270,7 +287,12 @@ class Tokenizer
                     }
 
                     if ($stack->count() > 0 && Token::Function == $stack->top()->type) {
-                        $tokens[] = $stack->pop();
+                        /**
+                         * @var Token $f
+                         */
+                        $f = $stack->pop();
+                        $f->paramCount = $paramCounter->pop();
+                        $tokens[] = $f;
                     }
 
                     break;
