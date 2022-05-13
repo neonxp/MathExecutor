@@ -331,7 +331,7 @@ class MathTest extends TestCase
         $calculator->addFunction('max', static function($arg1, $arg2, ...$args) {
             return \max($arg1, $arg2, ...$args);
         });
-        $this->assertEquals(\max(4,6,8.1,2,7), $calculator->execute('max(4,6,8.1,2,7)'));
+        $this->assertEquals(\max(4, 6, 8.1, 2, 7), $calculator->execute('max(4,6,8.1,2,7)'));
     }
 
     public function testFunctionOptionalParameters() : void
@@ -341,7 +341,7 @@ class MathTest extends TestCase
             return \round($num, $precision);
         });
         $this->assertEquals(\round(11.176), $calculator->execute('round(11.176)'));
-        $this->assertEquals(\round(11.176,2), $calculator->execute('round(11.176,2)'));
+        $this->assertEquals(\round(11.176, 2), $calculator->execute('round(11.176,2)'));
     }
 
     public function testFunctionParameterTypes() : void
@@ -349,7 +349,7 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $this->expectException(IncorrectFunctionParameterException::class);
         $calculator->addFunction('myfunc', static function(string $name, int $age) {
-            return $name.$age;
+            return $name . $age;
         });
         $calculator->execute('myfunc(22, "John Doe")');
     }

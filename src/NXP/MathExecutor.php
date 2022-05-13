@@ -117,9 +117,9 @@ class MathExecutor
      * @param string        $name     Name of function
      * @param callable|null $function Function
      *
-     * @return MathExecutor
      * @throws ReflectionException
      * @throws Exception\IncorrectNumberOfFunctionParametersException
+     * @return MathExecutor
      */
     public function addFunction(string $name, ?callable $function = null) : self
     {
