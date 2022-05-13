@@ -116,15 +116,14 @@ class MathExecutor
      *
      * @param string        $name     Name of function
      * @param callable|null $function Function
-     * @param int|null      $places   Count of arguments
      *
-     * @throws Exception\IncorrectNumberOfFunctionParametersException
-     * @throws ReflectionException
      * @return MathExecutor
+     * @throws ReflectionException
+     * @throws Exception\IncorrectNumberOfFunctionParametersException
      */
-    public function addFunction(string $name, ?callable $function = null, ?int $places = null) : self
+    public function addFunction(string $name, ?callable $function = null) : self
     {
-        $this->functions[$name] = new CustomFunction($name, $function, $places);
+        $this->functions[$name] = new CustomFunction($name, $function);
 
         return $this;
     }
@@ -432,13 +431,13 @@ class MathExecutor
           'log' => static fn($arg) => \log($arg),
           'log10' => static fn($arg) => \log10($arg),
           'log1p' => static fn($arg) => \log1p($arg),
-          'max' => static fn(...$args) => \max(...$args),
-          'min' => static fn(...$args) => \min(...$args),
+          'max' => static fn($arg1, $arg2, ...$args) => \max($arg1, $arg2, ...$args),
+          'min' => static fn($arg1, $arg2, ...$args) => \min($arg1, $arg2, ...$args),
           'octdec' => static fn($arg) => \octdec($arg),
           'pi' => static fn() => M_PI,
           'pow' => static fn($arg1, $arg2) => $arg1 ** $arg2,
           'rad2deg' => static fn($arg) => \rad2deg($arg),
-          'round' => static fn($arg) => \round($arg),
+          'round' => static fn($num, int $precision = 0) => \round($num, $precision),
           'sin' => static fn($arg) => \sin($arg),
           'sinh' => static fn($arg) => \sinh($arg),
           'sec' => static fn($arg) => 1 / \cos($arg),

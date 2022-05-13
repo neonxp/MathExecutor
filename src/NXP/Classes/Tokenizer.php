@@ -20,7 +20,7 @@ use SplStack;
  */
 class Tokenizer
 {
-    /** @var array<Token>  */
+    /** @var array<Token> */
     public array $tokens = [];
 
     private string $input = '';
@@ -31,7 +31,7 @@ class Tokenizer
 
     private bool $allowNegative = true;
 
-    /** @var array<Operator>  */
+    /** @var array<Operator> */
     private array $operators = [];
 
     private bool $inSingleQuotedString = false;
@@ -48,7 +48,7 @@ class Tokenizer
         $this->operators = $operators;
     }
 
-    public function tokenize() : self
+    public function tokenize(): self
     {
         foreach (\str_split($this->input, 1) as $ch) {
             switch (true) {
@@ -99,8 +99,8 @@ class Tokenizer
 
                         break;
                     }
-                    // no break
-                    // Intentionally fall through
+                // no break
+                // Intentionally fall through
                 case $this->isAlpha($ch):
                     if (\strlen($this->numberBuffer)) {
                         $this->emptyNumberBufferAsLiteral();
@@ -196,15 +196,19 @@ class Tokenizer
     }
 
     /**
-     * @throws IncorrectBracketsException
-     * @throws UnknownOperatorException
      * @return Token[] Array of tokens in revers polish notation
+     * @throws UnknownOperatorException
+     * @throws IncorrectBracketsException
      */
-    public function buildReversePolishNotation() : array
+    public function buildReversePolishNotation(): array
     {
         $tokens = [];
         /** @var SplStack<Token> $stack */
         $stack = new SplStack();
+        /**
+         * @var SplStack<int> $paramCounter
+         */
+        $paramCounter = new SplStack();
 
         foreach ($this->tokens as $token) {
             switch ($token->type) {
@@ -212,10 +216,20 @@ class Tokenizer
                 case Token::Variable:
                 case Token::String:
                     $tokens[] = $token;
-
+                    if ($paramCounter->count() > 0 && $paramCounter->top() === 0) {
+                        $paramCounter->push($paramCounter->pop() + 1);
+                    }
                     break;
 
                 case Token::Function:
+                    if ($paramCounter->count() > 0 && $paramCounter->top() === 0) {
+                        $paramCounter->push($paramCounter->pop() + 1);
+                    }
+                    $stack->push($token);
+                    $paramCounter->push(0);
+
+                    break;
+
                 case Token::LeftParenthesis:
                     $stack->push($token);
 
@@ -228,17 +242,18 @@ class Tokenizer
                         }
                         $tokens[] = $stack->pop();
                     }
+                    $paramCounter->push($paramCounter->pop() + 1);
 
                     break;
 
                 case Token::Operator:
-                    if (! \array_key_exists($token->value, $this->operators)) {
+                    if (!\array_key_exists($token->value, $this->operators)) {
                         throw new UnknownOperatorException($token->value);
                     }
                     $op1 = $this->operators[$token->value];
 
                     while ($stack->count() > 0 && Token::Operator === $stack->top()->type) {
-                        if (! \array_key_exists($stack->top()->value, $this->operators)) {
+                        if (!\array_key_exists($stack->top()->value, $this->operators)) {
                             throw new UnknownOperatorException($stack->top()->value);
                         }
                         $op2 = $this->operators[$stack->top()->value];
@@ -270,7 +285,12 @@ class Tokenizer
                     }
 
                     if ($stack->count() > 0 && Token::Function == $stack->top()->type) {
-                        $tokens[] = $stack->pop();
+                        /**
+                         * @var Token $f
+                         */
+                        $f = $stack->pop();
+                        $f->paramCount = $paramCounter->pop();
+                        $tokens[] = $f;
                     }
 
                     break;
@@ -296,17 +316,17 @@ class Tokenizer
         return $tokens;
     }
 
-    private function isNumber(string $ch) : bool
+    private function isNumber(string $ch): bool
     {
         return $ch >= '0' && $ch <= '9';
     }
 
-    private function isAlpha(string $ch) : bool
+    private function isAlpha(string $ch): bool
     {
         return $ch >= 'a' && $ch <= 'z' || $ch >= 'A' && $ch <= 'Z' || '_' == $ch;
     }
 
-    private function emptyNumberBufferAsLiteral() : void
+    private function emptyNumberBufferAsLiteral(): void
     {
         if (\strlen($this->numberBuffer)) {
             $this->tokens[] = new Token(Token::Literal, $this->numberBuffer);
@@ -314,22 +334,22 @@ class Tokenizer
         }
     }
 
-    private function isDot(string $ch) : bool
+    private function isDot(string $ch): bool
     {
         return '.' == $ch;
     }
 
-    private function isLP(string $ch) : bool
+    private function isLP(string $ch): bool
     {
         return '(' == $ch;
     }
 
-    private function isRP(string $ch) : bool
+    private function isRP(string $ch): bool
     {
         return ')' == $ch;
     }
 
-    private function emptyStrBufferAsVariable() : void
+    private function emptyStrBufferAsVariable(): void
     {
         if ('' != $this->stringBuffer) {
             $this->tokens[] = new Token(Token::Variable, $this->stringBuffer);
@@ -337,7 +357,7 @@ class Tokenizer
         }
     }
 
-    private function isComma(string $ch) : bool
+    private function isComma(string $ch): bool
     {
         return ',' == $ch;
     }

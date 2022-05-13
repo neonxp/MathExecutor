@@ -14,6 +14,7 @@ namespace NXP\Tests;
 use Exception;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\IncorrectExpressionException;
+use NXP\Exception\IncorrectFunctionParameterException;
 use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use NXP\Exception\MathExecutorException;
 use NXP\Exception\UnknownFunctionException;
@@ -243,6 +244,7 @@ class MathTest extends TestCase
           ['-(4*-2)-5'],
           ['-(-4*2) - 5'],
           ['-4*-5'],
+          ['max(1,2,4.9,3)']
         ];
     }
 
@@ -321,6 +323,45 @@ class MathTest extends TestCase
             return \round($arg);
         });
         $this->assertEquals(\round(100 / 30), $calculator->execute('round(100/30)'));
+    }
+
+    public function testFunctionUnlimitedParameters() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->addFunction('max', static function($arg1, $arg2, ...$args) {
+            return \max($arg1, $arg2, ...$args);
+        });
+        $this->assertEquals(\max(4,6,8.1,2,7), $calculator->execute('max(4,6,8.1,2,7)'));
+    }
+
+    public function testFunctionOptionalParameters() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->addFunction('round', static function($num, $precision = 0) {
+            return \round($num, $precision);
+        });
+        $this->assertEquals(\round(11.176), $calculator->execute('round(11.176)'));
+        $this->assertEquals(\round(11.176,2), $calculator->execute('round(11.176,2)'));
+    }
+
+    public function testFunctionParameterTypes() : void
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(IncorrectFunctionParameterException::class);
+        $calculator->addFunction('myfunc', static function(string $name, int $age) {
+            return $name.$age;
+        });
+        $calculator->execute('myfunc(22, "John Doe")');
+    }
+
+    public function testFunctionIncorrectNumberOfParameters() : void
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(IncorrectNumberOfFunctionParametersException::class);
+        $calculator->addFunction('myfunc', static function($arg1, $arg2) {
+            return $arg1 + $arg2;
+        });
+        $calculator->execute('myfunc(1)');
     }
 
     public function testFunctionIf() : void
