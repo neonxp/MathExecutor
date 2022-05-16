@@ -76,6 +76,13 @@ class Tokenizer
 
                     continue 2;
 
+                case '[' === $ch:
+                    $this->tokens[] = new Token(Token::Function, 'array');
+                    $this->allowNegative = true;
+                    $this->tokens[] = new Token(Token::LeftParenthesis, '');
+
+                    continue 2;
+
                 case ' ' == $ch || "\n" == $ch || "\r" == $ch || "\t" == $ch:
                     $this->tokens[] = new Token(Token::Space, '');
 
@@ -140,7 +147,7 @@ class Tokenizer
 
                     break;
 
-                case $this->isRP($ch):
+                case $this->isRP($ch) || ']' === $ch :
                     $this->emptyNumberBufferAsLiteral();
                     $this->emptyStrBufferAsVariable();
                     $this->allowNegative = false;
@@ -196,8 +203,8 @@ class Tokenizer
     }
 
     /**
-     * @throws UnknownOperatorException
      * @throws IncorrectBracketsException
+     * @throws UnknownOperatorException
      * @return Token[] Array of tokens in revers polish notation
      */
     public function buildReversePolishNotation() : array

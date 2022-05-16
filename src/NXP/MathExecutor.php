@@ -469,7 +469,8 @@ class MathExecutor
           'tan' => static fn($arg) => \tan($arg),
           'tanh' => static fn($arg) => \tanh($arg),
           'tn' => static fn($arg) => \tan($arg),
-          'tg' => static fn($arg) => \tan($arg)
+          'tg' => static fn($arg) => \tan($arg),
+          'array' => static fn(...$args) => [...$args]
         ];
     }
 

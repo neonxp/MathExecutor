@@ -40,6 +40,7 @@ Default functions:
 * arcctg (arccot, arccotan)
 * arcsec
 * arccsc (arccosec)
+* array
 * asin (arcsin)
 * atan (atn, arctan, arctg)
 * atan2
@@ -84,7 +85,10 @@ Add custom function to executor:
 ```php
 $executor->addFunction('abs', function($arg) {return abs($arg);});
 ```
-Function default parameters are not supported at this time.
+Function default parameters (optional parameters) are also supported.
+```php
+$executor->addFunction('round', function($num, int $precision = 0) {return round($num, $precision);});
+```
 
 ## Operators:
 Default operators: `+ - * / ^`
@@ -139,12 +143,20 @@ $executor->setVar('var1', 0.15)->setVar('var2', 0.22);
 echo $executor->execute("$var1 + var2");
 ```
 
-By default, variables must be scalar values (int, float, bool or string).  If you would like to support another type, use **setVarValidationHandler**
+Arrays are also supported (as variables, as func params or can be returned in user defined funcs):
+```php
+$executor->setVar('monthly_salaries', [1800, 1900, 1200, 1600]);
+
+echo $executor->execute("avg(monthly_salaries) * min([1.1, 1.3])");
+```
+
+
+By default, variables must be scalar values (int, float, bool or string) or array.  If you would like to support another type, use **setVarValidationHandler**
 
 ```php
 $executor->setVarValidationHandler(function (string $name, $variable) {
-		// allow all scalars and null
-		if (is_scalar($variable) || $variable === null) {
+		// allow all scalars, array and null
+		if (is_scalar($variable) || is_array($variable) || $variable === null) {
 				return;
 		}
 		// Allow variables of type DateTime, but not others
