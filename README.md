@@ -7,6 +7,7 @@
 * Paratheses () and arrays [] are fully supported
 * Logical operators (==, !=, <, <, >=, <=, &&, ||)
 * Built in support for most PHP math functions
+* Support for variable number of function parameters
 * Conditional If logic
 * Support for user defined operators
 * Support for user defined functions
