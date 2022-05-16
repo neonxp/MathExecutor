@@ -305,6 +305,22 @@ class MathTest extends TestCase
         $this->assertEquals(100, $calculator->execute('10 ^ 2'));
     }
 
+    public function testArrays() : void
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals([1, 5, 2], $calculator->execute('array(1, 5, 2)'));
+        $this->assertEquals([1, 5, 2], $calculator->execute('[1, 5, 2]'));
+        $this->assertEquals(\max([1, 5, 2]), $calculator->execute('max([1, 5, 2])'));
+        $this->assertEquals(\max([1, 5, 2]), $calculator->execute('max(array(1, 5, 2))'));
+        $calculator->addFunction('arr_with_max_elements', static function($arg1, ...$args) {
+            $args = \is_array($arg1) ? $arg1 : [$arg1, ...$args];
+            \usort($args, static fn($arr1, $arr2) => \count($arr2) <=> \count($arr1));
+
+            return $args[0];
+        });
+        $this->assertEquals([3, 3, 3], $calculator->execute('arr_with_max_elements([[1],array(2,2),[3,3,3]])'));
+    }
+
     public function testFunctionParameterOrder() : void
     {
         $calculator = new MathExecutor();
