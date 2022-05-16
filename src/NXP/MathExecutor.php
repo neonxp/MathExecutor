@@ -16,6 +16,7 @@ use NXP\Classes\Operator;
 use NXP\Classes\Token;
 use NXP\Classes\Tokenizer;
 use NXP\Exception\DivisionByZeroException;
+use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use NXP\Exception\MathExecutorException;
 use NXP\Exception\UnknownVariableException;
 use ReflectionException;
@@ -390,7 +391,18 @@ class MathExecutor
           'atan2' => static fn($arg1, $arg2) => \atan2($arg1, $arg2),
           'atanh' => static fn($arg) => \atanh($arg),
           'atn' => static fn($arg) => \atan($arg),
-          'avg' => static fn($arg1, $arg2) => ($arg1 + $arg2) / 2,
+          'avg' => static function($arg1, $args) {
+              if (\is_array($arg1)){
+                  return \array_sum($arg1) / \count($arg1);
+              }
+
+              if (0 === \count($args)){
+                  throw new IncorrectNumberOfFunctionParametersException();
+              }
+              $args = [$arg1, ...$args];
+
+              return \array_sum($args) / \count($args);
+          },
           'bindec' => static fn($arg) => \bindec($arg),
           'ceil' => static fn($arg) => \ceil($arg),
           'cos' => static fn($arg) => \cos($arg),
@@ -431,8 +443,20 @@ class MathExecutor
           'log' => static fn($arg) => \log($arg),
           'log10' => static fn($arg) => \log10($arg),
           'log1p' => static fn($arg) => \log1p($arg),
-          'max' => static fn($arg1, $arg2, ...$args) => \max($arg1, $arg2, ...$args),
-          'min' => static fn($arg1, $arg2, ...$args) => \min($arg1, $arg2, ...$args),
+          'max' => static function($arg1, ...$args) {
+              if (! \is_array($arg1) && 0 === \count($args)){
+                  throw new IncorrectNumberOfFunctionParametersException();
+              }
+
+              return \max($arg1, ...$args);
+          },
+          'min' => static function($arg1, ...$args) {
+              if (! \is_array($arg1) && 0 === \count($args)){
+                  throw new IncorrectNumberOfFunctionParametersException();
+              }
+
+              return \min($arg1, ...$args);
+          },
           'octdec' => static fn($arg) => \octdec($arg),
           'pi' => static fn() => M_PI,
           'pow' => static fn($arg1, $arg2) => $arg1 ** $arg2,
@@ -468,10 +492,10 @@ class MathExecutor
      */
     protected function defaultVarValidation(string $variable, $value) : void
     {
-        if (! \is_scalar($value) && null !== $value) {
+        if (! \is_scalar($value) && ! \is_array($value) && null !== $value) {
             $type = \gettype($value);
 
-            throw new MathExecutorException("Variable ({$variable}) type ({$type}) is not scalar");
+            throw new MathExecutorException("Variable ({$variable}) type ({$type}) is not scalar or array!");
         }
     }
 }

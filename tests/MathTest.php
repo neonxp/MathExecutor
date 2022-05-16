@@ -328,10 +328,30 @@ class MathTest extends TestCase
     public function testFunctionUnlimitedParameters() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('max', static function($arg1, $arg2, ...$args) {
-            return \max($arg1, $arg2, ...$args);
+        $calculator->addFunction('give_me_an_array', static function() {
+            return [5, 3, 7, 9, 8];
         });
-        $this->assertEquals(\max(4, 6, 8.1, 2, 7), $calculator->execute('max(4,6,8.1,2,7)'));
+        $calculator->addFunction('my_avarage', static function($arg1, ...$args) {
+            if (\is_array($arg1)){
+                return \array_sum($arg1) / \count($arg1);
+            }
+
+            if (0 === \count($args)){
+                throw new IncorrectNumberOfFunctionParametersException();
+            }
+            $args = [$arg1, ...$args];
+
+            return \array_sum($args) / \count($args);
+        });
+        $this->assertEquals(10, $calculator->execute('my_avarage(12,8,15,5)'));
+        $this->assertEquals(6.4, $calculator->execute('my_avarage(give_me_an_array())'));
+        $this->assertEquals(3, $calculator->execute('min(give_me_an_array())'));
+        $this->assertEquals(1, $calculator->execute('min(1,2,3)'));
+        $this->assertEquals(9, $calculator->execute('max(give_me_an_array())'));
+        $this->assertEquals(3, $calculator->execute('max(1,2,3)'));
+        $calculator->setVar('monthly_salaries', [100, 200, 300]);
+        $this->assertEquals([100, 200, 300], $calculator->execute('$monthly_salaries'));
+        $this->assertEquals(\max([100, 200, 300]), $calculator->execute('max($monthly_salaries)'));
     }
 
     public function testFunctionOptionalParameters() : void
