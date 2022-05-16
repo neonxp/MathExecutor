@@ -3,7 +3,8 @@
 # A simple and extensible math expressions calculator
 
 ## Features:
-* Built in support for +, -, *, / and power (^) operators plus ()
+* Built in support for +, -, *, / and power (^) operators
+* Paratheses () and arrays [] are fully supported
 * Logical operators (==, !=, <, <, >=, <=, &&, ||)
 * Built in support for most PHP math functions
 * Conditional If logic
@@ -150,19 +151,18 @@ $executor->setVar('monthly_salaries', [1800, 1900, 1200, 1600]);
 echo $executor->execute("avg(monthly_salaries) * min([1.1, 1.3])");
 ```
 
-
 By default, variables must be scalar values (int, float, bool or string) or array.  If you would like to support another type, use **setVarValidationHandler**
 
 ```php
 $executor->setVarValidationHandler(function (string $name, $variable) {
-		// allow all scalars, array and null
-		if (is_scalar($variable) || is_array($variable) || $variable === null) {
-				return;
-		}
-		// Allow variables of type DateTime, but not others
-		if (! $variable instanceof \DateTime) {
-				throw new MathExecutorException("Invalid variable type");
-		}
+    // allow all scalars, array and null
+    if (is_scalar($variable) || is_array($variable) || $variable === null) {
+        return;
+    }
+    // Allow variables of type DateTime, but not others
+    if (! $variable instanceof \DateTime) {
+        throw new MathExecutorException("Invalid variable type");
+    }
 });
 ```
 
@@ -205,14 +205,14 @@ echo $executor->execute('1/0');
 ```
 
 ## String Support:
-Expressions can contain double or single quoted strings that are evaluated the same way as PHP evalutes strings as numbers. You can also pass strings to functions.
+Expressions can contain double or single quoted strings that are evaluated the same way as PHP evaluates strings as numbers. You can also pass strings to functions.
 
 ```php
 echo $executor->execute("1 + '2.5' * '.5' + myFunction('category')");
 ```
 
 ## Extending MathExecutor
-You can add operators, functions and variables with the public methods in MathExecutor, but if you need to do more serious modifications to base behaviours, the easiest way to extend MathExecutor is to redefine the following methods in your derived class:
+You can add operators, functions and variables with the public methods in MathExecutor, but if you need to do more serious modifications to base behaviors, the easiest way to extend MathExecutor is to redefine the following methods in your derived class:
 * defaultOperators
 * defaultFunctions
 * defaultVars
