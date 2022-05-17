@@ -50,27 +50,67 @@ class Tokenizer
 
     public function tokenize() : self
     {
-        foreach (\str_split($this->input, 1) as $ch) {
+        $isLastCharEscape = false;
+
+        foreach (\str_split($this->input) as $ch) {
             switch (true) {
                 case $this->inSingleQuotedString:
-                    if ("'" === $ch) {
-                        $this->tokens[] = new Token(Token::String, $this->stringBuffer);
-                        $this->inSingleQuotedString = false;
-                        $this->stringBuffer = '';
+                    if ('\\' === $ch) {
+                        if ($isLastCharEscape) {
+                            $this->stringBuffer .= '\\';
+                            $isLastCharEscape = false;
+                        } else {
+                            $isLastCharEscape = true;
+                        }
 
                         continue 2;
+                    } elseif ("'" === $ch) {
+                        if ($isLastCharEscape) {
+                            $this->stringBuffer .= "'";
+                            $isLastCharEscape = false;
+                        } else {
+                            $this->tokens[] = new Token(Token::String, $this->stringBuffer);
+                            $this->inSingleQuotedString = false;
+                            $this->stringBuffer = '';
+                        }
+
+                        continue 2;
+                    }
+
+                    if ($isLastCharEscape) {
+                        $this->stringBuffer .= '\\';
+                        $isLastCharEscape = false;
                     }
                     $this->stringBuffer .= $ch;
 
                     continue 2;
 
                 case $this->inDoubleQuotedString:
-                    if ('"' === $ch) {
-                        $this->tokens[] = new Token(Token::String, $this->stringBuffer);
-                        $this->inDoubleQuotedString = false;
-                        $this->stringBuffer = '';
+                    if ('\\' === $ch) {
+                        if ($isLastCharEscape) {
+                            $this->stringBuffer .= '\\';
+                            $isLastCharEscape = false;
+                        } else {
+                            $isLastCharEscape = true;
+                        }
 
                         continue 2;
+                    } elseif ('"' === $ch) {
+                        if ($isLastCharEscape) {
+                            $this->stringBuffer .= '"';
+                            $isLastCharEscape = false;
+                        } else {
+                            $this->tokens[] = new Token(Token::String, $this->stringBuffer);
+                            $this->inDoubleQuotedString = false;
+                            $this->stringBuffer = '';
+                        }
+
+                        continue 2;
+                    }
+
+                    if ($isLastCharEscape) {
+                        $this->stringBuffer .= '\\';
+                        $isLastCharEscape = false;
                     }
                     $this->stringBuffer .= $ch;
 

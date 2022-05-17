@@ -211,6 +211,11 @@ Expressions can contain double or single quoted strings that are evaluated the s
 ```php
 echo $executor->execute("1 + '2.5' * '.5' + myFunction('category')");
 ```
+To use reverse solidus character (\) in strings, or to use single quote character (') in a single quoted string, or to use double quote character (") in a double quoted string, you must prepend reverse solidus character (\).
+
+```php
+echo $executor->execute("countArticleSentences('My Best Article\'s Title')");
+```
 
 ## Extending MathExecutor
 You can add operators, functions and variables with the public methods in MathExecutor, but if you need to do more serious modifications to base behaviors, the easiest way to extend MathExecutor is to redefine the following methods in your derived class:

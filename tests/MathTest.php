@@ -305,6 +305,29 @@ class MathTest extends TestCase
         $this->assertEquals(100, $calculator->execute('10 ^ 2'));
     }
 
+    public function testStringEscape() : void
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals("test\string", $calculator->execute('"test\string"'));
+        $this->assertEquals("\\test\string\\", $calculator->execute('"\test\string\\\\"'));
+        $this->assertEquals('\test\string\\', $calculator->execute('"\test\string\\\\"'));
+        $this->assertEquals('test\\\\string', $calculator->execute('"test\\\\\\\\string"'));
+        $this->assertEquals('test"string', $calculator->execute('"test\"string"'));
+        $this->assertEquals('test""string', $calculator->execute('"test\"\"string"'));
+        $this->assertEquals('"teststring', $calculator->execute('"\"teststring"'));
+        $this->assertEquals('teststring"', $calculator->execute('"teststring\""'));
+        $this->assertEquals("test'string", $calculator->execute("'test\'string'"));
+        $this->assertEquals("test''string", $calculator->execute("'test\'\'string'"));
+        $this->assertEquals("'teststring", $calculator->execute("'\'teststring'"));
+        $this->assertEquals("teststring'", $calculator->execute("'teststring\''"));
+
+        $calculator->addFunction('concat', static function($arg1, $arg2) {
+            return $arg1 . $arg2;
+        });
+        $this->assertEquals('test"ing', $calculator->execute('concat("test\"","ing")'));
+        $this->assertEquals("test'ing", $calculator->execute("concat('test\'','ing')"));
+    }
+
     public function testArrays() : void
     {
         $calculator = new MathExecutor();
@@ -348,11 +371,11 @@ class MathTest extends TestCase
             return [5, 3, 7, 9, 8];
         });
         $calculator->addFunction('my_avarage', static function($arg1, ...$args) {
-            if (\is_array($arg1)){
+            if (\is_array($arg1)) {
                 return \array_sum($arg1) / \count($arg1);
             }
 
-            if (0 === \count($args)){
+            if (0 === \count($args)) {
                 throw new IncorrectNumberOfFunctionParametersException();
             }
             $args = [$arg1, ...$args];
