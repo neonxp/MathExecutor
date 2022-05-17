@@ -14,7 +14,6 @@ namespace NXP\Tests;
 use Exception;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\IncorrectExpressionException;
-use NXP\Exception\IncorrectFunctionParameterException;
 use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use NXP\Exception\MathExecutorException;
 use NXP\Exception\UnknownFunctionException;
@@ -401,16 +400,6 @@ class MathTest extends TestCase
         });
         $this->assertEquals(\round(11.176), $calculator->execute('round(11.176)'));
         $this->assertEquals(\round(11.176, 2), $calculator->execute('round(11.176,2)'));
-    }
-
-    public function testFunctionParameterTypes() : void
-    {
-        $calculator = new MathExecutor();
-        $this->expectException(IncorrectFunctionParameterException::class);
-        $calculator->addFunction('myfunc', static function(string $name, int $age) {
-            return $name . $age;
-        });
-        $calculator->execute('myfunc(22, "John Doe")');
     }
 
     public function testFunctionIncorrectNumberOfParameters() : void
