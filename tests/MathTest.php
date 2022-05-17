@@ -387,6 +387,7 @@ class MathTest extends TestCase
         $this->assertEquals(1, $calculator->execute('min(1,2,3)'));
         $this->assertEquals(9, $calculator->execute('max(give_me_an_array())'));
         $this->assertEquals(3, $calculator->execute('max(1,2,3)'));
+        $this->assertEquals(20, $calculator->execute('avg(10,18,32)'));
         $calculator->setVar('monthly_salaries', [100, 200, 300]);
         $this->assertEquals([100, 200, 300], $calculator->execute('$monthly_salaries'));
         $this->assertEquals(\max([100, 200, 300]), $calculator->execute('max($monthly_salaries)'));

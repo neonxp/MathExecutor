@@ -391,8 +391,12 @@ class MathExecutor
           'atan2' => static fn($arg1, $arg2) => \atan2($arg1, $arg2),
           'atanh' => static fn($arg) => \atanh($arg),
           'atn' => static fn($arg) => \atan($arg),
-          'avg' => static function($arg1, $args) {
+          'avg' => static function($arg1, ...$args) {
               if (\is_array($arg1)){
+                  if (0 === \count($arg1)){
+                      throw new \InvalidArgumentException('Could not calculate avg for empty array!');
+                  }
+
                   return \array_sum($arg1) / \count($arg1);
               }
 
@@ -447,12 +451,18 @@ class MathExecutor
               if (! \is_array($arg1) && 0 === \count($args)){
                   throw new IncorrectNumberOfFunctionParametersException();
               }
+              elseif (\is_array($arg1) && 0 === \count($arg1)){
+                      throw new \InvalidArgumentException('Array must contain at least one element!');
+              }
 
               return \max($arg1, ...$args);
           },
           'min' => static function($arg1, ...$args) {
               if (! \is_array($arg1) && 0 === \count($args)){
                   throw new IncorrectNumberOfFunctionParametersException();
+              }
+              elseif (\is_array($arg1) && 0 === \count($arg1)){
+                  throw new \InvalidArgumentException('Array must contain at least one element!');
               }
 
               return \min($arg1, ...$args);
@@ -470,7 +480,7 @@ class MathExecutor
           'tanh' => static fn($arg) => \tanh($arg),
           'tn' => static fn($arg) => \tan($arg),
           'tg' => static fn($arg) => \tan($arg),
-          'array' => static fn(...$args) => [...$args]
+          'array' => static fn(...$args) => $args
         ];
     }
 
