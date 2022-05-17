@@ -488,7 +488,7 @@ class MathExecutor
     }
 
     /**
-     * Default variable validation, ensures that the value is a scalar.
+     * Default variable validation, ensures that the value is a scalar or array.
      * @throws MathExecutorException if the value is not a scalar
      */
     protected function defaultVarValidation(string $variable, $value) : void
