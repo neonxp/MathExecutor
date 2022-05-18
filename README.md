@@ -219,7 +219,7 @@ Expressions can contain double or single quoted strings that are evaluated the s
 ```php
 echo $executor->execute("1 + '2.5' * '.5' + myFunction('category')");
 ```
-To use reverse solidus character (\) in strings, or to use single quote character (') in a single quoted string, or to use double quote character (") in a double quoted string, you must prepend reverse solidus character (\).
+To use reverse solidus character (&#92;) in strings, or to use single quote character (') in a single quoted string, or to use double quote character (") in a double quoted string, you must prepend reverse solidus character (&#92;).
 
 ```php
 echo $executor->execute("countArticleSentences('My Best Article\'s Title')");
