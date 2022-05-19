@@ -14,7 +14,6 @@ namespace NXP\Tests;
 use Exception;
 use NXP\Exception\DivisionByZeroException;
 use NXP\Exception\IncorrectExpressionException;
-use NXP\Exception\IncorrectFunctionParameterException;
 use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use NXP\Exception\MathExecutorException;
 use NXP\Exception\UnknownFunctionException;
@@ -244,7 +243,10 @@ class MathTest extends TestCase
           ['-(4*-2)-5'],
           ['-(-4*2) - 5'],
           ['-4*-5'],
-          ['max(1,2,4.9,3)']
+          ['max(1,2,4.9,3)'],
+          ['min(1,2,4.9,3)'],
+          ['max([1,2,4.9,3])'],
+          ['min([1,2,4.9,3])']
         ];
     }
 
@@ -305,6 +307,29 @@ class MathTest extends TestCase
         $this->assertEquals(100, $calculator->execute('10 ^ 2'));
     }
 
+    public function testStringEscape() : void
+    {
+        $calculator = new MathExecutor();
+        $this->assertEquals("test\string", $calculator->execute('"test\string"'));
+        $this->assertEquals("\\test\string\\", $calculator->execute('"\test\string\\\\"'));
+        $this->assertEquals('\test\string\\', $calculator->execute('"\test\string\\\\"'));
+        $this->assertEquals('test\\\\string', $calculator->execute('"test\\\\\\\\string"'));
+        $this->assertEquals('test"string', $calculator->execute('"test\"string"'));
+        $this->assertEquals('test""string', $calculator->execute('"test\"\"string"'));
+        $this->assertEquals('"teststring', $calculator->execute('"\"teststring"'));
+        $this->assertEquals('teststring"', $calculator->execute('"teststring\""'));
+        $this->assertEquals("test'string", $calculator->execute("'test\'string'"));
+        $this->assertEquals("test''string", $calculator->execute("'test\'\'string'"));
+        $this->assertEquals("'teststring", $calculator->execute("'\'teststring'"));
+        $this->assertEquals("teststring'", $calculator->execute("'teststring\''"));
+
+        $calculator->addFunction('concat', static function($arg1, $arg2) {
+            return $arg1 . $arg2;
+        });
+        $this->assertEquals('test"ing', $calculator->execute('concat("test\"","ing")'));
+        $this->assertEquals("test'ing", $calculator->execute("concat('test\'','ing')"));
+    }
+
     public function testArrays() : void
     {
         $calculator = new MathExecutor();
@@ -347,26 +372,16 @@ class MathTest extends TestCase
         $calculator->addFunction('give_me_an_array', static function() {
             return [5, 3, 7, 9, 8];
         });
-        $calculator->addFunction('my_avarage', static function($arg1, ...$args) {
-            if (\is_array($arg1)){
-                return \array_sum($arg1) / \count($arg1);
-            }
-
-            if (0 === \count($args)){
-                throw new IncorrectNumberOfFunctionParametersException();
-            }
-            $args = [$arg1, ...$args];
-
-            return \array_sum($args) / \count($args);
-        });
-        $this->assertEquals(10, $calculator->execute('my_avarage(12,8,15,5)'));
-        $this->assertEquals(6.4, $calculator->execute('my_avarage(give_me_an_array())'));
+        $this->assertEquals(6.4, $calculator->execute('avg(give_me_an_array())'));
+        $this->assertEquals(10, $calculator->execute('avg(12,8,15,5)'));
         $this->assertEquals(3, $calculator->execute('min(give_me_an_array())'));
         $this->assertEquals(1, $calculator->execute('min(1,2,3)'));
         $this->assertEquals(9, $calculator->execute('max(give_me_an_array())'));
         $this->assertEquals(3, $calculator->execute('max(1,2,3)'));
         $calculator->setVar('monthly_salaries', [100, 200, 300]);
         $this->assertEquals([100, 200, 300], $calculator->execute('$monthly_salaries'));
+        $this->assertEquals(200, $calculator->execute('avg($monthly_salaries)'));
+        $this->assertEquals(\min([100, 200, 300]), $calculator->execute('min($monthly_salaries)'));
         $this->assertEquals(\max([100, 200, 300]), $calculator->execute('max($monthly_salaries)'));
     }
 
@@ -378,16 +393,6 @@ class MathTest extends TestCase
         });
         $this->assertEquals(\round(11.176), $calculator->execute('round(11.176)'));
         $this->assertEquals(\round(11.176, 2), $calculator->execute('round(11.176,2)'));
-    }
-
-    public function testFunctionParameterTypes() : void
-    {
-        $calculator = new MathExecutor();
-        $this->expectException(IncorrectFunctionParameterException::class);
-        $calculator->addFunction('myfunc', static function(string $name, int $age) {
-            return $name . $age;
-        });
-        $calculator->execute('myfunc(22, "John Doe")');
     }
 
     public function testFunctionIncorrectNumberOfParameters() : void

@@ -7,7 +7,7 @@
 * Paratheses () and arrays [] are fully supported
 * Logical operators (==, !=, <, <, >=, <=, &&, ||)
 * Built in support for most PHP math functions
-* Support for variable number of function parameters
+* Support for variable number of function parameters and optional function parameters
 * Conditional If logic
 * Support for user defined operators
 * Support for user defined functions
@@ -87,9 +87,17 @@ Add custom function to executor:
 ```php
 $executor->addFunction('abs', function($arg) {return abs($arg);});
 ```
-Function default parameters (optional parameters) are also supported.
+Optional parameters:
 ```php
 $executor->addFunction('round', function($num, int $precision = 0) {return round($num, $precision);});
+$executor->calculate('round(17.119)'); // 17
+$executor->calculate('round(17.119, 2)'); // 17.12
+```
+Variable number of parameters:
+```php
+$executor->addFunction('avarage', function(...$args) {return array_sum($args) / count($args);});
+$executor->calculate('avarage(1,3)'); // 2
+$executor->calculate('avarage(1, 3, 4, 8)'); // 4
 ```
 
 ## Operators:
@@ -210,6 +218,11 @@ Expressions can contain double or single quoted strings that are evaluated the s
 
 ```php
 echo $executor->execute("1 + '2.5' * '.5' + myFunction('category')");
+```
+To use reverse solidus character (&#92;) in strings, or to use single quote character (') in a single quoted string, or to use double quote character (") in a double quoted string, you must prepend reverse solidus character (&#92;).
+
+```php
+echo $executor->execute("countArticleSentences('My Best Article\'s Title')");
 ```
 
 ## Extending MathExecutor

@@ -16,7 +16,6 @@ use NXP\Classes\Operator;
 use NXP\Classes\Token;
 use NXP\Classes\Tokenizer;
 use NXP\Exception\DivisionByZeroException;
-use NXP\Exception\IncorrectNumberOfFunctionParametersException;
 use NXP\Exception\MathExecutorException;
 use NXP\Exception\UnknownVariableException;
 use ReflectionException;
@@ -386,19 +385,21 @@ class MathExecutor
           'arccos' => static fn($arg) => \acos($arg),
           'arctan' => static fn($arg) => \atan($arg),
           'arctg' => static fn($arg) => \atan($arg),
+          'array' => static fn(...$args) => $args,
           'asin' => static fn($arg) => \asin($arg),
           'atan' => static fn($arg) => \atan($arg),
           'atan2' => static fn($arg1, $arg2) => \atan2($arg1, $arg2),
           'atanh' => static fn($arg) => \atanh($arg),
           'atn' => static fn($arg) => \atan($arg),
-          'avg' => static function($arg1, $args) {
+          'avg' => static function($arg1, ...$args) {
               if (\is_array($arg1)){
+                  if (0 === \count($arg1)){
+                      throw new \InvalidArgumentException('Array must contain at least one element!');
+                  }
+
                   return \array_sum($arg1) / \count($arg1);
               }
 
-              if (0 === \count($args)){
-                  throw new IncorrectNumberOfFunctionParametersException();
-              }
               $args = [$arg1, ...$args];
 
               return \array_sum($args) / \count($args);
@@ -444,18 +445,18 @@ class MathExecutor
           'log10' => static fn($arg) => \log10($arg),
           'log1p' => static fn($arg) => \log1p($arg),
           'max' => static function($arg1, ...$args) {
-              if (! \is_array($arg1) && 0 === \count($args)){
-                  throw new IncorrectNumberOfFunctionParametersException();
+              if (\is_array($arg1) && 0 === \count($arg1)){
+                      throw new \InvalidArgumentException('Array must contain at least one element!');
               }
 
-              return \max($arg1, ...$args);
+              return \max(\is_array($arg1) ? $arg1 : [$arg1, ...$args]);
           },
           'min' => static function($arg1, ...$args) {
-              if (! \is_array($arg1) && 0 === \count($args)){
-                  throw new IncorrectNumberOfFunctionParametersException();
+              if (\is_array($arg1) && 0 === \count($arg1)){
+                  throw new \InvalidArgumentException('Array must contain at least one element!');
               }
 
-              return \min($arg1, ...$args);
+              return \min(\is_array($arg1) ? $arg1 : [$arg1, ...$args]);
           },
           'octdec' => static fn($arg) => \octdec($arg),
           'pi' => static fn() => M_PI,
@@ -469,8 +470,7 @@ class MathExecutor
           'tan' => static fn($arg) => \tan($arg),
           'tanh' => static fn($arg) => \tanh($arg),
           'tn' => static fn($arg) => \tan($arg),
-          'tg' => static fn($arg) => \tan($arg),
-          'array' => static fn(...$args) => [...$args]
+          'tg' => static fn($arg) => \tan($arg)
         ];
     }
 
@@ -488,7 +488,7 @@ class MathExecutor
     }
 
     /**
-     * Default variable validation, ensures that the value is a scalar.
+     * Default variable validation, ensures that the value is a scalar or array.
      * @throws MathExecutorException if the value is not a scalar
      */
     protected function defaultVarValidation(string $variable, $value) : void
