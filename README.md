@@ -85,7 +85,7 @@ Default functions:
 
 Add custom function to executor:
 ```php
-$executor->addFunction('abs', function($arg) {return abs($arg);});
+$executor->addFunction('concat', function($arg1, $arg2) {return $arg1 . $arg2;});
 ```
 Optional parameters:
 ```php
