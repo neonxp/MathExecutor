@@ -26,7 +26,7 @@ class MathTest extends TestCase
     /**
      * @dataProvider providerExpressions
      */
-    public function testCalculating($expression) : void
+    public function testCalculating(string $expression) : void
     {
         $calculator = new MathExecutor();
 
@@ -250,18 +250,47 @@ class MathTest extends TestCase
         ];
     }
 
+    /**
+     * @dataProvider incorrectExpressions
+     */
+    public function testIncorrectExpressionException(string $expression) : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVars(['a' => 12, 'b' => 24]);
+        $this->expectException(IncorrectExpressionException::class);
+        $calculator->execute($expression);
+    }
+
+    /**
+     * Incorrect Expressions data provider
+     *
+     * These expressions should not pass validation
+     */
+    public function incorrectExpressions()
+    {
+        return [
+          ['1 * + '],
+          [' 2 3'],
+          ['2 3 '],
+          [' 2 4 3 '],
+          ['$a $b'],
+          ['$a [3, 4, 5]'],
+          ['$a (3 + 4)'],
+          ['$a "string"'],
+          ['5 "string"'],
+          ['"string" $a'],
+          ['$a round(12.345)'],
+          ['round(12.345) $a'],
+          ['4 round(12.345)'],
+          ['round(12.345) 4'],
+        ];
+    }
+
     public function testUnknownFunctionException() : void
     {
         $calculator = new MathExecutor();
         $this->expectException(UnknownFunctionException::class);
         $calculator->execute('1 * fred("wilma") + 3');
-    }
-
-    public function testIncorrectExpressionException() : void
-    {
-        $calculator = new MathExecutor();
-        $this->expectException(IncorrectExpressionException::class);
-        $calculator->execute('1 * + ');
     }
 
     public function testZeroDivision() : void
