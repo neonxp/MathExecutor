@@ -124,6 +124,8 @@ class Tokenizer
                     continue 2;
 
                 case ' ' == $ch || "\n" == $ch || "\r" == $ch || "\t" == $ch:
+                    $this->emptyNumberBufferAsLiteral();
+                    $this->emptyStrBufferAsVariable();
                     $this->tokens[] = new Token(Token::Space, '');
 
                     continue 2;
