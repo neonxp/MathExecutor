@@ -335,7 +335,8 @@ class MathExecutor
 
           return \bcdiv("{$a}", "{$b}");
       }));
-      $this->addOperator(new Operator('^', true, 220, static fn($a, $b) => \pow("{$a}", "{$b}")));
+      $this->addOperator(new Operator('^', true, 220, static fn($a, $b) => \bcpow("{$a}", "{$b}")));
+      $this->addOperator(new Operator('%', false, 180, static fn($a, $b) => \bcmod("{$a}", "{$b}")));
 
       return $this;
     }
@@ -388,6 +389,7 @@ class MathExecutor
             false
           ],
           '^' => [static fn($a, $b) => \pow($a, $b), 220, true],
+          '%' => [static fn($a, $b) => $a % $b, 180, false],
           '&&' => [static fn($a, $b) => $a && $b, 100, false],
           '||' => [static fn($a, $b) => $a || $b, 90, false],
           '==' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 == \strcmp($a, $b) : $a == $b, 140, false],
