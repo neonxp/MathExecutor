@@ -263,7 +263,7 @@ class MathExecutor
      *
      * @return array<Operator> of operator class names
      */
-    public function getOperators()
+    public function getOperators() : array
     {
         return $this->operators;
     }
@@ -277,6 +277,18 @@ class MathExecutor
     public function getFunctions() : array
     {
         return $this->functions;
+    }
+
+    /**
+     * Remove a specific operator
+     *
+     * @return array<Operator> of operator class names
+     */
+    public function removeOperator(string $operator) : self
+    {
+        unset($this->operators[$operator]);
+
+        return $this;
     }
 
     /**
@@ -301,16 +313,39 @@ class MathExecutor
     /**
      * Clear token's cache
      */
-    public function clearCache() : void
+    public function clearCache() : self
     {
         $this->cache = [];
+
+        return $this;
+    }
+
+    public function useBCMath(int $scale = 2) : self
+    {
+      \bcscale($scale);
+      $this->addOperator(new Operator('+', false, 170, static fn($a, $b) => \bcadd("{$a}", "{$b}")));
+      $this->addOperator(new Operator('-', false, 170, static fn($a, $b) => \bcsub("{$a}", "{$b}")));
+      $this->addOperator(new Operator('uNeg', false, 200, static fn($a) => \bcsub('0.0', "{$a}")));
+      $this->addOperator(new Operator('*', false, 180, static fn($a, $b) => \bcmul("{$a}", "{$b}")));
+      $this->addOperator(new Operator('/', false, 180, static function($a, $b) {
+          /** @todo PHP8: Use throw as expression -> static fn($a, $b) => 0 == $b ? throw new DivisionByZeroException() : $a / $b */
+          if (0 == $b) {
+              throw new DivisionByZeroException();
+          }
+
+          return \bcdiv("{$a}", "{$b}");
+      }));
+      $this->addOperator(new Operator('^', true, 220, static fn($a, $b) => \bcpow("{$a}", "{$b}")));
+      $this->addOperator(new Operator('%', false, 180, static fn($a, $b) => \bcmod("{$a}", "{$b}")));
+
+      return $this;
     }
 
     /**
      * Set default operands and functions
      * @throws ReflectionException
      */
-    protected function addDefaults() : void
+    protected function addDefaults() : self
     {
         foreach ($this->defaultOperators() as $name => $operator) {
             [$callable, $priority, $isRightAssoc] = $operator;
@@ -323,6 +358,8 @@ class MathExecutor
 
         $this->onVarValidation = [$this, 'defaultVarValidation'];
         $this->variables = $this->defaultVars();
+
+        return $this;
     }
 
     /**
@@ -352,6 +389,7 @@ class MathExecutor
             false
           ],
           '^' => [static fn($a, $b) => \pow($a, $b), 220, true],
+          '%' => [static fn($a, $b) => $a % $b, 180, false],
           '&&' => [static fn($a, $b) => $a && $b, 100, false],
           '||' => [static fn($a, $b) => $a || $b, 90, false],
           '==' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 == \strcmp($a, $b) : $a == $b, 140, false],
