@@ -3,10 +3,11 @@
 # A simple and extensible math expressions calculator
 
 ## Features:
-* Built in support for +, -, *, %, / and power (^) operators
+* Built in support for +, -, *, /, % and power (^) operators
 * Paratheses () and arrays [] are fully supported
 * Logical operators (==, !=, <, <, >=, <=, &&, ||)
 * Built in support for most PHP math functions
+* Support for BCMath Arbitrary Precision Math
 * Support for variable number of function parameters and optional function parameters
 * Conditional If logic
 * Support for user defined operators
@@ -191,7 +192,7 @@ $calculator->setVarNotFoundHandler(
 
 ## Floating Point BCMath Support
 By default, `MathExecutor` uses PHP floating point math, but if you need a fixed precision, call **useBCMath()**. Precision defaults to 2 decimal points, or pass the required number.
-`WARNING`: Functions may return a PHP floating point number.  By doing the basic math functions on the results, you will get back a fixed number of decimal points. Use a plus sign in from of any stand alone function to return the proper number of decimal places.
+`WARNING`: Functions may return a PHP floating point number.  By doing the basic math functions on the results, you will get back a fixed number of decimal points. Use a plus sign in front of any stand alone function to return the proper number of decimal places.
 
 ## Division By Zero Support:
 Division by zero throws a `\NXP\Exception\DivisionByZeroException` by default
