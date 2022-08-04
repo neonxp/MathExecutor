@@ -16,7 +16,9 @@ class CustomFunction
     public $function;
 
     private bool $isVariadic;
+
     private int $totalParamCount;
+
     private int $requiredParamCount;
 
     /**
@@ -45,6 +47,7 @@ class CustomFunction
         if ($paramCountInStack < $this->requiredParamCount) {
             throw new IncorrectNumberOfFunctionParametersException($this->name);
         }
+
         if ($paramCountInStack > $this->totalParamCount && ! $this->isVariadic) {
             throw new IncorrectNumberOfFunctionParametersException($this->name);
         }
