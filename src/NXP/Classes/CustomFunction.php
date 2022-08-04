@@ -45,7 +45,7 @@ class CustomFunction
         if ($paramCountInStack < $this->requiredParamCount) {
             throw new IncorrectNumberOfFunctionParametersException($this->name);
         }
-        if ($paramCountInStack > $this->totalParamCount && !$this->isVariadic) {
+        if ($paramCountInStack > $this->totalParamCount && ! $this->isVariadic) {
             throw new IncorrectNumberOfFunctionParametersException($this->name);
         }
         $args = [];
