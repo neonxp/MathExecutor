@@ -674,6 +674,16 @@ class MathTest extends TestCase
         $calculator->execute('myfunc(1)');
     }
 
+    public function testFunctionIncorrectNumberOfParametersTooMany() : void
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(IncorrectNumberOfFunctionParametersException::class);
+        $calculator->addFunction('myfunc', static function($arg1, $arg2) {
+            return $arg1 + $arg2;
+        });
+        $calculator->execute('myfunc(1,2,3)');
+    }
+
     public function testFunctionIf() : void
     {
         $calculator = new MathExecutor();
