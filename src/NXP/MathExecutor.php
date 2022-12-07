@@ -74,7 +74,6 @@ class MathExecutor
     /**
      * Add operator to executor
      *
-     * @return MathExecutor
      */
     public function addOperator(Operator $operator) : self
     {
@@ -119,7 +118,6 @@ class MathExecutor
      *
      * @throws ReflectionException
      * @throws Exception\IncorrectNumberOfFunctionParametersException
-     * @return MathExecutor
      */
     public function addFunction(string $name, ?callable $function = null) : self
     {
@@ -161,7 +159,6 @@ class MathExecutor
      * Add variable to executor. To set a custom validator use setVarValidationHandler.
      *
      * @throws MathExecutorException if the value is invalid based on the default or custom validator
-     * @return MathExecutor
      */
     public function setVar(string $variable, $value) : self
     {
@@ -189,7 +186,6 @@ class MathExecutor
      * @param  array<string, float|int|string> $variables
      * @param  bool $clear Clear previous variables
      * @throws \Exception
-     * @return MathExecutor
      */
     public function setVars(array $variables, bool $clear = true) : self
     {
@@ -209,7 +205,6 @@ class MathExecutor
      * The first parameter will be the variable name, and the returned value will be used as the variable value.
      *
      *
-     * @return MathExecutor
      */
     public function setVarNotFoundHandler(callable $handler) : self
     {
@@ -225,7 +220,6 @@ class MathExecutor
      *
      * @param ?callable $handler throws a MathExecutorException in case of an invalid variable
      *
-     * @return MathExecutor
      */
     public function setVarValidationHandler(?callable $handler) : self
     {
@@ -237,7 +231,6 @@ class MathExecutor
     /**
      * Remove variable from executor
      *
-     * @return MathExecutor
      */
     public function removeVar(string $variable) : self
     {
@@ -248,7 +241,6 @@ class MathExecutor
 
     /**
      * Remove all variables and the variable not found handler
-     * @return MathExecutor
      */
     public function removeVars() : self
     {
@@ -296,7 +288,7 @@ class MathExecutor
      */
     public function setDivisionByZeroIsZero() : self
     {
-        $this->addOperator(new Operator('/', false, 180, static fn($a, $b) => 0 == $b ? 0 : $a / $b));
+        $this->addOperator(new Operator('/', false, 180, static fn ($a, $b) => 0 == $b ? 0 : $a / $b));
 
         return $this;
     }
@@ -323,10 +315,10 @@ class MathExecutor
     public function useBCMath(int $scale = 2) : self
     {
       \bcscale($scale);
-      $this->addOperator(new Operator('+', false, 170, static fn($a, $b) => \bcadd("{$a}", "{$b}")));
-      $this->addOperator(new Operator('-', false, 170, static fn($a, $b) => \bcsub("{$a}", "{$b}")));
-      $this->addOperator(new Operator('uNeg', false, 200, static fn($a) => \bcsub('0.0', "{$a}")));
-      $this->addOperator(new Operator('*', false, 180, static fn($a, $b) => \bcmul("{$a}", "{$b}")));
+      $this->addOperator(new Operator('+', false, 170, static fn ($a, $b) => \bcadd("{$a}", "{$b}")));
+      $this->addOperator(new Operator('-', false, 170, static fn ($a, $b) => \bcsub("{$a}", "{$b}")));
+      $this->addOperator(new Operator('uNeg', false, 200, static fn ($a) => \bcsub('0.0', "{$a}")));
+      $this->addOperator(new Operator('*', false, 180, static fn ($a, $b) => \bcmul("{$a}", "{$b}")));
       $this->addOperator(new Operator('/', false, 180, static function($a, $b) {
           /** @todo PHP8: Use throw as expression -> static fn($a, $b) => 0 == $b ? throw new DivisionByZeroException() : $a / $b */
           if (0 == $b) {
@@ -335,8 +327,8 @@ class MathExecutor
 
           return \bcdiv("{$a}", "{$b}");
       }));
-      $this->addOperator(new Operator('^', true, 220, static fn($a, $b) => \bcpow("{$a}", "{$b}")));
-      $this->addOperator(new Operator('%', false, 180, static fn($a, $b) => \bcmod("{$a}", "{$b}")));
+      $this->addOperator(new Operator('^', true, 220, static fn ($a, $b) => \bcpow("{$a}", "{$b}")));
+      $this->addOperator(new Operator('%', false, 180, static fn ($a, $b) => \bcmod("{$a}", "{$b}")));
 
       return $this;
     }
@@ -370,13 +362,13 @@ class MathExecutor
     protected function defaultOperators() : array
     {
         return [
-          '+' => [static fn($a, $b) => $a + $b, 170, false],
-          '-' => [static fn($a, $b) => $a - $b, 170, false],
+          '+' => [static fn ($a, $b) => $a + $b, 170, false],
+          '-' => [static fn ($a, $b) => $a - $b, 170, false],
           // unary positive token
-          'uPos' => [static fn($a) => $a, 200, false],
+          'uPos' => [static fn ($a) => $a, 200, false],
           // unary minus token
-          'uNeg' => [static fn($a) => 0 - $a, 200, false],
-          '*' => [static fn($a, $b) => $a * $b, 180, false],
+          'uNeg' => [static fn ($a) => 0 - $a, 200, false],
+          '*' => [static fn ($a, $b) => $a * $b, 180, false],
           '/' => [
             static function($a, $b) { /** @todo PHP8: Use throw as expression -> static fn($a, $b) => 0 == $b ? throw new DivisionByZeroException() : $a / $b */
                 if (0 == $b) {
@@ -388,16 +380,16 @@ class MathExecutor
             180,
             false
           ],
-          '^' => [static fn($a, $b) => \pow($a, $b), 220, true],
-          '%' => [static fn($a, $b) => $a % $b, 180, false],
-          '&&' => [static fn($a, $b) => $a && $b, 100, false],
-          '||' => [static fn($a, $b) => $a || $b, 90, false],
-          '==' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 == \strcmp($a, $b) : $a == $b, 140, false],
-          '!=' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 != \strcmp($a, $b) : $a != $b, 140, false],
-          '>=' => [static fn($a, $b) => $a >= $b, 150, false],
-          '>' => [static fn($a, $b) => $a > $b, 150, false],
-          '<=' => [static fn($a, $b) => $a <= $b, 150, false],
-          '<' => [static fn($a, $b) => $a < $b, 150, false],
+          '^' => [static fn ($a, $b) => \pow($a, $b), 220, true],
+          '%' => [static fn ($a, $b) => $a % $b, 180, false],
+          '&&' => [static fn ($a, $b) => $a && $b, 100, false],
+          '||' => [static fn ($a, $b) => $a || $b, 90, false],
+          '==' => [static fn ($a, $b) => \is_string($a) || \is_string($b) ? 0 == \strcmp($a, $b) : $a == $b, 140, false],
+          '!=' => [static fn ($a, $b) => \is_string($a) || \is_string($b) ? 0 != \strcmp($a, $b) : $a != $b, 140, false],
+          '>=' => [static fn ($a, $b) => $a >= $b, 150, false],
+          '>' => [static fn ($a, $b) => $a > $b, 150, false],
+          '<=' => [static fn ($a, $b) => $a <= $b, 150, false],
+          '<' => [static fn ($a, $b) => $a < $b, 150, false],
         ];
     }
 
@@ -410,29 +402,29 @@ class MathExecutor
     protected function defaultFunctions() : array
     {
         return [
-          'abs' => static fn($arg) => \abs($arg),
-          'acos' => static fn($arg) => \acos($arg),
-          'acosh' => static fn($arg) => \acosh($arg),
-          'arcsin' => static fn($arg) => \asin($arg),
-          'arcctg' => static fn($arg) => M_PI / 2 - \atan($arg),
-          'arccot' => static fn($arg) => M_PI / 2 - \atan($arg),
-          'arccotan' => static fn($arg) => M_PI / 2 - \atan($arg),
-          'arcsec' => static fn($arg) => \acos(1 / $arg),
-          'arccosec' => static fn($arg) => \asin(1 / $arg),
-          'arccsc' => static fn($arg) => \asin(1 / $arg),
-          'arccos' => static fn($arg) => \acos($arg),
-          'arctan' => static fn($arg) => \atan($arg),
-          'arctg' => static fn($arg) => \atan($arg),
-          'array' => static fn(...$args) => $args,
-          'asin' => static fn($arg) => \asin($arg),
-          'atan' => static fn($arg) => \atan($arg),
-          'atan2' => static fn($arg1, $arg2) => \atan2($arg1, $arg2),
-          'atanh' => static fn($arg) => \atanh($arg),
-          'atn' => static fn($arg) => \atan($arg),
+          'abs' => static fn ($arg) => \abs($arg),
+          'acos' => static fn ($arg) => \acos($arg),
+          'acosh' => static fn ($arg) => \acosh($arg),
+          'arcsin' => static fn ($arg) => \asin($arg),
+          'arcctg' => static fn ($arg) => M_PI / 2 - \atan($arg),
+          'arccot' => static fn ($arg) => M_PI / 2 - \atan($arg),
+          'arccotan' => static fn ($arg) => M_PI / 2 - \atan($arg),
+          'arcsec' => static fn ($arg) => \acos(1 / $arg),
+          'arccosec' => static fn ($arg) => \asin(1 / $arg),
+          'arccsc' => static fn ($arg) => \asin(1 / $arg),
+          'arccos' => static fn ($arg) => \acos($arg),
+          'arctan' => static fn ($arg) => \atan($arg),
+          'arctg' => static fn ($arg) => \atan($arg),
+          'array' => static fn (...$args) => $args,
+          'asin' => static fn ($arg) => \asin($arg),
+          'atan' => static fn ($arg) => \atan($arg),
+          'atan2' => static fn ($arg1, $arg2) => \atan2($arg1, $arg2),
+          'atanh' => static fn ($arg) => \atanh($arg),
+          'atn' => static fn ($arg) => \atan($arg),
           'avg' => static function($arg1, ...$args) {
               if (\is_array($arg1)){
                   if (0 === \count($arg1)){
-                      throw new \InvalidArgumentException('Array must contain at least one element!');
+                      throw new \InvalidArgumentException('avg() must have at least one argument!');
                   }
 
                   return \array_sum($arg1) / \count($arg1);
@@ -442,27 +434,27 @@ class MathExecutor
 
               return \array_sum($args) / \count($args);
           },
-          'bindec' => static fn($arg) => \bindec($arg),
-          'ceil' => static fn($arg) => \ceil($arg),
-          'cos' => static fn($arg) => \cos($arg),
-          'cosec' => static fn($arg) => 1 / \sin($arg),
-          'csc' => static fn($arg) => 1 / \sin($arg),
-          'cosh' => static fn($arg) => \cosh($arg),
-          'ctg' => static fn($arg) => \cos($arg) / \sin($arg),
-          'cot' => static fn($arg) => \cos($arg) / \sin($arg),
-          'cotan' => static fn($arg) => \cos($arg) / \sin($arg),
-          'cotg' => static fn($arg) => \cos($arg) / \sin($arg),
-          'ctn' => static fn($arg) => \cos($arg) / \sin($arg),
-          'decbin' => static fn($arg) => \decbin($arg),
-          'dechex' => static fn($arg) => \dechex($arg),
-          'decoct' => static fn($arg) => \decoct($arg),
-          'deg2rad' => static fn($arg) => \deg2rad($arg),
-          'exp' => static fn($arg) => \exp($arg),
-          'expm1' => static fn($arg) => \expm1($arg),
-          'floor' => static fn($arg) => \floor($arg),
-          'fmod' => static fn($arg1, $arg2) => \fmod($arg1, $arg2),
-          'hexdec' => static fn($arg) => \hexdec($arg),
-          'hypot' => static fn($arg1, $arg2) => \hypot($arg1, $arg2),
+          'bindec' => static fn ($arg) => \bindec($arg),
+          'ceil' => static fn ($arg) => \ceil($arg),
+          'cos' => static fn ($arg) => \cos($arg),
+          'cosec' => static fn ($arg) => 1 / \sin($arg),
+          'csc' => static fn ($arg) => 1 / \sin($arg),
+          'cosh' => static fn ($arg) => \cosh($arg),
+          'ctg' => static fn ($arg) => \cos($arg) / \sin($arg),
+          'cot' => static fn ($arg) => \cos($arg) / \sin($arg),
+          'cotan' => static fn ($arg) => \cos($arg) / \sin($arg),
+          'cotg' => static fn ($arg) => \cos($arg) / \sin($arg),
+          'ctn' => static fn ($arg) => \cos($arg) / \sin($arg),
+          'decbin' => static fn ($arg) => \decbin($arg),
+          'dechex' => static fn ($arg) => \dechex($arg),
+          'decoct' => static fn ($arg) => \decoct($arg),
+          'deg2rad' => static fn ($arg) => \deg2rad($arg),
+          'exp' => static fn ($arg) => \exp($arg),
+          'expm1' => static fn ($arg) => \expm1($arg),
+          'floor' => static fn ($arg) => \floor($arg),
+          'fmod' => static fn ($arg1, $arg2) => \fmod($arg1, $arg2),
+          'hexdec' => static fn ($arg) => \hexdec($arg),
+          'hypot' => static fn ($arg1, $arg2) => \hypot($arg1, $arg2),
           'if' => function($expr, $trueval, $falseval) {
               if (true === $expr || false === $expr) {
                   $exres = $expr;
@@ -476,39 +468,39 @@ class MathExecutor
 
               return $this->execute($falseval);
           },
-          'intdiv' => static fn($arg1, $arg2) => \intdiv($arg1, $arg2),
-          'ln' => static fn($arg) => \log($arg),
-          'lg' => static fn($arg) => \log10($arg),
-          'log' => static fn($arg) => \log($arg),
-          'log10' => static fn($arg) => \log10($arg),
-          'log1p' => static fn($arg) => \log1p($arg),
+          'intdiv' => static fn ($arg1, $arg2) => \intdiv($arg1, $arg2),
+          'ln' => static fn ($arg) => \log($arg),
+          'lg' => static fn ($arg) => \log10($arg),
+          'log' => static fn ($arg) => \log($arg),
+          'log10' => static fn ($arg) => \log10($arg),
+          'log1p' => static fn ($arg) => \log1p($arg),
           'max' => static function($arg1, ...$args) {
               if (\is_array($arg1) && 0 === \count($arg1)){
-                      throw new \InvalidArgumentException('Array must contain at least one element!');
+                  throw new \InvalidArgumentException('max() must have at least one argument!');
               }
 
               return \max(\is_array($arg1) ? $arg1 : [$arg1, ...$args]);
           },
           'min' => static function($arg1, ...$args) {
               if (\is_array($arg1) && 0 === \count($arg1)){
-                  throw new \InvalidArgumentException('Array must contain at least one element!');
+                  throw new \InvalidArgumentException('min() must have at least one argument!');
               }
 
               return \min(\is_array($arg1) ? $arg1 : [$arg1, ...$args]);
           },
-          'octdec' => static fn($arg) => \octdec($arg),
-          'pi' => static fn() => M_PI,
-          'pow' => static fn($arg1, $arg2) => $arg1 ** $arg2,
-          'rad2deg' => static fn($arg) => \rad2deg($arg),
-          'round' => static fn($num, int $precision = 0) => \round($num, $precision),
-          'sin' => static fn($arg) => \sin($arg),
-          'sinh' => static fn($arg) => \sinh($arg),
-          'sec' => static fn($arg) => 1 / \cos($arg),
-          'sqrt' => static fn($arg) => \sqrt($arg),
-          'tan' => static fn($arg) => \tan($arg),
-          'tanh' => static fn($arg) => \tanh($arg),
-          'tn' => static fn($arg) => \tan($arg),
-          'tg' => static fn($arg) => \tan($arg)
+          'octdec' => static fn ($arg) => \octdec($arg),
+          'pi' => static fn () => M_PI,
+          'pow' => static fn ($arg1, $arg2) => $arg1 ** $arg2,
+          'rad2deg' => static fn ($arg) => \rad2deg($arg),
+          'round' => static fn ($num, int $precision = 0) => \round($num, $precision),
+          'sin' => static fn ($arg) => \sin($arg),
+          'sinh' => static fn ($arg) => \sinh($arg),
+          'sec' => static fn ($arg) => 1 / \cos($arg),
+          'sqrt' => static fn ($arg) => \sqrt($arg),
+          'tan' => static fn ($arg) => \tan($arg),
+          'tanh' => static fn ($arg) => \tanh($arg),
+          'tn' => static fn ($arg) => \tan($arg),
+          'tg' => static fn ($arg) => \tan($arg)
         ];
     }
 
