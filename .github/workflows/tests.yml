@@ -23,6 +23,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, bcmath, intl
+          ini-values: precision=16
           coverage: none
 
       - name: Install dependencies
@@ -32,8 +33,3 @@ jobs:
 
       - name: Execute tests
         run: vendor/bin/phpunit
-
-      - name: PHP CS Fixer
-        if: matrix.os != 'windows-latest'
-        run: |
-          vendor/bin/php-cs-fixer fix --dry-run -v
