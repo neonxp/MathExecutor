@@ -351,8 +351,8 @@ class MathTest extends TestCase
           ['tan(1.5)'],
           ['tanh(1.5)'],
 
-          ['0.1 + 0.2'],
-          ['0.1 + 0.2 - 0.3'],
+          ['0.1 + 0.2', '0.30'],
+          ['0.1 + 0.2 - 0.3', '0.00'],
           ['1 + 2'],
 
           ['0.1 - 0.2'],
@@ -608,7 +608,7 @@ class MathTest extends TestCase
         $this->assertEquals(\max([1, 5, 2]), $calculator->execute('max(array(1, 5, 2))'));
         $calculator->addFunction('arr_with_max_elements', static function($arg1, ...$args) {
             $args = \is_array($arg1) ? $arg1 : [$arg1, ...$args];
-            \usort($args, static fn($arr1, $arr2) => \count($arr2) <=> \count($arr1));
+            \usort($args, static fn ($arr1, $arr2) => \count($arr2) <=> \count($arr1));
 
             return $args[0];
         });
@@ -687,53 +687,105 @@ class MathTest extends TestCase
     public function testFunctionIf() : void
     {
         $calculator = new MathExecutor();
-        $this->assertEquals(30, $calculator->execute(
+        $this->assertEquals(
+          30,
+          $calculator->execute(
           'if(100 > 99, 30, 0)'
-        ));
-        $this->assertEquals(0, $calculator->execute(
+        ),
+          'Expression failed: if(100 > 99, 30, 0)'
+        );
+        $this->assertEquals(
+          0,
+          $calculator->execute(
           'if(100 < 99, 30, 0)'
-        ));
-        $this->assertEquals(30, $calculator->execute(
+        ),
+          'Expression failed: if(100 < 99, 30, 0)'
+        );
+        $this->assertEquals(
+          30,
+          $calculator->execute(
           'if(98 < 99 && sin(1) < 1, 30, 0)'
-        ));
-        $this->assertEquals(40, $calculator->execute(
+        ),
+          'Expression failed: if(98 < 99 && sin(1) < 1, 30, 0)'
+        );
+        $this->assertEquals(
+          40,
+          $calculator->execute(
           'if(98 < 99 && sin(1) < 1, max(30, 40), 0)'
-        ));
-        $this->assertEquals(40, $calculator->execute(
+        ),
+          'Expression failed: if(98 < 99 && sin(1) < 1, max(30, 40), 0)'
+        );
+        $this->assertEquals(
+          40,
+          $calculator->execute(
           'if(98 < 99 && sin(1) < 1, if(10 > 5, max(30, 40), 1), 0)'
-        ));
-        $this->assertEquals(20, $calculator->execute(
+        ),
+          'Expression failed: if(98 < 99 && sin(1) < 1, if(10 > 5, max(30, 40), 1), 0)'
+        );
+        $this->assertEquals(
+          20,
+          $calculator->execute(
           'if(98 < 99 && sin(1) > 1, if(10 > 5, max(30, 40), 1), if(4 <= 4, 20, 21))'
-        ));
-        $this->assertEquals(\cos(2), $calculator->execute(
+        ),
+          'Expression failed: if(98 < 99 && sin(1) > 1, if(10 > 5, max(30, 40), 1), if(4 <= 4, 20, 21))'
+        );
+        $this->assertEquals(
+          \cos(2),
+          $calculator->execute(
           'if(98 < 99 && sin(1) >= 1, max(30, 40), cos(2))'
-        ));
-        $this->assertEquals(\cos(2), $calculator->execute(
+        ),
+          'Expression failed: if(98 < 99 && sin(1) >= 1, max(30, 40), cos(2))'
+        );
+        $this->assertEquals(
+          \cos(2),
+          $calculator->execute(
           'if(cos(2), cos(2), 0)'
-        ));
+        ),
+          'Expression failed: if(cos(2), cos(2), 0)'
+        );
         $trx_amount = 100000;
         $calculator->setVar('trx_amount', $trx_amount);
         $this->assertEquals($trx_amount, $calculator->execute('$trx_amount'));
-        $this->assertEquals($trx_amount * 0.03, $calculator->execute(
+        $this->assertEquals(
+          $trx_amount * 0.03,
+          $calculator->execute(
           'if($trx_amount < 40000, $trx_amount * 0.06, $trx_amount * 0.03)'
-        ));
-        $this->assertEquals($trx_amount * 0.03, $calculator->execute(
+        ),
+          'Expression failed: if($trx_amount < 40000, $trx_amount * 0.06, $trx_amount * 0.03)'
+        );
+        $this->assertEquals(
+          $trx_amount * 0.03,
+          $calculator->execute(
           'if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
-        ));
+        ),
+          'Expression failed: if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
+        );
         $trx_amount = 39000;
         $calculator->setVar('trx_amount', $trx_amount);
-        $this->assertEquals($trx_amount * 0.06, $calculator->execute(
+        $this->assertEquals(
+          $trx_amount * 0.06,
+          $calculator->execute(
           'if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
-        ));
+        ),
+          'Expression failed: if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
+        );
         $trx_amount = 59000;
         $calculator->setVar('trx_amount', $trx_amount);
-        $this->assertEquals($trx_amount * 0.05, $calculator->execute(
+        $this->assertEquals(
+          $trx_amount * 0.05,
+          $calculator->execute(
           'if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
-        ));
+        ),
+          'Expression failed: if($trx_amount < 40000, $trx_amount * 0.06, if($trx_amount < 60000, $trx_amount * 0.05, $trx_amount * 0.03))'
+        );
         $this->expectException(IncorrectNumberOfFunctionParametersException::class);
-        $this->assertEquals(0.0, $calculator->execute(
+        $this->assertEquals(
+          0.0,
+          $calculator->execute(
           'if($trx_amount < 40000, $trx_amount * 0.06)'
-        ));
+        ),
+          'Expression failed: if($trx_amount < 40000, $trx_amount * 0.06)'
+        );
     }
 
     public function testVariables() : void
@@ -1043,40 +1095,32 @@ class MathTest extends TestCase
     public function providerExpressionValues()
     {
         return [
-          ['arccos(0.5)', 1.0471975511966],
           ['arccos(0.5)', \acos(0.5)],
-          ['arccosec(4)', 0.2526802551421],
           ['arccosec(4)', \asin(1 / 4)],
           ['arccot(3)', M_PI / 2 - \atan(3)],
-          ['arccotan(4)', 0.2449786631269],
           ['arccotan(4)', M_PI / 2 - \atan(4)],
-          ['arccsc(4)', 0.2526802551421],
           ['arccsc(4)', \asin(1 / 4)],
           ['arcctg(3)', M_PI / 2 - \atan(3)],
-          ['arcsec(4)', 1.3181160716528],
           ['arcsec(4)', \acos(1 / 4)],
-          ['arcsin(0.5)', 0.5235987755983],
           ['arcsin(0.5)', \asin(0.5)],
           ['arctan(0.5)', \atan(0.5)],
-          ['arctan(4)', 1.3258176636680],
+          ['arctan(4)', \atan(4)],
           ['arctg(0.5)', \atan(0.5)],
           ['cosec(12)', 1 / \sin(12)],
-          ['cosec(4)', -1.3213487088109],
+          ['cosec(4)', 1 / \sin(4)],
           ['cosh(12)', \cosh(12)],
           ['cot(12)', \cos(12) / \sin(12)],
           ['cotan(12)', \cos(12) / \sin(12)],
-          ['cotan(4)', 0.8636911544506],
+          ['cotan(4)', \cos(4) / \sin(4)],
           ['cotg(3)', \cos(3) / \sin(3)],
           ['csc(4)', 1 / \sin(4)],
           ['ctg(4)', \cos(4) / \sin(4)],
           ['ctn(4)', \cos(4) / \sin(4)],
           ['decbin(10)', \decbin(10)],
-          ['lg(2)', 0.3010299956639],
           ['lg(2)', \log10(2)],
-          ['ln(2)', 0.6931471805599],
           ['ln(2)', \log(2)],
-          ['sec(4)', -1.5298856564664],
-          ['tg(4)', 1.1578212823496],
+          ['sec(4)', 1 / \cos(4)],
+          ['tg(4)', \tan(4)],
         ];
     }
 
