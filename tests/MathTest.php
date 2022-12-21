@@ -31,12 +31,13 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
 
         /** @var float $phpResult */
+		$phpResult = 0.0;
         eval('$phpResult = ' . $expression . ';');
 
         try {
             $result = $calculator->execute($expression);
         } catch (Exception $e) {
-            $this->fail(\sprintf('Exception: %s (%s:%d), expression was: %s', \get_class($e), $e->getFile(), $e->getLine(), $expression));
+            $this->fail(\sprintf('Exception: %s (%s:%d), expression was: %s', $e::class, $e->getFile(), $e->getLine(), $expression));
         }
         $this->assertEquals($phpResult, $result, "Expression was: {$expression}");
     }
@@ -46,7 +47,9 @@ class MathTest extends TestCase
      *
      * Most tests can go in here.  The idea is that each expression will be evaluated by MathExecutor and by PHP with eval.
      * The results should be the same.  If they are not, then the test fails.  No need to add extra test unless you are doing
-     * something more complex and not a simple mathmatical expression.
+	 * something more complex and not a simple mathmatical expression.
+	 *
+	 * @return array<array<string>>
      */
     public function providerExpressions()
     {
@@ -270,12 +273,13 @@ class MathTest extends TestCase
         }
 
         /** @var float $phpResult */
+		$phpResult = 0.0;
         eval('$phpResult = ' . $expected . ';');
 
         try {
             $result = $calculator->execute($expression);
         } catch (Exception $e) {
-            $this->fail(\sprintf('Exception: %s (%s:%d), expression was: %s', \get_class($e), $e->getFile(), $e->getLine(), $expression));
+            $this->fail(\sprintf('Exception: %s (%s:%d), expression was: %s', $e::class, $e->getFile(), $e->getLine(), $expression));
         }
         $this->assertEquals($phpResult, $result, "Expression was: {$expression}");
     }
@@ -285,7 +289,9 @@ class MathTest extends TestCase
      *
      * Most tests can go in here.  The idea is that each expression will be evaluated by MathExecutor and by PHP with eval.
      * The results should be the same.  If they are not, then the test fails.  No need to add extra test unless you are doing
-     * something more complex and not a simple mathmatical expression.
+	 * something more complex and not a simple mathmatical expression.
+	 *
+     * @return array<array<string>>
      */
     public function bcMathExpressions()
     {
@@ -504,7 +510,9 @@ class MathTest extends TestCase
     /**
      * Incorrect Expressions data provider
      *
-     * These expressions should not pass validation
+	 * These expressions should not pass validation
+	 *
+     * @return array<array<string>>
      */
     public function incorrectExpressions()
     {
@@ -592,9 +600,7 @@ class MathTest extends TestCase
         $this->assertEquals("'teststring", $calculator->execute("'\'teststring'"));
         $this->assertEquals("teststring'", $calculator->execute("'teststring\''"));
 
-        $calculator->addFunction('concat', static function($arg1, $arg2) {
-            return $arg1 . $arg2;
-        });
+        $calculator->addFunction('concat', static fn($arg1, $arg2) => $arg1 . $arg2);
         $this->assertEquals('test"ing', $calculator->execute('concat("test\"","ing")'));
         $this->assertEquals("test'ing", $calculator->execute("concat('test\'','ing')"));
     }
@@ -608,7 +614,7 @@ class MathTest extends TestCase
         $this->assertEquals(\max([1, 5, 2]), $calculator->execute('max(array(1, 5, 2))'));
         $calculator->addFunction('arr_with_max_elements', static function($arg1, ...$args) {
             $args = \is_array($arg1) ? $arg1 : [$arg1, ...$args];
-            \usort($args, static fn ($arr1, $arr2) => \count($arr2) <=> \count($arr1));
+            \usort($args, static fn ($arr1, $arr2) => (is_countable($arr2) ? \count($arr2) : 0) <=> \count($arr1));
 
             return $args[0];
         });
@@ -619,9 +625,7 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
 
-        $calculator->addFunction('concat', static function($arg1, $arg2) {
-            return $arg1 . $arg2;
-        });
+        $calculator->addFunction('concat', static fn($arg1, $arg2) => $arg1 . $arg2);
         $this->assertEquals('testing', $calculator->execute('concat("test","ing")'));
         $this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
     }
@@ -629,18 +633,14 @@ class MathTest extends TestCase
     public function testFunction() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('round', static function($arg) {
-            return \round($arg);
-        });
+        $calculator->addFunction('round', static fn($arg) => \round($arg));
         $this->assertEquals(\round(100 / 30), $calculator->execute('round(100/30)'));
     }
 
     public function testFunctionUnlimitedParameters() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('give_me_an_array', static function() {
-            return [5, 3, 7, 9, 8];
-        });
+        $calculator->addFunction('give_me_an_array', static fn() => [5, 3, 7, 9, 8]);
         $this->assertEquals(6.4, $calculator->execute('avg(give_me_an_array())'));
         $this->assertEquals(10, $calculator->execute('avg(12,8,15,5)'));
         $this->assertEquals(3, $calculator->execute('min(give_me_an_array())'));
@@ -657,9 +657,7 @@ class MathTest extends TestCase
     public function testFunctionOptionalParameters() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('round', static function($num, $precision = 0) {
-            return \round($num, $precision);
-        });
+        $calculator->addFunction('round', static fn($num, $precision = 0) => \round($num, $precision));
         $this->assertEquals(\round(11.176), $calculator->execute('round(11.176)'));
         $this->assertEquals(\round(11.176, 2), $calculator->execute('round(11.176,2)'));
     }
@@ -668,9 +666,7 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $this->expectException(IncorrectNumberOfFunctionParametersException::class);
-        $calculator->addFunction('myfunc', static function($arg1, $arg2) {
-            return $arg1 + $arg2;
-        });
+        $calculator->addFunction('myfunc', static fn($arg1, $arg2) => $arg1 + $arg2);
         $calculator->execute('myfunc(1)');
     }
 
@@ -678,9 +674,7 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $this->expectException(IncorrectNumberOfFunctionParametersException::class);
-        $calculator->addFunction('myfunc', static function($arg1, $arg2) {
-            return $arg1 + $arg2;
-        });
+        $calculator->addFunction('myfunc', static fn($arg1, $arg2) => $arg1 + $arg2);
         $calculator->execute('myfunc(1,2,3)');
     }
 
@@ -832,9 +826,7 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $calculator->addFunction(
           'round',
-          static function($value, $decimals) {
-                return \round($value, $decimals);
-            }
+          static fn($value, $decimals) => \round($value, $decimals)
         );
         $expression = 'round(100 * 1.111111, 2)';
         $phpResult = 0;
@@ -848,9 +840,7 @@ class MathTest extends TestCase
     public function testFunctionsWithQuotes() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('concat', static function($first, $second) {
-            return $first . $second;
-        });
+        $calculator->addFunction('concat', static fn($first, $second) => $first . $second);
         $this->assertEquals('testing', $calculator->execute('concat("test", "ing")'));
         $this->assertEquals('testing', $calculator->execute("concat('test', 'ing')"));
     }
@@ -1073,14 +1063,14 @@ class MathTest extends TestCase
     /**
      * @dataProvider providerExpressionValues
      */
-    public function testCalculatingValues($expression, $value) : void
+    public function testCalculatingValues(string $expression, mixed $value) : void
     {
         $calculator = new MathExecutor();
 
         try {
             $result = $calculator->execute($expression);
         } catch (Exception $e) {
-            $this->fail(\sprintf('Exception: %s (%s:%d), expression was: %s', \get_class($e), $e->getFile(), $e->getLine(), $expression));
+            $this->fail(\sprintf('Exception: %s (%s:%d), expression was: %s', $e::class, $e->getFile(), $e->getLine(), $expression));
         }
         $this->assertEquals($value, $result, "{$expression} did not evaluate to {$value}");
     }
@@ -1090,7 +1080,9 @@ class MathTest extends TestCase
      *
      * Most tests can go in here.  The idea is that each expression will be evaluated by MathExecutor and by PHP directly.
      * The results should be the same.  If they are not, then the test fails.  No need to add extra test unless you are doing
-     * something more complex and not a simple mathmatical expression.
+	 * something more complex and not a simple mathmatical expression.
+	 *
+     * @return array<array<mixed>>
      */
     public function providerExpressionValues()
     {

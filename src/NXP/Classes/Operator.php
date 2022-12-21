@@ -7,12 +7,6 @@ use ReflectionFunction;
 
 class Operator
 {
-    public string $operator = '';
-
-    public bool $isRightAssoc = false;
-
-    public int $priority = 0;
-
     /**
      * @var callable(\SplStack)
      */
@@ -23,11 +17,8 @@ class Operator
     /**
      * Operator constructor.
      */
-    public function __construct(string $operator, bool $isRightAssoc, int $priority, callable $function)
+    public function __construct(public string $operator, public bool $isRightAssoc, public int $priority, callable $function)
     {
-        $this->operator = $operator;
-        $this->isRightAssoc = $isRightAssoc;
-        $this->priority = $priority;
         $this->function = $function;
         $reflection = new ReflectionFunction($function);
         $this->places = $reflection->getNumberOfParameters();

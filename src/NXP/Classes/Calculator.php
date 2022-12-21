@@ -20,22 +20,14 @@ use NXP\Exception\UnknownVariableException;
  */
 class Calculator
 {
-    /** @var array<string, CustomFunction>  */
-    private array $functions = [];
-
-    /** @var array<Operator>  */
-    private array $operators = [];
-
     /**
      * @todo PHP8: Use constructor property promotion -> public function __construct(private array $functions, private array $operators)
      *
      * @param array<string, CustomFunction> $functions
      * @param array<Operator> $operators
      */
-    public function __construct(array $functions, array $operators)
+    public function __construct(private array $functions, private array $operators)
     {
-        $this->functions = $functions;
-        $this->operators = $operators;
     }
 
     /**

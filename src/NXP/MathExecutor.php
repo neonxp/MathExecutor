@@ -140,9 +140,8 @@ class MathExecutor
      * Get a specific var
      *
      * @throws UnknownVariableException if VarNotFoundHandler is not set
-     * @return int|float
      */
-    public function getVar(string $variable)
+    public function getVar(string $variable): mixed
     {
         if (! \array_key_exists($variable, $this->variables)) {
             if ($this->onVarNotFound) {
@@ -160,7 +159,7 @@ class MathExecutor
      *
      * @throws MathExecutorException if the value is invalid based on the default or custom validator
      */
-    public function setVar(string $variable, $value) : self
+    public function setVar(string $variable, mixed $value) : self
     {
         if ($this->onVarValidation) {
             \call_user_func($this->onVarValidation, $variable, $value);
@@ -273,8 +272,6 @@ class MathExecutor
 
     /**
      * Remove a specific operator
-     *
-     * @return array<Operator> of operator class names
      */
     public function removeOperator(string $operator) : self
     {
@@ -380,7 +377,7 @@ class MathExecutor
             180,
             false
           ],
-          '^' => [static fn ($a, $b) => \pow($a, $b), 220, true],
+          '^' => [static fn ($a, $b) => $a ** $b, 220, true],
           '%' => [static fn ($a, $b) => $a % $b, 180, false],
           '&&' => [static fn ($a, $b) => $a && $b, 100, false],
           '||' => [static fn ($a, $b) => $a || $b, 90, false],
@@ -521,7 +518,7 @@ class MathExecutor
      * Default variable validation, ensures that the value is a scalar or array.
      * @throws MathExecutorException if the value is not a scalar
      */
-    protected function defaultVarValidation(string $variable, $value) : void
+    protected function defaultVarValidation(string $variable, mixed $value) : void
     {
         if (! \is_scalar($value) && ! \is_array($value) && null !== $value) {
             $type = \gettype($value);
