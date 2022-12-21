@@ -135,7 +135,7 @@ class Tokenizer
                     break;
                 /** @noinspection PhpMissingBreakStatementInspection */
                 case 'e' === \strtolower($ch):
-                    if (\strlen($this->numberBuffer) && str_contains($this->numberBuffer, '.')) {
+                    if (\strlen($this->numberBuffer) && \str_contains($this->numberBuffer, '.')) {
                         $this->numberBuffer .= 'e';
                         $this->allowNegative = false;
 

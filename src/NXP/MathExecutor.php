@@ -141,7 +141,7 @@ class MathExecutor
      *
      * @throws UnknownVariableException if VarNotFoundHandler is not set
      */
-    public function getVar(string $variable): mixed
+    public function getVar(string $variable) : mixed
     {
         if (! \array_key_exists($variable, $this->variables)) {
             if ($this->onVarNotFound) {
