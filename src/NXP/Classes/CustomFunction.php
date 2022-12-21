@@ -8,8 +8,6 @@ use ReflectionFunction;
 
 class CustomFunction
 {
-    public string $name = '';
-
     /**
      * @var callable $function
      */
@@ -26,9 +24,8 @@ class CustomFunction
      *
      * @throws ReflectionException
      */
-    public function __construct(string $name, callable $function)
+    public function __construct(public string $name, callable $function)
     {
-        $this->name = $name;
         $this->function = $function;
         $reflection = (new ReflectionFunction($function));
         $this->isVariadic = $reflection->isVariadic();

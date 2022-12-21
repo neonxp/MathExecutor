@@ -23,16 +23,11 @@ class Tokenizer
     /** @var array<Token> */
     public array $tokens = [];
 
-    private string $input = '';
-
     private string $numberBuffer = '';
 
     private string $stringBuffer = '';
 
     private bool $allowNegative = true;
-
-    /** @var array<Operator> */
-    private array $operators = [];
 
     private bool $inSingleQuotedString = false;
 
@@ -42,10 +37,8 @@ class Tokenizer
      * Tokenizer constructor.
      * @param Operator[] $operators
      */
-    public function __construct(string $input, array $operators)
+    public function __construct(private string $input, private array $operators)
     {
-        $this->input = $input;
-        $this->operators = $operators;
     }
 
     public function tokenize() : self
@@ -142,7 +135,7 @@ class Tokenizer
                     break;
                 /** @noinspection PhpMissingBreakStatementInspection */
                 case 'e' === \strtolower($ch):
-                    if (\strlen($this->numberBuffer) && false !== \strpos($this->numberBuffer, '.')) {
+                    if (\strlen($this->numberBuffer) && \str_contains($this->numberBuffer, '.')) {
                         $this->numberBuffer .= 'e';
                         $this->allowNegative = false;
 
@@ -330,7 +323,7 @@ class Tokenizer
                                 break;
                             }
                             $tokens[] = $ctoken;
-                        } catch (RuntimeException $e) {
+                        } catch (RuntimeException) {
                             throw new IncorrectBracketsException();
                         }
                     }

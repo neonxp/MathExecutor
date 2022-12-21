@@ -22,22 +22,13 @@ class Token
 
     public const Space = 'space';
 
-    public string $type = self::Literal;
-
-    public $value;
-
-    public ?string $name;
-
     public ?int $paramCount = null;//to store function parameter count in stack
 
     /**
      * Token constructor.
      *
      */
-    public function __construct(string $type, $value, ?string $name = null)
+    public function __construct(public string $type, public mixed $value, public ?string $name = null)
     {
-        $this->type = $type;
-        $this->value = $value;
-        $this->name = $name;
     }
 }
