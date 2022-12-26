@@ -256,6 +256,8 @@ class MathTest extends TestCase
           ['7 % 4'],
           ['99 % 4'],
           ['123 % 7'],
+          ['!(1||0)'],
+          ['!(1&&0)'],
         ];
     }
 
@@ -493,6 +495,8 @@ class MathTest extends TestCase
           ['7 % 4'],
           ['99 % 4'],
           ['123 % 7'],
+          ['!(1||0)'],
+          ['!(1&&0)'],
         ];
     }
 
@@ -600,7 +604,7 @@ class MathTest extends TestCase
         $this->assertEquals("'teststring", $calculator->execute("'\'teststring'"));
         $this->assertEquals("teststring'", $calculator->execute("'teststring\''"));
 
-        $calculator->addFunction('concat', static fn ($arg1, $arg2) => $arg1 . $arg2);
+        $calculator->addFunction('concat', static fn($arg1, $arg2) => $arg1 . $arg2);
         $this->assertEquals('test"ing', $calculator->execute('concat("test\"","ing")'));
         $this->assertEquals("test'ing", $calculator->execute("concat('test\'','ing')"));
     }
@@ -614,7 +618,7 @@ class MathTest extends TestCase
         $this->assertEquals(\max([1, 5, 2]), $calculator->execute('max(array(1, 5, 2))'));
         $calculator->addFunction('arr_with_max_elements', static function($arg1, ...$args) {
             $args = \is_array($arg1) ? $arg1 : [$arg1, ...$args];
-            \usort($args, static fn ($arr1, $arr2) => (\is_countable($arr2) ? \count($arr2) : 0) <=> \count($arr1));
+            \usort($args, static fn($arr1, $arr2) => (\is_countable($arr2) ? \count($arr2) : 0) <=> \count($arr1));
 
             return $args[0];
         });
@@ -625,7 +629,7 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
 
-        $calculator->addFunction('concat', static fn ($arg1, $arg2) => $arg1 . $arg2);
+        $calculator->addFunction('concat', static fn($arg1, $arg2) => $arg1 . $arg2);
         $this->assertEquals('testing', $calculator->execute('concat("test","ing")'));
         $this->assertEquals('testing', $calculator->execute("concat('test','ing')"));
     }
@@ -633,31 +637,34 @@ class MathTest extends TestCase
     public function testFunction() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('round', static fn ($arg) => \round($arg));
+        $calculator->addFunction('round', static fn($arg) => \round($arg));
         $this->assertEquals(\round(100 / 30), $calculator->execute('round(100/30)'));
     }
 
     public function testFunctionUnlimitedParameters() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('give_me_an_array', static fn () => [5, 3, 7, 9, 8]);
+        $calculator->addFunction('give_me_an_array', static fn() => [5, 3, 7, 9, 8]);
         $this->assertEquals(6.4, $calculator->execute('avg(give_me_an_array())'));
         $this->assertEquals(10, $calculator->execute('avg(12,8,15,5)'));
         $this->assertEquals(3, $calculator->execute('min(give_me_an_array())'));
         $this->assertEquals(1, $calculator->execute('min(1,2,3)'));
         $this->assertEquals(9, $calculator->execute('max(give_me_an_array())'));
         $this->assertEquals(3, $calculator->execute('max(1,2,3)'));
+        $this->assertEquals(7, $calculator->execute('median(give_me_an_array())'));
+        $this->assertEquals(4, $calculator->execute('median(1,3,5,7)'));
         $calculator->setVar('monthly_salaries', [100, 200, 300]);
         $this->assertEquals([100, 200, 300], $calculator->execute('$monthly_salaries'));
         $this->assertEquals(200, $calculator->execute('avg($monthly_salaries)'));
         $this->assertEquals(\min([100, 200, 300]), $calculator->execute('min($monthly_salaries)'));
         $this->assertEquals(\max([100, 200, 300]), $calculator->execute('max($monthly_salaries)'));
+        $this->assertEquals(200, $calculator->execute('median($monthly_salaries)'));
     }
 
     public function testFunctionOptionalParameters() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('round', static fn ($num, $precision = 0) => \round($num, $precision));
+        $calculator->addFunction('round', static fn($num, $precision = 0) => \round($num, $precision));
         $this->assertEquals(\round(11.176), $calculator->execute('round(11.176)'));
         $this->assertEquals(\round(11.176, 2), $calculator->execute('round(11.176,2)'));
     }
@@ -666,7 +673,7 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $this->expectException(IncorrectNumberOfFunctionParametersException::class);
-        $calculator->addFunction('myfunc', static fn ($arg1, $arg2) => $arg1 + $arg2);
+        $calculator->addFunction('myfunc', static fn($arg1, $arg2) => $arg1 + $arg2);
         $calculator->execute('myfunc(1)');
     }
 
@@ -674,7 +681,7 @@ class MathTest extends TestCase
     {
         $calculator = new MathExecutor();
         $this->expectException(IncorrectNumberOfFunctionParametersException::class);
-        $calculator->addFunction('myfunc', static fn ($arg1, $arg2) => $arg1 + $arg2);
+        $calculator->addFunction('myfunc', static fn($arg1, $arg2) => $arg1 + $arg2);
         $calculator->execute('myfunc(1,2,3)');
     }
 
@@ -826,7 +833,7 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $calculator->addFunction(
           'round',
-          static fn ($value, $decimals) => \round($value, $decimals)
+          static fn($value, $decimals) => \round($value, $decimals)
         );
         $expression = 'round(100 * 1.111111, 2)';
         $phpResult = 0;
@@ -840,7 +847,7 @@ class MathTest extends TestCase
     public function testFunctionsWithQuotes() : void
     {
         $calculator = new MathExecutor();
-        $calculator->addFunction('concat', static fn ($first, $second) => $first . $second);
+        $calculator->addFunction('concat', static fn($first, $second) => $first . $second);
         $this->assertEquals('testing', $calculator->execute('concat("test", "ing")'));
         $this->assertEquals('testing', $calculator->execute("concat('test', 'ing')"));
     }
