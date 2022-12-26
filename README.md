@@ -5,7 +5,7 @@
 ## Features:
 * Built in support for +, -, *, /, % and power (^) operators
 * Paratheses () and arrays [] are fully supported
-* Logical operators (==, !=, <, <, >=, <=, &&, ||)
+* Logical operators (==, !=, <, <, >=, <=, &&, ||, !)
 * Built in support for most PHP math functions
 * Support for BCMath Arbitrary Precision Math
 * Support for variable number of function parameters and optional function parameters
@@ -71,6 +71,7 @@ Default functions:
 * log10 (lg)
 * log1p
 * max
+* median
 * min
 * octdec
 * pi
@@ -125,7 +126,7 @@ $executor->addOperator(new Operator(
 ```
 
 ## Logical operators:
-Logical operators (==, !=, <, <, >=, <=, &&, ||) are supported, but logically they can only return true (1) or false (0).  In order to leverage them, use the built in **if** function:
+Logical operators (==, !=, <, <, >=, <=, &&, ||, !) are supported, but logically they can only return true (1) or false (0).  In order to leverage them, use the built in **if** function:
 
 ```
 if($a > $b, $a - $b, $b - $a)
