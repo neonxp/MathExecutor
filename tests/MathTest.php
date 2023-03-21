@@ -51,7 +51,7 @@ class MathTest extends TestCase
      *
      * @return array<array<string>>
      */
-    public function providerExpressions()
+    public static function providerExpressions()
     {
         return [
           ['-5'],
@@ -295,7 +295,7 @@ class MathTest extends TestCase
      *
      * @return array<array<string>>
      */
-    public function bcMathExpressions()
+    public static function bcMathExpressions()
     {
         return [
           ['-5'],
@@ -518,7 +518,7 @@ class MathTest extends TestCase
      *
      * @return array<array<string>>
      */
-    public function incorrectExpressions()
+    public static function incorrectExpressions()
     {
         return [
           ['1 * + '],
@@ -1091,7 +1091,7 @@ class MathTest extends TestCase
      *
      * @return array<array<mixed>>
      */
-    public function providerExpressionValues()
+    public static function providerExpressionValues()
     {
         return [
           ['arccos(0.5)', \acos(0.5)],
