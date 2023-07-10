@@ -97,9 +97,9 @@ $executor->calculate('round(17.119, 2)'); // 17.12
 ```
 Variable number of parameters:
 ```php
-$executor->addFunction('avarage', function(...$args) {return array_sum($args) / count($args);});
-$executor->calculate('avarage(1,3)'); // 2
-$executor->calculate('avarage(1, 3, 4, 8)'); // 4
+$executor->addFunction('average', function(...$args) {return array_sum($args) / count($args);});
+$executor->calculate('average(1,3)'); // 2
+$executor->calculate('average(1, 3, 4, 8)'); // 4
 ```
 
 ## Operators:
