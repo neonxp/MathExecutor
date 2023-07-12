@@ -40,21 +40,35 @@ Default functions:
 * abs
 * acos (arccos)
 * acosh
+* arccos
+* arccosec
+* arccot
+* arccotan
+* arccsc (arccosec)
 * arcctg (arccot, arccotan)
 * arcsec
-* arccsc (arccosec)
+* arcsin
+* arctan
+* arctg
 * array
 * asin (arcsin)
 * atan (atn, arctan, arctg)
 * atan2
 * atanh
+* atn
 * avg
 * bindec
 * ceil
 * cos
+* cosec
 * cosec (csc)
 * cosh
+* cot
+* cotan
+* cotg
+* csc
 * ctg (cot, cotan, cotg, ctn)
+* ctn
 * decbin
 * dechex
 * decoct
@@ -67,6 +81,8 @@ Default functions:
 * hypot
 * if
 * intdiv
+* lg
+* ln
 * log (ln)
 * log10 (lg)
 * log1p
@@ -84,6 +100,8 @@ Default functions:
 * sqrt
 * tan (tn, tg)
 * tanh
+* tg
+* tn
 
 Add custom function to executor:
 ```php
