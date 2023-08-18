@@ -1018,6 +1018,7 @@ class MathTest extends TestCase
             if (\is_scalar($variable) || null === $variable) {
                 return;
             }
+
             // Allow variables of type DateTime, but not others
             if (! $variable instanceof \DateTime) {
                 throw new MathExecutorException('Invalid variable type');
