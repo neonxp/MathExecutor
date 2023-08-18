@@ -133,6 +133,7 @@ class Tokenizer
                     $this->allowNegative = false;
 
                     break;
+
                 /** @noinspection PhpMissingBreakStatementInspection */
                 case 'e' === \strtolower($ch):
                     if (\strlen($this->numberBuffer) && \str_contains($this->numberBuffer, '.')) {
@@ -141,6 +142,7 @@ class Tokenizer
 
                         break;
                     }
+
                 // no break
                 // Intentionally fall through
                 case $this->isAlpha($ch):
@@ -207,6 +209,7 @@ class Tokenizer
 
                             continue 2;
                         }
+
                         // could be in exponent, in which case negative should be added to the numberBuffer
                         if ($this->numberBuffer && 'e' == $this->numberBuffer[\strlen($this->numberBuffer) - 1]) {
                             $this->numberBuffer .= $ch;
