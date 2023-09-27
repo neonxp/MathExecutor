@@ -256,8 +256,15 @@ class MathTest extends TestCase
           ['7 % 4'],
           ['99 % 4'],
           ['123 % 7'],
+
           ['!(1||0)'],
           ['!(1&&0)'],
+          ['!(1)'],
+          ['!(0)'],
+          ['! 1'],
+          ['! 0'],
+          ['!1'],
+          ['!0'],
         ];
     }
 
@@ -495,8 +502,15 @@ class MathTest extends TestCase
           ['7 % 4'],
           ['99 % 4'],
           ['123 % 7'],
+
           ['!(1||0)'],
           ['!(1&&0)'],
+          ['!(1)'],
+          ['!(0)'],
+          ['! 1'],
+          ['! 0'],
+          ['!1'],
+          ['!0'],
         ];
     }
 
@@ -580,6 +594,21 @@ class MathTest extends TestCase
         $this->expectException(IncorrectExpressionException::class);
         $this->assertEquals(0.0, $calculator->execute('$'));
         $this->assertEquals(0.0, $calculator->execute('$ + $four'));
+    }
+
+    public function testNotVariableOperator() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVar('one', 1);
+        $calculator->setVar('zero', 0);
+        $this->assertEquals(false, $calculator->execute('! $one'));
+        $this->assertEquals(false, $calculator->execute('!$one'));
+        $this->assertEquals(false, $calculator->execute('! ($one)'));
+        $this->assertEquals(false, $calculator->execute('!($one)'));
+        $this->assertEquals(true, $calculator->execute('! $zero'));
+        $this->assertEquals(true, $calculator->execute('!$zero'));
+        $this->assertEquals(true, $calculator->execute('! ($zero)'));
+        $this->assertEquals(true, $calculator->execute('!($zero)'));
     }
 
     public function testExponentiation() : void
