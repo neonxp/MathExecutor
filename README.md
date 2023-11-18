@@ -4,7 +4,7 @@
 
 ## Features:
 * Built in support for +, -, *, /, % and power (^) operators
-* Paratheses () and arrays [] are fully supported
+* Parentheses () and arrays [] are fully supported
 * Logical operators (==, !=, <, <, >=, <=, &&, ||, !)
 * Built in support for most PHP math functions
 * Support for BCMath Arbitrary Precision Math
