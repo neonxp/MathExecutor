@@ -468,9 +468,9 @@ class MathExecutor
               return $this->execute($falseval);
           },
           'intdiv' => static fn($arg1, $arg2) => \intdiv($arg1, $arg2),
-          'ln' => static fn($arg) => \log($arg),
+          'ln' => static fn($arg1, $arg2 = M_E) => \log($arg1, $arg2),
           'lg' => static fn($arg) => \log10($arg),
-          'log' => static fn($arg) => \log($arg),
+          'log' => static fn($arg1, $arg2 = M_E) => \log($arg1, $arg2),
           'log10' => static fn($arg) => \log10($arg),
           'log1p' => static fn($arg) => \log1p($arg),
           'max' => static function($arg1, ...$args) {
