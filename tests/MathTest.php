@@ -97,6 +97,7 @@ class MathTest extends TestCase
           ['hypot(1.5, 3.5)'],
           ['intdiv(10, 2)'],
           ['log(1.5)'],
+          ['log(1.5, 3)'],
           ['log10(1.5)'],
           ['log1p(1.5)'],
           ['max(1.5, 3.5)'],
@@ -1148,6 +1149,7 @@ class MathTest extends TestCase
           ['decbin(10)', \decbin(10)],
           ['lg(2)', \log10(2)],
           ['ln(2)', \log(2)],
+          ['ln(2, 5)', \log(2, 5)],
           ['sec(4)', 1 / \cos(4)],
           ['tg(4)', \tan(4)],
         ];
