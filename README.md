@@ -110,14 +110,14 @@ $executor->addFunction('concat', function($arg1, $arg2) {return $arg1 . $arg2;})
 Optional parameters:
 ```php
 $executor->addFunction('round', function($num, int $precision = 0) {return round($num, $precision);});
-$executor->calculate('round(17.119)'); // 17
-$executor->calculate('round(17.119, 2)'); // 17.12
+$executor->execute('round(17.119)'); // 17
+$executor->execute('round(17.119, 2)'); // 17.12
 ```
 Variable number of parameters:
 ```php
 $executor->addFunction('average', function(...$args) {return array_sum($args) / count($args);});
-$executor->calculate('average(1,3)'); // 2
-$executor->calculate('average(1, 3, 4, 8)'); // 4
+$executor->execute('average(1,3)'); // 2
+$executor->execute('average(1, 3, 4, 8)'); // 4
 ```
 
 ## Operators:
