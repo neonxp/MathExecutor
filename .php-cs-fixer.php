@@ -41,7 +41,7 @@ $config
         // Comments with annotation should be docblock when used on structural elements.
         'comment_to_phpdoc' => true,
         // Remove extra spaces in a nullable typehint.
-        'compact_nullable_typehint' => true,
+        'compact_nullable_type_declaration' => true,
         // Concatenation should be spaced according configuration.
         'concat_space' => ['spacing'=>'one'],
         // The PHP constants `true`, `false`, and `null` MUST be written using the correct casing.
@@ -111,9 +111,9 @@ $config
         // Add leading `\` before function invocation to speed up resolving.
         'native_function_invocation' => ['include'=>['@all','trans']],
         // Native type hints for functions should use the correct case.
-        'native_function_type_declaration_casing' => true,
-        // All instances created with new keyword must be followed by braces.
-        'new_with_braces' => true,
+        'native_type_declaration_casing' => true,
+        // All instances created with new keyword must be followed by parentheses.
+        'new_with_parentheses' => true,
         // Master functions shall be used instead of aliases.
         'no_alias_functions' => true,
         // Master language constructs shall be used instead of aliases.
@@ -156,8 +156,8 @@ $config
         'no_trailing_whitespace_in_comment' => true,
         // Removes unneeded parentheses around control statements.
         'no_unneeded_control_parentheses' => true,
-        // Removes unneeded curly braces that are superfluous and aren't part of a control structure's body.
-        'no_unneeded_curly_braces' => true,
+        // Removes unneeded braces that are superfluous and aren't part of a control structure's body.
+        'no_unneeded_braces' => true,
         // A `final` class must not have `final` methods and `private` methods must not be `final`.
         'no_unneeded_final_method' => true,
         // In function arguments there must not be arguments with default values before non-default ones.
