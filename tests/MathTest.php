@@ -20,12 +20,11 @@ use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownVariableException;
 use NXP\MathExecutor;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class MathTest extends TestCase
 {
-    /**
-     * @dataProvider providerExpressions
-     */
+    #[DataProvider('providerExpressions')]
     public function testCalculating(string $expression) : void
     {
         $calculator = new MathExecutor();
@@ -269,9 +268,7 @@ class MathTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider bcMathExpressions
-     */
+    #[DataProvider('bcMathExpressions')]
     public function testBCMathCalculating(string $expression, string $expected = '') : void
     {
         $calculator = new MathExecutor();
@@ -515,9 +512,7 @@ class MathTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider incorrectExpressions
-     */
+    #[DataProvider('incorrectExpressions')]
     public function testIncorrectExpressionException(string $expression) : void
     {
         $calculator = new MathExecutor();
@@ -1098,9 +1093,7 @@ class MathTest extends TestCase
         $this->assertFalse($calculator->varExists('Lucy'));
     }
 
-    /**
-     * @dataProvider providerExpressionValues
-     */
+    #[DataProvider('providerExpressionValues')]
     public function testCalculatingValues(string $expression, mixed $value) : void
     {
         $calculator = new MathExecutor();
