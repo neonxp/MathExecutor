@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the MathExecutor package
  *
@@ -493,7 +494,7 @@ class MathExecutor
 
               $count = \count($finalArgs);
               \sort($finalArgs);
-              $index = \floor($count / 2);
+              $index = (int)\floor($count / 2);
 
               return ($count & 1) ? $finalArgs[$index] : ($finalArgs[$index - 1] + $finalArgs[$index]) / 2;
           },
