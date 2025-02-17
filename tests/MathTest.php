@@ -976,7 +976,7 @@ class MathTest extends TestCase
     public function testGetFunctionsReturnsArray() : void
     {
         $calculator = new MathExecutor();
-        $this->assertIsArray($calculator->getFunctions());
+        $this->assertIsArray($calculator->getFunctions()); // @phpstan-ignore-line
     }
 
     public function testGetFunctionsReturnsFunctions() : void
@@ -988,7 +988,7 @@ class MathTest extends TestCase
     public function testGetVarsReturnsArray() : void
     {
         $calculator = new MathExecutor();
-        $this->assertIsArray($calculator->getVars());
+        $this->assertIsArray($calculator->getVars()); // @phpstan-ignore-line
     }
 
     public function testGetVarsReturnsCount() : void
@@ -1160,7 +1160,7 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $this->assertEquals(256, $calculator->execute('2 ^ 8')); // second arg $cache is true by default
 
-        $this->assertIsArray($calculator->getCache());
+        $this->assertIsArray($calculator->getCache());  // @phpstan-ignore-line
         $this->assertCount(1, $calculator->getCache());
 
         $this->assertEquals(512, $calculator->execute('2 ^ 9', true));
@@ -1179,7 +1179,7 @@ class MathTest extends TestCase
 
     public function testUnsupportedOperands() : void
     {
-        if (\version_compare(PHP_VERSION, '8') >= 0) {
+        if (\version_compare(PHP_VERSION, '8.0') >= 0) {	// @phpstan-ignore-line
             $calculator = new MathExecutor();
 
             $calculator->setVar('stringVar', 'string');

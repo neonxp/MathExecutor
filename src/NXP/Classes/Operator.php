@@ -8,7 +8,7 @@ use ReflectionFunction;
 class Operator
 {
     /**
-     * @var callable(\SplStack)
+     * @var callable
      */
     public $function;
 
