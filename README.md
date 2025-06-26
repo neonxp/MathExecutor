@@ -123,7 +123,7 @@ $executor->execute('average(1, 3, 4, 8)'); // 4
 ## Operators:
 Default operators: `+ - * / % ^`
 
-Add custom operator to executor:
+Add custom float modulo operator to executor:
 
 ```php
 use NXP\Classes\Operator;
@@ -132,13 +132,9 @@ $executor->addOperator(new Operator(
     '%', // Operator sign
     false, // Is right associated operator
     180, // Operator priority
-    function (&$stack)
+    function ($op1, $op2)
     {
-       $op2 = array_pop($stack);
-       $op1 = array_pop($stack);
-       $result = $op1->getValue() % $op2->getValue();
-
-       return $result;
+       return fmod($op1, $op2);
     }
 ));
 ```
@@ -198,8 +194,7 @@ $executor->setVarValidationHandler(function (string $name, $variable) {
 You can dynamically define variables at run time. If a variable has a high computation cost, but might not be used, then you can define an undefined variable handler. It will only get called when the variable is used, rather than having to always set it initially.
 
 ```php
-$calculator = new MathExecutor();
-$calculator->setVarNotFoundHandler(
+$executor->setVarNotFoundHandler(
     function ($varName) {
         if ($varName == 'trans') {
             return transmogrify();
@@ -228,7 +223,7 @@ echo $executor->setDivisionByZeroIsZero()->execute('1/0');
 ```
 If you want another behavior, you can override division operator:
 ```php
-$executor->addOperator("/", false, 180, function($a, $b) {
+$executor->addOperator(new Operator("/"m, false, 180, function($a, $b) {
     if ($b == 0) {
         return null;
     }

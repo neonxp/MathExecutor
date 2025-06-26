@@ -20,11 +20,10 @@ use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownVariableException;
 use NXP\MathExecutor;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\DataProvider;
 
 class MathTest extends TestCase
 {
-    #[DataProvider('providerExpressions')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerExpressions')]
     public function testCalculating(string $expression) : void
     {
         $calculator = new MathExecutor();
@@ -268,7 +267,7 @@ class MathTest extends TestCase
         ];
     }
 
-    #[DataProvider('bcMathExpressions')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('bcMathExpressions')]
     public function testBCMathCalculating(string $expression, string $expected = '') : void
     {
         $calculator = new MathExecutor();
@@ -512,7 +511,7 @@ class MathTest extends TestCase
         ];
     }
 
-    #[DataProvider('incorrectExpressions')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('incorrectExpressions')]
     public function testIncorrectExpressionException(string $expression) : void
     {
         $calculator = new MathExecutor();
@@ -1093,7 +1092,7 @@ class MathTest extends TestCase
         $this->assertFalse($calculator->varExists('Lucy'));
     }
 
-    #[DataProvider('providerExpressionValues')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerExpressionValues')]
     public function testCalculatingValues(string $expression, mixed $value) : void
     {
         $calculator = new MathExecutor();
@@ -1172,7 +1171,7 @@ class MathTest extends TestCase
 
     public function testUnsupportedOperands() : void
     {
-        if (\version_compare(PHP_VERSION, '8.0') >= 0) {	// @phpstan-ignore-line
+        if (\version_compare(PHP_VERSION, '8.0') >= 0) {	/** @phpstan-ignore-line */
             $calculator = new MathExecutor();
 
             $calculator->setVar('stringVar', 'string');
