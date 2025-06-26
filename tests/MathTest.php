@@ -19,8 +19,8 @@ use NXP\Exception\MathExecutorException;
 use NXP\Exception\UnknownFunctionException;
 use NXP\Exception\UnknownVariableException;
 use NXP\MathExecutor;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
 class MathTest extends TestCase
 {
@@ -1172,7 +1172,7 @@ class MathTest extends TestCase
 
     public function testUnsupportedOperands() : void
     {
-        if (\version_compare(PHP_VERSION, '8.0') >= 0) {	// @phpstan-ignore-line
+        if (\version_compare(PHP_VERSION, '8.0') >= 0) {	/** @phpstan-ignore-line */
             $calculator = new MathExecutor();
 
             $calculator->setVar('stringVar', 'string');
