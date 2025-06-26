@@ -21,6 +21,7 @@ use NXP\Exception\UnknownVariableException;
 use NXP\MathExecutor;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class MathTest extends TestCase
 {
