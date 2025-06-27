@@ -223,7 +223,7 @@ echo $executor->setDivisionByZeroIsZero()->execute('1/0');
 ```
 If you want another behavior, you can override division operator:
 ```php
-$executor->addOperator(new Operator("/"m, false, 180, function($a, $b) {
+$executor->addOperator(new Operator("/", false, 180, function($a, $b) {
     if ($b == 0) {
         return null;
     }
