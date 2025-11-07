@@ -1,6 +1,7 @@
 <?php
 
 $config = new PhpCsFixer\Config();
+$config->setUnsupportedPhpVersionAllowed(true);
 
 $config
     ->setRiskyAllowed(true)
@@ -264,8 +265,7 @@ $config
         'trim_array_spaces' => true,
         // Unary operators should be placed adjacent to their operands.
         'unary_operator_spaces' => true,
-        // Visibility MUST be declared on all properties and methods; `abstract` and `final` MUST be declared before the visibility; `static` MUST be declared after the visibility.
-        'visibility_required' => true,
+        'modifier_keywords' => ['elements' => ['const', 'method', 'property']],
         // Add `void` return type to functions with missing or empty return statements, but priority is given to `@return` annotations. Requires PHP >= 7.1.
         'void_return' => true,
         // In array declaration, there MUST be a whitespace after each comma.
