@@ -17,6 +17,7 @@
 * Unlimited variable name lengths
 * String support, as function parameters or as evaluated as a number by PHP
 * Exceptions on divide by zero, or treat as zero
+* Custom handling of non-numeric values reaching an arithmetic operator
 * Unary Plus and Minus (e.g. +3 or -sin(12))
 * Pi ($pi) and Euler's number ($e) support to 11 decimal places
 * Easily extensible
@@ -231,6 +232,39 @@ $executor->addOperator(new Operator("/", false, 180, function($a, $b) {
 });
 echo $executor->execute('1/0');
 ```
+
+## Non-Numeric Value Support:
+Arithmetic and ordering operators expect numbers. When a value that is not a number reaches one of them, it is passed to
+PHP as-is, which raises a `\TypeError` for the arithmetic operators (`'N/A' / 2`) and compares as a string for the
+ordering ones (`'N/A' > 1` is `true`). Call **setNonNumericHandler()** to decide what such a value means instead:
+
+```php
+$executor->setNonNumericHandler(
+    function ($value, string $operator) {
+        // 'N/A' ratings count as zero in every calculation
+        return 0;
+    }
+);
+$executor->setVar('rating', 'N/A');
+echo $executor->execute('rating / 2'); // 0
+```
+
+The handler receives the offending value and the name of the operator (`'+'`, `'/'`, `'uNeg'`, ...), so it can react
+differently per operator, and whatever it returns is used in place of the original value. Throwing from it turns the
+`\TypeError` into an error of your own:
+
+```php
+$executor->setNonNumericHandler(
+    function ($value, string $operator) {
+        throw new MathExecutorException("Value ({$value}) is not a number, required by operator ({$operator})");
+    }
+);
+```
+
+It is called for the operators that require a number (`+`, `-`, `*`, `/`, `%`, `^`, unary `-` and unary `+`, `>`, `>=`,
+`<` and `<=`), including the ones redefined by `setDivisionByZeroIsZero()` and `useBCMath()`. Values that are numeric
+(`'3'` included), `null` or boolean never reach it, and the operators with defined string or boolean semantics (`==`,
+`!=`, `&&`, `||` and `!`) are never affected. Without a handler nothing changes, which is the default.
 
 ## String Support:
 Expressions can contain double or single quoted strings that are evaluated the same way as PHP evaluates strings as numbers. You can also pass strings to functions.

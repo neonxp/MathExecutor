@@ -45,6 +45,11 @@ class MathExecutor
     protected $onVarValidation = null;
 
     /**
+     * @var callable|null
+     */
+    protected $onNonNumeric = null;
+
+    /**
      * @var Operator[]
      */
     protected array $operators = [];
@@ -229,6 +234,27 @@ class MathExecutor
     }
 
     /**
+     * Define a method that will be invoked when a non-numeric value reaches an operator that requires a number.
+     * The first parameter will be the value, the second the name of the operator ('+', '/', 'uNeg', ...), and the
+     * returned value will be used in place of the original one.
+     *
+     * The handler is only called for values that are neither numeric, null nor boolean, and only for the operators
+     * that require a number: +, -, *, /, %, ^, uNeg, uPos, >, >=, < and <=. The operators with defined string or
+     * boolean semantics (==, !=, &&, || and !) are never affected.
+     *
+     * Set to null (the default) to keep the standard behavior, where the value is handed to the operator untouched.
+     *
+     * @param ?callable $handler callable(mixed $value, string $operator): mixed
+     *
+     */
+    public function setNonNumericHandler(?callable $handler) : self
+    {
+        $this->onNonNumeric = $handler;
+
+        return $this;
+    }
+
+    /**
      * Remove variable from executor
      *
      */
@@ -286,7 +312,12 @@ class MathExecutor
      */
     public function setDivisionByZeroIsZero() : self
     {
-        $this->addOperator(new Operator('/', false, 180, static fn($a, $b) => 0 == $b ? 0 : $a / $b));
+        $this->addOperator(new Operator('/', false, 180, function($a, $b) {
+            $a = $this->normalizeOperand($a, '/');
+            $b = $this->normalizeOperand($b, '/');
+
+            return 0 == $b ? 0 : $a / $b;
+        }));
 
         return $this;
     }
@@ -313,20 +344,52 @@ class MathExecutor
     public function useBCMath(int $scale = 2) : self
     {
         \bcscale($scale);
-        $this->addOperator(new Operator('+', false, 170, static fn($a, $b) => \bcadd("{$a}", "{$b}")));
-        $this->addOperator(new Operator('-', false, 170, static fn($a, $b) => \bcsub("{$a}", "{$b}")));
-        $this->addOperator(new Operator('uNeg', false, 200, static fn($a) => \bcsub('0.0', "{$a}")));
-        $this->addOperator(new Operator('*', false, 180, static fn($a, $b) => \bcmul("{$a}", "{$b}")));
-        $this->addOperator(new Operator('/', false, 180, static function($a, $b) {
+        $this->addOperator(new Operator('+', false, 170, function($a, $b) {
+            $a = $this->normalizeOperand($a, '+');
+            $b = $this->normalizeOperand($b, '+');
+
+            return \bcadd("{$a}", "{$b}");
+        }));
+        $this->addOperator(new Operator('-', false, 170, function($a, $b) {
+            $a = $this->normalizeOperand($a, '-');
+            $b = $this->normalizeOperand($b, '-');
+
+            return \bcsub("{$a}", "{$b}");
+        }));
+        $this->addOperator(new Operator('uNeg', false, 200, function($a) {
+            $a = $this->normalizeOperand($a, 'uNeg');
+
+            return \bcsub('0.0', "{$a}");
+        }));
+        $this->addOperator(new Operator('*', false, 180, function($a, $b) {
+            $a = $this->normalizeOperand($a, '*');
+            $b = $this->normalizeOperand($b, '*');
+
+            return \bcmul("{$a}", "{$b}");
+        }));
+        $this->addOperator(new Operator('/', false, 180, function($a, $b) {
             /** @todo PHP8: Use throw as expression -> static fn($a, $b) => 0 == $b ? throw new DivisionByZeroException() : $a / $b */
+            $a = $this->normalizeOperand($a, '/');
+            $b = $this->normalizeOperand($b, '/');
+
             if (0 == $b) {
                 throw new DivisionByZeroException();
             }
 
             return \bcdiv("{$a}", "{$b}");
         }));
-        $this->addOperator(new Operator('^', true, 220, static fn($a, $b) => \bcpow("{$a}", "{$b}")));
-        $this->addOperator(new Operator('%', false, 180, static fn($a, $b) => \bcmod("{$a}", "{$b}")));
+        $this->addOperator(new Operator('^', true, 220, function($a, $b) {
+            $a = $this->normalizeOperand($a, '^');
+            $b = $this->normalizeOperand($b, '^');
+
+            return \bcpow("{$a}", "{$b}");
+        }));
+        $this->addOperator(new Operator('%', false, 180, function($a, $b) {
+            $a = $this->normalizeOperand($a, '%');
+            $b = $this->normalizeOperand($b, '%');
+
+            return \bcmod("{$a}", "{$b}");
+        }));
 
         return $this;
     }
@@ -360,16 +423,19 @@ class MathExecutor
     protected function defaultOperators() : array
     {
         return [
-          '+' => [static fn($a, $b) => $a + $b, 170, false],
-          '-' => [static fn($a, $b) => $a - $b, 170, false],
+          '+' => [fn($a, $b) => $this->normalizeOperand($a, '+') + $this->normalizeOperand($b, '+'), 170, false],
+          '-' => [fn($a, $b) => $this->normalizeOperand($a, '-') - $this->normalizeOperand($b, '-'), 170, false],
           // unary positive token
-          'uPos' => [static fn($a) => $a, 200, false],
+          'uPos' => [fn($a) => $this->normalizeOperand($a, 'uPos'), 200, false],
           // unary minus token
-          'uNeg' => [static fn($a) => 0 - $a, 200, false],
-          '*' => [static fn($a, $b) => $a * $b, 180, false],
+          'uNeg' => [fn($a) => 0 - $this->normalizeOperand($a, 'uNeg'), 200, false],
+          '*' => [fn($a, $b) => $this->normalizeOperand($a, '*') * $this->normalizeOperand($b, '*'), 180, false],
           '/' => [
-            static function($a, $b) {
+            function($a, $b) {
                 /** @todo PHP8: Use throw as expression -> static fn($a, $b) => 0 == $b ? throw new DivisionByZeroException() : $a / $b */
+                $a = $this->normalizeOperand($a, '/');
+                $b = $this->normalizeOperand($b, '/');
+
                 if (0 == $b) {
                     throw new DivisionByZeroException();
                 }
@@ -379,16 +445,16 @@ class MathExecutor
             180,
             false
           ],
-          '^' => [static fn($a, $b) => $a ** $b, 220, true],
-          '%' => [static fn($a, $b) => $a % $b, 180, false],
+          '^' => [fn($a, $b) => $this->normalizeOperand($a, '^') ** $this->normalizeOperand($b, '^'), 220, true],
+          '%' => [fn($a, $b) => $this->normalizeOperand($a, '%') % $this->normalizeOperand($b, '%'), 180, false],
           '&&' => [static fn($a, $b) => $a && $b, 100, false],
           '||' => [static fn($a, $b) => $a || $b, 90, false],
           '==' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 == \strcmp((string)$a, (string)$b) : $a == $b, 140, false],
           '!=' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 != \strcmp((string)$a, (string)$b) : $a != $b, 140, false],
-          '>=' => [static fn($a, $b) => $a >= $b, 150, false],
-          '>' => [static fn($a, $b) => $a > $b, 150, false],
-          '<=' => [static fn($a, $b) => $a <= $b, 150, false],
-          '<' => [static fn($a, $b) => $a < $b, 150, false],
+          '>=' => [fn($a, $b) => $this->normalizeOperand($a, '>=') >= $this->normalizeOperand($b, '>='), 150, false],
+          '>' => [fn($a, $b) => $this->normalizeOperand($a, '>') > $this->normalizeOperand($b, '>'), 150, false],
+          '<=' => [fn($a, $b) => $this->normalizeOperand($a, '<=') <= $this->normalizeOperand($b, '<='), 150, false],
+          '<' => [fn($a, $b) => $this->normalizeOperand($a, '<') < $this->normalizeOperand($b, '<'), 150, false],
           '!' => [static fn($a) => ! $a, 190, false],
         ];
     }
@@ -532,6 +598,21 @@ class MathExecutor
           'pi' => 3.14159265359,
           'e' => 2.71828182846
         ];
+    }
+
+    /**
+     * Hands a value that is about to be used by an operator requiring a number to the non-numeric handler,
+     * when one has been set with setNonNumericHandler and the value is neither numeric, null nor boolean.
+     *
+     * @return mixed the value returned by the handler, or the original value when no handler applies
+     */
+    protected function normalizeOperand(mixed $value, string $operator) : mixed
+    {
+        if (null === $this->onNonNumeric || null === $value || \is_bool($value) || \is_numeric($value)) {
+            return $value;
+        }
+
+        return \call_user_func($this->onNonNumeric, $value, $operator);
     }
 
     /**
