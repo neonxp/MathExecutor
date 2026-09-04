@@ -1245,6 +1245,8 @@ class MathTest extends TestCase
         $this->assertEquals(false, $calculator->execute('rating >= 1'));
         $this->assertEquals(true, $calculator->execute('rating < 1'));
         $this->assertEquals(true, $calculator->execute('rating <= 1'));
+        $this->assertEquals(true, $calculator->execute('1 > rating'));
+        $this->assertEquals(false, $calculator->execute('1 < rating'));
         $this->assertEquals(1, $calculator->execute('blank + 1'));
     }
 
@@ -1321,6 +1323,42 @@ class MathTest extends TestCase
         $this->assertEquals(true, $calculator->execute('rating && 1'));
         $this->assertEquals(true, $calculator->execute('rating || 0'));
         $this->assertEquals(false, $calculator->execute('!rating'));
+    }
+
+    public function testNonNumericHandlerDoesNotAffectStringOrdering() : void
+    {
+        $calls = 0;
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static function($value, $operator) use (&$calls) {
+            ++$calls;
+
+            return 0;
+        });
+
+        // Comparing two non-numeric values stays a string comparison, just like == and !=
+        $this->assertEquals(true, $calculator->execute("'apple' < 'banana'"));
+        $this->assertEquals(false, $calculator->execute("'apple' > 'banana'"));
+        $this->assertEquals(true, $calculator->execute("'apple' <= 'banana'"));
+        $this->assertEquals(false, $calculator->execute("'apple' >= 'banana'"));
+        $this->assertEquals(0, $calls);
+    }
+
+    public function testNonNumericHandlerDoesNotAffectArrays() : void
+    {
+        $calls = 0;
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static function($value, $operator) use (&$calls) {
+            ++$calls;
+
+            return 0;
+        });
+        $calculator->setVar('first', [1, 2]);
+        $calculator->setVar('second', [3, 4, 5]);
+
+        // Arrays are a supported variable type, so they keep reaching the operator untouched
+        $this->assertEquals([1, 2, 5], $calculator->execute('first + second'));
+        $this->assertEquals(1.5, $calculator->execute('avg(first)'));
+        $this->assertEquals(0, $calls);
     }
 
     public function testNonNumericHandlerCanBeRemoved() : void

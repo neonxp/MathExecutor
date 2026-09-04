@@ -238,9 +238,10 @@ class MathExecutor
      * The first parameter will be the value, the second the name of the operator ('+', '/', 'uNeg', ...), and the
      * returned value will be used in place of the original one.
      *
-     * The handler is only called for values that are neither numeric, null nor boolean, and only for the operators
-     * that require a number: +, -, *, /, %, ^, uNeg, uPos, >, >=, < and <=. The operators with defined string or
-     * boolean semantics (==, !=, &&, || and !) are never affected.
+     * The handler is only called for values that are neither numeric, null, boolean nor array, and only for the
+     * operators that require a number: +, -, *, /, %, ^, uNeg, uPos, >, >=, < and <=. The operators with defined
+     * string or boolean semantics (==, !=, &&, || and !) are never affected, and neither is the comparison of two
+     * non-numeric values by an ordering operator, which stays a string comparison.
      *
      * Set to null (the default) to keep the standard behavior, where the value is handed to the operator untouched.
      *
@@ -451,10 +452,42 @@ class MathExecutor
           '||' => [static fn($a, $b) => $a || $b, 90, false],
           '==' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 == \strcmp((string)$a, (string)$b) : $a == $b, 140, false],
           '!=' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 != \strcmp((string)$a, (string)$b) : $a != $b, 140, false],
-          '>=' => [fn($a, $b) => $this->normalizeOperand($a, '>=') >= $this->normalizeOperand($b, '>='), 150, false],
-          '>' => [fn($a, $b) => $this->normalizeOperand($a, '>') > $this->normalizeOperand($b, '>'), 150, false],
-          '<=' => [fn($a, $b) => $this->normalizeOperand($a, '<=') <= $this->normalizeOperand($b, '<='), 150, false],
-          '<' => [fn($a, $b) => $this->normalizeOperand($a, '<') < $this->normalizeOperand($b, '<'), 150, false],
+          '>=' => [
+            function($a, $b) {
+                [$a, $b] = $this->normalizeComparisonOperands($a, $b, '>=');
+
+                return $a >= $b;
+            },
+            150,
+            false
+          ],
+          '>' => [
+            function($a, $b) {
+                [$a, $b] = $this->normalizeComparisonOperands($a, $b, '>');
+
+                return $a > $b;
+            },
+            150,
+            false
+          ],
+          '<=' => [
+            function($a, $b) {
+                [$a, $b] = $this->normalizeComparisonOperands($a, $b, '<=');
+
+                return $a <= $b;
+            },
+            150,
+            false
+          ],
+          '<' => [
+            function($a, $b) {
+                [$a, $b] = $this->normalizeComparisonOperands($a, $b, '<');
+
+                return $a < $b;
+            },
+            150,
+            false
+          ],
           '!' => [static fn($a) => ! $a, 190, false],
         ];
     }
@@ -601,18 +634,36 @@ class MathExecutor
     }
 
     /**
-     * Hands a value that is about to be used by an operator requiring a number to the non-numeric handler,
-     * when one has been set with setNonNumericHandler and the value is neither numeric, null nor boolean.
+     * Hands a value that is about to be used by an operator requiring a number to the non-numeric handler, when one
+     * has been set with setNonNumericHandler and the value is neither numeric, null, boolean nor array.
      *
      * @return mixed the value returned by the handler, or the original value when no handler applies
      */
     protected function normalizeOperand(mixed $value, string $operator) : mixed
     {
-        if (null === $this->onNonNumeric || null === $value || \is_bool($value) || \is_numeric($value)) {
+        if (null === $this->onNonNumeric || null === $value || \is_bool($value) || \is_numeric($value) || \is_array($value)) {
             return $value;
         }
 
         return \call_user_func($this->onNonNumeric, $value, $operator);
+    }
+
+    /**
+     * Applies the non-numeric handler to the operands of an ordering operator.
+     *
+     * Comparing two values that are both non-numeric is a string comparison, which is meaningful and consistent
+     * with == and !=, so it is left untouched. The handler is only applied when the other side is a number, the
+     * case where PHP would otherwise compare that number as a string.
+     *
+     * @return array{mixed, mixed} the operands to compare
+     */
+    protected function normalizeComparisonOperands(mixed $a, mixed $b, string $operator) : array
+    {
+        if (null === $this->onNonNumeric || (! \is_numeric($a) && ! \is_numeric($b))) {
+            return [$a, $b];
+        }
+
+        return [$this->normalizeOperand($a, $operator), $this->normalizeOperand($b, $operator)];
     }
 
     /**

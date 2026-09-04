@@ -262,9 +262,16 @@ $executor->setNonNumericHandler(
 ```
 
 It is called for the operators that require a number (`+`, `-`, `*`, `/`, `%`, `^`, unary `-` and unary `+`, `>`, `>=`,
-`<` and `<=`), including the ones redefined by `setDivisionByZeroIsZero()` and `useBCMath()`. Values that are numeric
-(`'3'` included), `null` or boolean never reach it, and the operators with defined string or boolean semantics (`==`,
-`!=`, `&&`, `||` and `!`) are never affected. Without a handler nothing changes, which is the default.
+`<` and `<=`), including the ones redefined by `setDivisionByZeroIsZero()` and `useBCMath()`. Without a handler nothing
+changes, which is the default.
+
+These are never affected:
+* Values that are numeric (`'3'` included), `null`, boolean or array. Arrays are a supported variable type, so
+  `[1, 2] + [3, 4]` keeps its PHP meaning.
+* The operators with defined string or boolean semantics: `==`, `!=`, `&&`, `||` and `!`.
+* An ordering operator comparing two non-numeric values, which stays a string comparison, consistent with `==` and
+  `!=`. So `'apple' < 'banana'` is still `true`, while `rating > 1` uses the handler, because the other side is a
+  number and PHP would otherwise compare that number as a string.
 
 ## String Support:
 Expressions can contain double or single quoted strings that are evaluated the same way as PHP evaluates strings as numbers. You can also pass strings to functions.
