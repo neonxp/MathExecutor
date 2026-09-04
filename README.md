@@ -16,7 +16,7 @@
 * Dynamic variable resolution (delayed computation)
 * Unlimited variable name lengths
 * String support, as function parameters or as evaluated as a number by PHP
-* Exceptions on divide by zero, or treat as zero
+* Exceptions on divide or modulo by zero, or treat as zero
 * Custom handling of non-numeric values reaching an arithmetic operator
 * Unary Plus and Minus (e.g. +3 or -sin(12))
 * Pi ($pi) and Euler's number ($e) support to 11 decimal places
@@ -210,7 +210,7 @@ By default, `MathExecutor` uses PHP floating point math, but if you need a fixed
 `WARNING`: Functions may return a PHP floating point number.  By doing the basic math functions on the results, you will get back a fixed number of decimal points. Use a plus sign in front of any stand alone function to return the proper number of decimal places.
 
 ## Division By Zero Support:
-Division by zero throws a `\NXP\Exception\DivisionByZeroException` by default
+Division and modulo by zero throw a `\NXP\Exception\DivisionByZeroException` by default
 ```php
 try {
     echo $executor->execute('1/0');
@@ -218,7 +218,7 @@ try {
     echo $e->getMessage();
 }
 ```
-Or call setDivisionByZeroIsZero
+Or call setDivisionByZeroIsZero, which covers both `/` and `%`
 ```php
 echo $executor->setDivisionByZeroIsZero()->execute('1/0');
 ```

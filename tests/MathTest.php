@@ -559,6 +559,22 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $calculator->setDivisionByZeroIsZero();
         $this->assertEquals(0, $calculator->execute('10 / 0'));
+        $this->assertEquals(0, $calculator->execute('10 % 0'));
+    }
+
+    public function testZeroModuloException() : void
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('10 % 0');
+    }
+
+    public function testZeroModuloExceptionWithBCMath() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->useBCMath(2);
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('10 % 0');
     }
 
     public function testUnaryOperators() : void
@@ -1410,6 +1426,28 @@ class MathTest extends TestCase
         $this->assertEquals('0.00', $calculator->execute('rating ^ 2'));
         $this->assertEquals('0.00', $calculator->execute('rating % 2'));
         $this->assertEquals('0.00', $calculator->execute('rating / 2'));
+    }
+
+    public function testNonNumericHandlerModuloByNonNumeric() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+
+        // A handler that turns the divisor into zero reaches the library's own exception, as division does
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('2 % rating');
+    }
+
+    public function testNonNumericHandlerModuloByNonNumericIsZero() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setDivisionByZeroIsZero();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+
+        $this->assertEquals(0, $calculator->execute('2 % rating'));
+        $this->assertEquals(0, $calculator->execute('2 / rating'));
     }
 
     public function testNonNumericHandlerWithBCMathDivisionByNonNumeric() : void

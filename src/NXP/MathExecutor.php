@@ -309,7 +309,7 @@ class MathExecutor
     }
 
     /**
-     * Set division by zero returns zero instead of throwing DivisionByZeroException
+     * Set division and modulo by zero to return zero instead of throwing DivisionByZeroException
      */
     public function setDivisionByZeroIsZero() : self
     {
@@ -318,6 +318,12 @@ class MathExecutor
             $b = $this->normalizeOperand($b, '/');
 
             return 0 == $b ? 0 : $a / $b;
+        }));
+        $this->addOperator(new Operator('%', false, 180, function($a, $b) {
+            $a = $this->normalizeOperand($a, '%');
+            $b = $this->normalizeOperand($b, '%');
+
+            return 0 == $b ? 0 : $a % $b;
         }));
 
         return $this;
@@ -389,6 +395,10 @@ class MathExecutor
             $a = $this->normalizeOperand($a, '%');
             $b = $this->normalizeOperand($b, '%');
 
+            if (0 == $b) {
+                throw new DivisionByZeroException();
+            }
+
             return \bcmod("{$a}", "{$b}");
         }));
 
@@ -447,7 +457,20 @@ class MathExecutor
             false
           ],
           '^' => [fn($a, $b) => $this->normalizeOperand($a, '^') ** $this->normalizeOperand($b, '^'), 220, true],
-          '%' => [fn($a, $b) => $this->normalizeOperand($a, '%') % $this->normalizeOperand($b, '%'), 180, false],
+          '%' => [
+            function($a, $b) {
+                $a = $this->normalizeOperand($a, '%');
+                $b = $this->normalizeOperand($b, '%');
+
+                if (0 == $b) {
+                    throw new DivisionByZeroException();
+                }
+
+                return $a % $b;
+            },
+            180,
+            false
+          ],
           '&&' => [static fn($a, $b) => $a && $b, 100, false],
           '||' => [static fn($a, $b) => $a || $b, 90, false],
           '==' => [static fn($a, $b) => \is_string($a) || \is_string($b) ? 0 == \strcmp((string)$a, (string)$b) : $a == $b, 140, false],
