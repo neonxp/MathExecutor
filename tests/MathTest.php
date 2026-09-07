@@ -559,6 +559,22 @@ class MathTest extends TestCase
         $calculator = new MathExecutor();
         $calculator->setDivisionByZeroIsZero();
         $this->assertEquals(0, $calculator->execute('10 / 0'));
+        $this->assertEquals(0, $calculator->execute('10 % 0'));
+    }
+
+    public function testZeroModuloException() : void
+    {
+        $calculator = new MathExecutor();
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('10 % 0');
+    }
+
+    public function testZeroModuloExceptionWithBCMath() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->useBCMath(2);
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('10 % 0');
     }
 
     public function testUnaryOperators() : void
@@ -1182,5 +1198,266 @@ class MathTest extends TestCase
         } else {
             $this->expectNotToPerformAssertions();
         }
+    }
+
+    /**
+     * Without a handler the operands reach the operator untouched, exactly as before
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('nonNumericExpressions')]
+    public function testNonNumericWithoutHandler(string $expression) : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVar('rating', 'N/A');
+        $this->expectException(\TypeError::class);
+        $calculator->execute($expression);
+    }
+
+    /**
+     * Arithmetic expressions on a non-numeric value
+     *
+     * @return array<array<string>>
+     */
+    public static function nonNumericExpressions() : array
+    {
+        return [
+          ['rating + 1'],
+          ['1 + rating'],
+          ['rating - 1'],
+          ['rating * 2'],
+          ['rating / 2'],
+          ['rating % 2'],
+          ['rating ^ 2'],
+          ['-rating'],
+        ];
+    }
+
+    public function testNonNumericComparisonWithoutHandler() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setVar('rating', 'N/A');
+
+        // PHP compares a non-numeric string with a number as a string, and so does the library
+        $this->assertEquals(true, $calculator->execute('rating > 1'));
+        $this->assertEquals(false, $calculator->execute('rating < 1'));
+        $this->assertEquals('N/A', $calculator->execute('+rating'));
+    }
+
+    public function testNonNumericHandler() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+        $calculator->setVar('blank', '');
+
+        $this->assertEquals(0, $calculator->execute('rating / 2'));
+        $this->assertEquals(1, $calculator->execute('1 + rating'));
+        $this->assertEquals(-1, $calculator->execute('rating - 1'));
+        $this->assertEquals(0, $calculator->execute('rating * 2'));
+        $this->assertEquals(0, $calculator->execute('rating % 2'));
+        $this->assertEquals(0, $calculator->execute('rating ^ 2'));
+        $this->assertEquals(0, $calculator->execute('-rating'));
+        $this->assertEquals(0, $calculator->execute('+rating'));
+        $this->assertEquals(false, $calculator->execute('rating > 1'));
+        $this->assertEquals(false, $calculator->execute('rating >= 1'));
+        $this->assertEquals(true, $calculator->execute('rating < 1'));
+        $this->assertEquals(true, $calculator->execute('rating <= 1'));
+        $this->assertEquals(true, $calculator->execute('1 > rating'));
+        $this->assertEquals(false, $calculator->execute('1 < rating'));
+        $this->assertEquals(1, $calculator->execute('blank + 1'));
+    }
+
+    public function testNonNumericHandlerReceivesTheOperator() : void
+    {
+        $operators = [];
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static function($value, $operator) use (&$operators) {
+            $operators[] = $operator;
+
+            return 0;
+        });
+        $calculator->setVar('rating', 'N/A');
+
+        foreach (['rating + 1', 'rating - 1', 'rating * 1', 'rating / 1', 'rating % 1', 'rating ^ 1', '-rating', '+rating', 'rating > 1', 'rating >= 1', 'rating < 1', 'rating <= 1'] as $expression) {
+            $calculator->execute($expression);
+        }
+
+        $this->assertEquals(['+', '-', '*', '/', '%', '^', 'uNeg', 'uPos', '>', '>=', '<', '<='], $operators);
+    }
+
+    public function testNonNumericHandlerCanReturnAnyValue() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 'N/A' === $value ? 10 : 0);
+        $calculator->setVar('rating', 'N/A');
+        $calculator->setVar('other', 'TBD');
+
+        $this->assertEquals(11, $calculator->execute('rating + 1'));
+        $this->assertEquals(1, $calculator->execute('other + 1'));
+    }
+
+    public function testNonNumericHandlerException() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static function($value, $operator) : void {
+            throw new MathExecutorException("Value ({$value}) is not a number, required by operator ({$operator})");
+        });
+        $calculator->setVar('rating', 'N/A');
+
+        $this->expectException(MathExecutorException::class);
+        $this->expectExceptionMessage('Value (N/A) is not a number, required by operator (/)');
+        $calculator->execute('rating / 2');
+    }
+
+    public function testNonNumericHandlerIgnoresNumbers() : void
+    {
+        $calls = 0;
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static function($value, $operator) use (&$calls) {
+            ++$calls;
+
+            return 0;
+        });
+        $calculator->setVar('nothing', null);
+        $calculator->setVar('yes', true);
+
+        $this->assertEquals(6, $calculator->execute("'3' * 2"));
+        $this->assertEquals(5.5, $calculator->execute("3 + '2.5'"));
+        $this->assertEquals(1, $calculator->execute('nothing + 1'));
+        $this->assertEquals(2, $calculator->execute('yes + 1'));
+        $this->assertEquals(0, $calls);
+    }
+
+    public function testNonNumericHandlerDoesNotAffectStringOperators() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+
+        $this->assertEquals(true, $calculator->execute("rating == 'N/A'"));
+        $this->assertEquals(false, $calculator->execute("rating != 'N/A'"));
+        $this->assertEquals(true, $calculator->execute("rating != 'TBD'"));
+        $this->assertEquals(true, $calculator->execute('rating && 1'));
+        $this->assertEquals(true, $calculator->execute('rating || 0'));
+        $this->assertEquals(false, $calculator->execute('!rating'));
+    }
+
+    public function testNonNumericHandlerDoesNotAffectStringOrdering() : void
+    {
+        $calls = 0;
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static function($value, $operator) use (&$calls) {
+            ++$calls;
+
+            return 0;
+        });
+
+        // Comparing two non-numeric values stays a string comparison, just like == and !=
+        $this->assertEquals(true, $calculator->execute("'apple' < 'banana'"));
+        $this->assertEquals(false, $calculator->execute("'apple' > 'banana'"));
+        $this->assertEquals(true, $calculator->execute("'apple' <= 'banana'"));
+        $this->assertEquals(false, $calculator->execute("'apple' >= 'banana'"));
+        $this->assertEquals(0, $calls);
+    }
+
+    public function testNonNumericHandlerDoesNotAffectArrays() : void
+    {
+        $calls = 0;
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static function($value, $operator) use (&$calls) {
+            ++$calls;
+
+            return 0;
+        });
+        $calculator->setVar('first', [1, 2]);
+        $calculator->setVar('second', [3, 4, 5]);
+
+        // Arrays are a supported variable type, so they keep reaching the operator untouched
+        $this->assertEquals([1, 2, 5], $calculator->execute('first + second'));
+        $this->assertEquals(1.5, $calculator->execute('avg(first)'));
+        $this->assertEquals(0, $calls);
+    }
+
+    public function testNonNumericHandlerCanBeRemoved() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+        $this->assertEquals(0, $calculator->execute('rating / 2'));
+
+        $calculator->setNonNumericHandler(null);
+        $this->expectException(\TypeError::class);
+        $calculator->execute('rating / 2');
+    }
+
+    public function testNonNumericHandlerSurvivesClone() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+
+        $clone = clone $calculator;
+        $clone->setVar('rating', 'N/A');
+
+        $this->assertEquals(0, $clone->execute('rating / 2'));
+    }
+
+    public function testNonNumericHandlerWithDivisionByZeroIsZero() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setDivisionByZeroIsZero();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+
+        $this->assertEquals(0, $calculator->execute('rating / 2'));
+        $this->assertEquals(0, $calculator->execute('2 / rating'));
+        $this->assertEquals(0, $calculator->execute('10 / 0'));
+    }
+
+    public function testNonNumericHandlerWithBCMath() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->useBCMath(2);
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+
+        $this->assertEquals('1.00', $calculator->execute('rating + 1'));
+        $this->assertEquals('-1.00', $calculator->execute('rating - 1'));
+        $this->assertEquals('0.00', $calculator->execute('rating * 2'));
+        $this->assertEquals('0.00', $calculator->execute('-rating'));
+        $this->assertEquals('0.00', $calculator->execute('rating ^ 2'));
+        $this->assertEquals('0.00', $calculator->execute('rating % 2'));
+        $this->assertEquals('0.00', $calculator->execute('rating / 2'));
+    }
+
+    public function testNonNumericHandlerModuloByNonNumeric() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+
+        // A handler that turns the divisor into zero reaches the library's own exception, as division does
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('2 % rating');
+    }
+
+    public function testNonNumericHandlerModuloByNonNumericIsZero() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->setDivisionByZeroIsZero();
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+
+        $this->assertEquals(0, $calculator->execute('2 % rating'));
+        $this->assertEquals(0, $calculator->execute('2 / rating'));
+    }
+
+    public function testNonNumericHandlerWithBCMathDivisionByNonNumeric() : void
+    {
+        $calculator = new MathExecutor();
+        $calculator->useBCMath(2);
+        $calculator->setNonNumericHandler(static fn($value, $operator) => 0);
+        $calculator->setVar('rating', 'N/A');
+
+        $this->expectException(DivisionByZeroException::class);
+        $calculator->execute('2 / rating');
     }
 }
